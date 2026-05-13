@@ -3,8 +3,14 @@ const twilio = require('twilio');
 const { query } = require('../config/database');
 const { exists, setEx } = require('../config/redis');
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+if (process.env.SENDGRID_API_KEY && process.env.SENDGRID_API_KEY.startsWith('SG.')) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+}
+
+const getTwilioClient = () => {
+  if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) return null;
+  return twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+};
 
 // ─── CONTROLE DE THROTTLE ─────────────────────────────────────────────────
 // Evita spam: define cooldown por tipo de alerta
