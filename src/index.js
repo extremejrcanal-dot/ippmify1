@@ -6,19 +6,24 @@ const helmet   = require('helmet');
 const rateLimit = require('express-rate-limit');
 
 // Rotas
-const authRoutes      = require('./routes/auth');
-const metricsRoutes   = require('./routes/metrics');
-const decisionsRoutes = require('./routes/decisions');
-const insightsRoutes  = require('./routes/insights');
+const authRoutes         = require('./routes/auth');
+const metricsRoutes      = require('./routes/metrics');
+const decisionsRoutes    = require('./routes/decisions');
+const insightsRoutes     = require('./routes/insights');
+const integrationsRoutes = require('./routes/integrations');
 
 // Workers
 const { startSyncScheduler } = require('./workers/syncWorker');
+
+const path = require('path');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
 // ─── MIDDLEWARES DE SEGURANCA ──────────────────────────────────────────────
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false, // Permite o frontend carregar recursos externos
+}));
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
@@ -52,14 +57,23 @@ app.get('/health', (req, res) => {
   });
 });
 
-// ─── ROTAS DA API ──────────────────────────────────────────────────────────
-app.use('/api/auth',      authLimiter, authRoutes);
-app.use('/api/metrics',   metricsRoutes);
-app.use('/api/decisions', decisionsRoutes);
-app.use('/api/insights',  insightsRoutes);
+// ─── FRONTEND ESTATICO ────────────────────────────────────────────────────
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
-// Rota nao encontrada
-app.use('*', (req, res) => {
+// ─── ROTAS DA API ──────────────────────────────────────────────────────────
+app.use('/api/auth',         authLimiter, authRoutes);
+app.use('/api/metrics',      metricsRoutes);
+app.use('/api/decisions',    decisionsRoutes);
+app.use('/api/insights',     insightsRoutes);
+app.use('/api/integrations', integrationsRoutes);
+
+// Rota raiz → retorna o app frontend
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+});
+
+// Rota nao encontrada (apenas para rotas /api/*)
+app.use('/api/*', (req, res) => {
   res.status(404).json({
     error: 'Rota nao encontrada',
     path: req.originalUrl
