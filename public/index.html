@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPPMIFY — Profit Intelligence</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f1117; color: #e0e0e0; min-height: 100vh; }
+
+  /* NAV */
+  nav { background: #1a237e; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+  nav .logo { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: 1px; }
+  nav .logo span { color: #00bcd4; }
+  nav .user-info { font-size: 13px; color: #b3c5f7; }
+  nav .btn-logout { background: transparent; border: 1px solid #3949ab; color: #b3c5f7; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+  nav .btn-logout:hover { background: #3949ab; }
+
+  /* LAYOUT */
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* CARDS */
+  .card { background: #1e2130; border: 1px solid #2a2d3e; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 18px; color: #fff; margin-bottom: 16px; }
+  .card h3 { font-size: 14px; color: #90a4ae; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+
+  /* GRID DE METRICAS */
+  .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
+  .metric-box { background: #252840; border-radius: 10px; padding: 18px; text-align: center; }
+  .metric-box .label { font-size: 12px; color: #78909c; margin-bottom: 8px; }
+  .metric-box .value { font-size: 24px; font-weight: 700; color: #fff; }
+  .metric-box .value.positive { color: #4caf50; }
+  .metric-box .value.negative { color: #f44336; }
+  .metric-box .value.neutral { color: #00bcd4; }
+
+  /* FORMULARIOS */
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 13px; color: #90a4ae; margin-bottom: 6px; }
+  .form-group input { width: 100%; background: #252840; border: 1px solid #3a3d52; border-radius: 8px; padding: 10px 14px; color: #fff; font-size: 14px; outline: none; }
+  .form-group input:focus { border-color: #1a237e; }
+
+  /* BOTOES */
+  .btn { display: inline-block; padding: 10px 22px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: opacity .2s; }
+  .btn:hover { opacity: .85; }
+  .btn-primary { background: #1a237e; color: #fff; width: 100%; text-align: center; }
+  .btn-success { background: #2e7d32; color: #fff; }
+  .btn-cyan { background: #0097a7; color: #fff; }
+  .btn-danger { background: #c62828; color: #fff; }
+  .btn-sm { padding: 6px 14px; font-size: 13px; }
+
+  /* ALERTAS */
+  .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; }
+  .alert-error { background: #311; border: 1px solid #c62828; color: #ef9a9a; }
+  .alert-success { background: #132213; border: 1px solid #2e7d32; color: #a5d6a7; }
+  .alert-info { background: #0d1f33; border: 1px solid #1565c0; color: #90caf9; }
+
+  /* DECISIONS */
+  .decision-card { background: #252840; border-radius: 10px; padding: 16px; margin-bottom: 12px; border-left: 4px solid #666; }
+  .decision-card.severity-9, .decision-card.severity-10 { border-left-color: #f44336; }
+  .decision-card.severity-7, .decision-card.severity-8 { border-left-color: #ff9800; }
+  .decision-card.severity-5, .decision-card.severity-6 { border-left-color: #ffc107; }
+  .decision-card.severity-3, .decision-card.severity-4 { border-left-color: #4caf50; }
+  .decision-card .title { font-weight: 700; color: #fff; margin-bottom: 6px; font-size: 15px; }
+  .decision-card .desc { color: #90a4ae; font-size: 13px; margin-bottom: 8px; }
+  .decision-card .rec { background: #1a2e1a; border-radius: 6px; padding: 10px; color: #a5d6a7; font-size: 13px; }
+  .decision-card .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; margin-bottom: 8px; }
+  .badge-red { background: #c62828; color: #fff; }
+  .badge-orange { background: #e65100; color: #fff; }
+  .badge-yellow { background: #f57f17; color: #000; }
+  .badge-green { background: #2e7d32; color: #fff; }
+
+  /* INTEGRACOES */
+  .integration-item { display: flex; align-items: center; justify-content: space-between; padding: 14px; background: #252840; border-radius: 10px; margin-bottom: 10px; }
+  .integration-item .info { display: flex; align-items: center; gap: 12px; }
+  .integration-item .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-green { background: #4caf50; }
+  .dot-gray { background: #546e7a; }
+  .integration-item .name { font-weight: 600; color: #fff; }
+  .integration-item .status { font-size: 12px; color: #78909c; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 4px; margin-bottom: 24px; background: #1e2130; padding: 4px; border-radius: 10px; }
+  .tab { flex: 1; text-align: center; padding: 10px; border-radius: 8px; cursor: pointer; font-size: 14px; color: #78909c; transition: all .2s; }
+  .tab.active { background: #1a237e; color: #fff; font-weight: 600; }
+
+  /* AUTH PAGE */
+  .auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #0f1117; }
+  .auth-box { background: #1e2130; border: 1px solid #2a2d3e; border-radius: 16px; padding: 40px; width: 100%; max-width: 420px; }
+  .auth-box .logo { text-align: center; font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+  .auth-box .logo span { color: #00bcd4; }
+  .auth-box .subtitle { text-align: center; color: #78909c; font-size: 14px; margin-bottom: 32px; }
+  .auth-tabs { display: flex; gap: 4px; margin-bottom: 24px; background: #252840; padding: 4px; border-radius: 8px; }
+  .auth-tab { flex: 1; text-align: center; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 14px; color: #78909c; }
+  .auth-tab.active { background: #1a237e; color: #fff; font-weight: 600; }
+
+  /* SPINNER */
+  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; margin-right: 8px; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* INSIGHT BOX */
+  .insight-box { background: #1a237e22; border: 1px solid #1a237e; border-radius: 10px; padding: 16px; margin-bottom: 12px; }
+  .insight-box.problem { background: #c6282822; border-color: #c62828; }
+  .insight-box.opportunity { background: #2e7d3222; border-color: #2e7d32; }
+  .insight-box .finding { font-weight: 600; color: #fff; margin-bottom: 6px; }
+  .insight-box .action { color: #a5d6a7; font-size: 13px; margin-top: 8px; padding: 8px; background: #1a2e1a; border-radius: 6px; }
+
+  .empty { text-align: center; color: #546e7a; padding: 40px; font-size: 14px; }
+  .tag-urgent { color: #f44336; font-size: 12px; font-weight: 700; }
+  .tag-today { color: #ff9800; font-size: 12px; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- ─── AUTH PAGE ──────────────────────────────────────────────────────── -->
+<div id="authPage" class="auth-wrapper">
+  <div class="auth-box">
+    <div class="logo">IPP<span>MIFY</span></div>
+    <div class="subtitle">Profit Intelligence System</div>
+
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuthTab('login')">Entrar</div>
+      <div class="auth-tab" onclick="switchAuthTab('register')">Criar Conta</div>
+    </div>
+
+    <div id="loginForm">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="seu@email.com">
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="loginPassword" placeholder="••••••••">
+      </div>
+      <div id="loginMsg"></div>
+      <button class="btn btn-primary" onclick="login()">Entrar</button>
+    </div>
+
+    <div id="registerForm" style="display:none">
+      <div class="form-group">
+        <label>Nome completo</label>
+        <input type="text" id="regName" placeholder="Seu nome">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="regEmail" placeholder="seu@email.com">
+      </div>
+      <div class="form-group">
+        <label>Senha (minimo 8 caracteres)</label>
+        <input type="password" id="regPassword" placeholder="••••••••">
+      </div>
+      <div id="registerMsg"></div>
+      <button class="btn btn-primary" onclick="register()">Criar Conta</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── APP PAGE ───────────────────────────────────────────────────────── -->
+<div id="appPage" style="display:none">
+  <nav>
+    <div class="logo">IPP<span>MIFY</span></div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <div class="user-info" id="navUser"></div>
+      <button class="btn-logout" onclick="logout()">Sair</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="tabs">
+      <div class="tab active" onclick="showTab('dashboard')">📊 Dashboard</div>
+      <div class="tab" onclick="showTab('decisions')">🎯 Decisoes</div>
+      <div class="tab" onclick="showTab('insights')">🤖 IA Insights</div>
+      <div class="tab" onclick="showTab('integrations')">🔗 Integracoes</div>
+      <div class="tab" onclick="showTab('settings')">⚙️ Configuracoes</div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="tab-dashboard" class="page active">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h2 style="color:#fff">Visao Geral — Ultimos 7 dias</h2>
+        <button class="btn btn-cyan btn-sm" onclick="loadDashboard()">↻ Atualizar</button>
+      </div>
+      <div id="dashboardContent">
+        <div class="empty">Carregando metricas...</div>
+      </div>
+    </div>
+
+    <!-- DECISOES -->
+    <div id="tab-decisions" class="page">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h2 style="color:#fff">Motor de Decisao</h2>
+        <button class="btn btn-danger btn-sm" onclick="runDecisions()">▶ Executar Agora</button>
+      </div>
+      <div id="decisionsContent">
+        <div class="empty">Carregando decisoes...</div>
+      </div>
+    </div>
+
+    <!-- IA INSIGHTS -->
+    <div id="tab-insights" class="page">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h2 style="color:#fff">IA Insights (GPT-4o)</h2>
+        <button class="btn btn-success btn-sm" onclick="generateInsight()">✨ Gerar Agora</button>
+      </div>
+      <div id="insightContent">
+        <div class="empty">Clique em "Gerar Agora" para analisar suas campanhas com IA.</div>
+      </div>
+    </div>
+
+    <!-- INTEGRACOES -->
+    <div id="tab-integrations" class="page">
+      <h2 style="color:#fff;margin-bottom:16px">Conectar Plataformas</h2>
+
+      <div class="card">
+        <h2>🔴 Hotmart</h2>
+        <div class="form-group">
+          <label>Client ID</label>
+          <input type="text" id="hotmartClientId" placeholder="Seu Client ID do Hotmart">
+        </div>
+        <div class="form-group">
+          <label>Client Secret</label>
+          <input type="password" id="hotmartClientSecret" placeholder="Seu Client Secret do Hotmart">
+        </div>
+        <div id="hotmartMsg"></div>
+        <button class="btn btn-danger btn-sm" onclick="connectHotmart()">Conectar Hotmart</button>
+        <button class="btn btn-sm" style="background:#333;color:#fff;margin-left:8px" onclick="syncHotmart()">↻ Sincronizar</button>
+      </div>
+
+      <div class="card">
+        <h2>🟦 Kiwify</h2>
+        <div class="form-group">
+          <label>API Key</label>
+          <input type="password" id="kiwifyApiKey" placeholder="Sua API Key do Kiwify">
+        </div>
+        <div id="kiwifyMsg"></div>
+        <button class="btn btn-cyan btn-sm" onclick="connectKiwify()">Conectar Kiwify</button>
+      </div>
+
+      <div class="card">
+        <h2>🔵 Meta Ads (Facebook)</h2>
+        <div class="alert alert-info">Para conectar o Meta Ads, voce precisa criar um App no Facebook Developers e adicionar as variaveis META_APP_ID e META_APP_SECRET no Railway.</div>
+        <div id="metaMsg"></div>
+        <button class="btn btn-primary btn-sm" onclick="connectMeta()">Conectar Meta Ads</button>
+        <button class="btn btn-sm" style="background:#333;color:#fff;margin-left:8px" onclick="syncMeta()">↻ Sincronizar</button>
+      </div>
+
+      <div class="card">
+        <h2>Conexoes Ativas</h2>
+        <div id="integrationsList"><div class="empty">Nenhuma conexao ainda.</div></div>
+      </div>
+    </div>
+
+    <!-- CONFIGURACOES -->
+    <div id="tab-settings" class="page">
+      <div class="card">
+        <h2>⚙️ Meus Targets</h2>
+        <p style="color:#78909c;font-size:13px;margin-bottom:16px">
+          Defina seus targets de CPA e ROAS. O motor de decisao usa esses valores para detectar problemas.
+        </p>
+        <div class="form-group">
+          <label>CPA Target (R$) — Custo maximo por venda</label>
+          <input type="number" id="settingCpa" placeholder="Ex: 50.00" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>ROAS Target — Retorno minimo desejado</label>
+          <input type="number" id="settingRoas" placeholder="Ex: 2.0" step="0.1">
+        </div>
+        <div class="form-group">
+          <label>WhatsApp (com DDI, ex: +5511999999999)</label>
+          <input type="text" id="settingWhatsapp" placeholder="+5511999999999">
+        </div>
+        <div id="settingsMsg"></div>
+        <button class="btn btn-primary" onclick="saveSettings()" style="width:auto">Salvar Configuracoes</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────────────────────────
+// IMPORTANTE: Substitua pelo seu link do Railway!
+const API_URL = localStorage.getItem('ippmify_api') || prompt('Cole aqui o link do seu Railway (ex: https://ippmify1-production-xxxx.railway.app):') || '';
+if (API_URL) localStorage.setItem('ippmify_api', API_URL);
+
+let token = localStorage.getItem('ippmify_token');
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────
+const api = async (method, path, body) => {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+  };
+  if (token) opts.headers['Authorization'] = `Bearer ${token}`;
+  if (body)  opts.body = JSON.stringify(body);
+  const res = await fetch(`${API_URL}${path}`, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Erro desconhecido');
+  return data;
+};
+
+const showMsg = (id, msg, type = 'error') => {
+  document.getElementById(id).innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+};
+
+const fmt = (v) => `R$ ${Number(v || 0).toFixed(2).replace('.', ',')}`;
+
+// ─── AUTH ──────────────────────────────────────────────────────────────────
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('loginForm').style.display    = tab === 'login' ? 'block' : 'none';
+  document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+}
+
+async function login() {
+  try {
+    const data = await api('POST', '/api/auth/login', {
+      email:    document.getElementById('loginEmail').value,
+      password: document.getElementById('loginPassword').value,
+    });
+    token = data.accessToken;
+    localStorage.setItem('ippmify_token', token);
+    localStorage.setItem('ippmify_user', JSON.stringify(data.user));
+    initApp(data.user);
+  } catch (e) { showMsg('loginMsg', e.message); }
+}
+
+async function register() {
+  try {
+    const data = await api('POST', '/api/auth/register', {
+      name:     document.getElementById('regName').value,
+      email:    document.getElementById('regEmail').value,
+      password: document.getElementById('regPassword').value,
+    });
+    token = data.accessToken;
+    localStorage.setItem('ippmify_token', token);
+    localStorage.setItem('ippmify_user', JSON.stringify(data.user));
+    showMsg('registerMsg', 'Conta criada! Entrando...', 'success');
+    setTimeout(() => initApp(data.user), 800);
+  } catch (e) { showMsg('registerMsg', e.message); }
+}
+
+function logout() {
+  localStorage.removeItem('ippmify_token');
+  localStorage.removeItem('ippmify_user');
+  token = null;
+  document.getElementById('authPage').style.display = 'flex';
+  document.getElementById('appPage').style.display  = 'none';
+}
+
+// ─── APP ───────────────────────────────────────────────────────────────────
+function initApp(user) {
+  document.getElementById('authPage').style.display = 'none';
+  document.getElementById('appPage').style.display  = 'block';
+  document.getElementById('navUser').textContent = `Ola, ${user.name}`;
+  loadDashboard();
+  loadDecisions();
+  loadIntegrations();
+}
+
+function showTab(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`tab-${name}`).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ─── DASHBOARD ─────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const { data } = await api('GET', '/api/metrics/overview?days=7');
+    const profitClass = data.profit >= 0 ? 'positive' : 'negative';
+    document.getElementById('dashboardContent').innerHTML = `
+      <div class="metrics-grid">
+        <div class="metric-box"><div class="label">💸 Gasto Total</div><div class="value neutral">${fmt(data.spend)}</div></div>
+        <div class="metric-box"><div class="label">💰 Receita Real</div><div class="value positive">${fmt(data.revenue)}</div></div>
+        <div class="metric-box"><div class="label">📈 Lucro Real</div><div class="value ${profitClass}">${fmt(data.profit)}</div></div>
+        <div class="metric-box"><div class="label">🎯 ROAS</div><div class="value neutral">${Number(data.roas||0).toFixed(2)}x</div></div>
+        <div class="metric-box"><div class="label">💡 CPA</div><div class="value neutral">${fmt(data.cpa)}</div></div>
+        <div class="metric-box"><div class="label">👆 CTR</div><div class="value neutral">${Number(data.ctr||0).toFixed(2)}%</div></div>
+        <div class="metric-box"><div class="label">🛒 Conversoes</div><div class="value neutral">${data.conversions||0}</div></div>
+        <div class="metric-box"><div class="label">📊 ROI</div><div class="value ${profitClass}">${Number(data.roi_pct||0).toFixed(1)}%</div></div>
+      </div>
+      <div style="margin-top:16px;color:#546e7a;font-size:12px;text-align:right">Ultimos 7 dias • Lucro calculado com dados reais do checkout</div>
+    `;
+  } catch (e) {
+    document.getElementById('dashboardContent').innerHTML = `
+      <div class="alert alert-info">Conecte suas plataformas na aba "Integracoes" para ver as metricas aqui.</div>
+    `;
+  }
+}
+
+// ─── DECISOES ──────────────────────────────────────────────────────────────
+async function loadDecisions() {
+  try {
+    const { data } = await api('GET', '/api/decisions?limit=20');
+    if (!data.length) {
+      document.getElementById('decisionsContent').innerHTML = '<div class="empty">Nenhuma decisao gerada ainda. Execute o motor ou conecte suas plataformas.</div>';
+      return;
+    }
+    const badgeMap = { 10:'badge-red',9:'badge-red',8:'badge-orange',7:'badge-orange',6:'badge-yellow',5:'badge-yellow',4:'badge-green',3:'badge-green' };
+    const levelMap = { 10:'CRITICO',9:'CRITICO',8:'ALTO',7:'ALTO',6:'MODERADO',5:'MODERADO',4:'OPORTUNIDADE',3:'OPORTUNIDADE' };
+    document.getElementById('decisionsContent').innerHTML = data.map(d => `
+      <div class="decision-card severity-${d.severity}">
+        <span class="badge ${badgeMap[d.severity]||'badge-green'}">${levelMap[d.severity]||'INFO'} — Score ${d.severity}/10</span>
+        ${d.campaign_name ? `<div style="font-size:12px;color:#78909c;margin-bottom:4px">📢 ${d.campaign_name}</div>` : ''}
+        <div class="title">${d.title}</div>
+        <div class="desc">${d.description}</div>
+        <div class="rec">✅ ${d.recommendation}</div>
+        <div style="font-size:11px;color:#546e7a;margin-top:8px">${new Date(d.triggered_at).toLocaleString('pt-BR')}</div>
+      </div>
+    `).join('');
+  } catch (e) {
+    document.getElementById('decisionsContent').innerHTML = '<div class="empty">Conecte suas plataformas para ativar o motor de decisao.</div>';
+  }
+}
+
+async function runDecisions() {
+  const btn = event.target;
+  btn.innerHTML = '<span class="spinner"></span> Analisando...';
+  btn.disabled = true;
+  try {
+    const data = await api('POST', '/api/decisions/run');
+    showMsg('decisionsContent', `✅ ${data.message}`, 'success');
+    setTimeout(loadDecisions, 1500);
+  } catch (e) {
+    showMsg('decisionsContent', e.message);
+  } finally {
+    btn.innerHTML = '▶ Executar Agora';
+    btn.disabled = false;
+  }
+}
+
+// ─── INSIGHTS ──────────────────────────────────────────────────────────────
+async function generateInsight() {
+  const btn = event.target;
+  btn.innerHTML = '<span class="spinner"></span> Analisando com IA...';
+  btn.disabled = true;
+  try {
+    const { data } = await api('POST', '/api/insights/generate', { days: 7 });
+    const typeIcon = { problem:'🔴', opportunity:'🟢', info:'🔵' };
+    const urgencyLabel = { immediate:'⚡ AGORA', today:'📅 Hoje', this_week:'📆 Esta semana' };
+    document.getElementById('insightContent').innerHTML = `
+      <div class="card" style="border-color:#1a237e">
+        <div style="font-style:italic;color:#b3c5f7;margin-bottom:16px">"${data.summary}"</div>
+        <div style="background:#1a237e33;border:1px solid #1a237e;border-radius:8px;padding:14px;margin-bottom:16px">
+          <div style="color:#90a4ae;font-size:12px;margin-bottom:4px">🎯 ACAO PRINCIPAL PARA AGORA</div>
+          <div style="color:#fff;font-weight:700">${data.top_action}</div>
+        </div>
+      </div>
+      ${(data.insights||[]).map(i => `
+        <div class="insight-box ${i.type}">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span>${typeIcon[i.type]||'🔵'} ${i.campaign_name}</span>
+            <span class="${i.urgency==='immediate'?'tag-urgent':'tag-today'}">${urgencyLabel[i.urgency]||''}</span>
+          </div>
+          <div class="finding">${i.finding}</div>
+          <div style="color:#78909c;font-size:13px">${i.impact}</div>
+          <div class="action">→ ${i.action}</div>
+        </div>
+      `).join('')}
+    `;
+  } catch (e) {
+    document.getElementById('insightContent').innerHTML = `<div class="alert alert-error">${e.message}</div>`;
+  } finally {
+    btn.innerHTML = '✨ Gerar Agora';
+    btn.disabled = false;
+  }
+}
+
+// ─── INTEGRACOES ───────────────────────────────────────────────────────────
+async function loadIntegrations() {
+  try {
+    const { data } = await api('GET', '/api/integrations');
+    if (!data.length) return;
+    document.getElementById('integrationsList').innerHTML = data.map(i => `
+      <div class="integration-item">
+        <div class="info">
+          <div class="dot ${i.is_active?'dot-green':'dot-gray'}"></div>
+          <div>
+            <div class="name">${i.platform.toUpperCase()} — ${i.account_name||''}</div>
+            <div class="status">${i.last_synced_at ? 'Ultima sync: '+new Date(i.last_synced_at).toLocaleString('pt-BR') : 'Nunca sincronizado'}</div>
+          </div>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="removeIntegration('${i.id}')">Remover</button>
+      </div>
+    `).join('');
+  } catch (e) {}
+}
+
+async function connectHotmart() {
+  try {
+    await api('POST', '/api/integrations/hotmart/connect', {
+      client_id:     document.getElementById('hotmartClientId').value,
+      client_secret: document.getElementById('hotmartClientSecret').value,
+    });
+    showMsg('hotmartMsg', '✅ Hotmart conectado com sucesso!', 'success');
+    loadIntegrations();
+  } catch (e) { showMsg('hotmartMsg', e.message); }
+}
+
+async function syncHotmart() {
+  event.target.textContent = '↻ Sincronizando...';
+  try {
+    await api('POST', '/api/integrations/hotmart/sync');
+    showMsg('hotmartMsg', '✅ Sincronizacao concluida!', 'success');
+  } catch (e) { showMsg('hotmartMsg', e.message); }
+  event.target.textContent = '↻ Sincronizar';
+}
+
+async function connectKiwify() {
+  try {
+    await api('POST', '/api/integrations/kiwify/connect', {
+      api_key: document.getElementById('kiwifyApiKey').value,
+    });
+    showMsg('kiwifyMsg', '✅ Kiwify conectado!', 'success');
+    loadIntegrations();
+  } catch (e) { showMsg('kiwifyMsg', e.message); }
+}
+
+async function connectMeta() {
+  try {
+    const { url } = await api('GET', '/api/integrations/meta-ads/connect');
+    window.open(url, '_blank');
+  } catch (e) { showMsg('metaMsg', e.message); }
+}
+
+async function syncMeta() {
+  event.target.textContent = '↻ Sincronizando...';
+  try {
+    await api('POST', '/api/integrations/meta-ads/sync');
+    showMsg('metaMsg', '✅ Meta Ads sincronizado!', 'success');
+  } catch (e) { showMsg('metaMsg', e.message); }
+  event.target.textContent = '↻ Sincronizar';
+}
+
+async function removeIntegration(id) {
+  if (!confirm('Remover esta integracao?')) return;
+  await api('DELETE', `/api/integrations/${id}`);
+  loadIntegrations();
+}
+
+// ─── CONFIGURACOES ─────────────────────────────────────────────────────────
+async function saveSettings() {
+  try {
+    await api('PUT', '/api/auth/settings', {
+      cpa_target:  parseFloat(document.getElementById('settingCpa').value) || null,
+      roas_target: parseFloat(document.getElementById('settingRoas').value) || null,
+      whatsapp:    document.getElementById('settingWhatsapp').value || null,
+    });
+    showMsg('settingsMsg', '✅ Configuracoes salvas!', 'success');
+  } catch (e) { showMsg('settingsMsg', e.message); }
+}
+
+// ─── INICIALIZAR ────────────────────────────────────────────────────────────
+if (token) {
+  const user = JSON.parse(localStorage.getItem('ippmify_user') || '{}');
+  if (user.name) initApp(user);
+}
+</script>
+</body>
+</html>
