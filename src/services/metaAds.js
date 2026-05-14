@@ -1,6 +1,6 @@
 const axios = require('axios');
 const { query } = require('../config/database');
-const { encrypt, decrypt } = require('./encryptionService');
+const { decrypt } = require('./encryptionService');
 
 const META_API_VERSION = 'v20.0';
 const META_BASE_URL = `https://graph.facebook.com/${META_API_VERSION}`;
@@ -12,7 +12,7 @@ const getOAuthUrl = (userId) => {
     redirect_uri:  process.env.META_REDIRECT_URI,
     scope:         'ads_read,ads_management,business_management',
     response_type: 'code',
-    state:         userId, // Usar userId como state para segurança
+    state:         userId,
   });
   return `https://www.facebook.com/${META_API_VERSION}/dialog/oauth?${params.toString()}`;
 };
@@ -27,153 +27,278 @@ const exchangeCodeForToken = async (code) => {
       code,
     }
   });
-  return response.data; // { access_token, token_type, expires_in }
+  return response.data;
 };
 
-// ─── BUSCAR CONTAS DE ANUNCIO DO USUARIO ──────────────────────────────────
+// ─── BUSCAR CONTAS DE ANUNCIO ──────────────────────────────────────────────
 const getAdAccounts = async (accessToken) => {
   const response = await axios.get(`${META_BASE_URL}/me/adaccounts`, {
-    params: {
-      access_token: accessToken,
-      fields: 'id,name,account_status,currency,timezone_name',
-    }
+    params: { access_token: accessToken, fields: 'id,name,account_status,currency,timezone_name' }
   });
   return response.data.data || [];
 };
 
-// ─── SINCRONIZAR CAMPANHAS ─────────────────────────────────────────────────
-const syncCampaigns = async (integrationId, userId, accessToken, adAccountId) => {
-  console.log(`[Meta] Sincronizando campanhas da conta ${adAccountId}`);
+// ─── BUSCAR TOKEN DA INTEGRACAO ────────────────────────────────────────────
+const getIntegrationToken = async (userId) => {
+  const result = await query(
+    'SELECT * FROM integrations WHERE user_id = $1 AND platform = $2 AND is_active = true',
+    [userId, 'meta_ads']
+  );
+  if (result.rows.length === 0) return null;
+  const integration = result.rows[0];
+  return {
+    accessToken: decrypt(integration.access_token),
+    adAccountId: `act_${integration.account_id}`,
+    integration,
+  };
+};
 
+// ═══════════════════════════════════════════════════════════════════════════
+// SYNC NIVEL 1 — CAMPANHAS
+// ═══════════════════════════════════════════════════════════════════════════
+
+const syncCampaigns = async (integrationId, userId, accessToken, adAccountId) => {
+  console.log(`[Meta] Sincronizando campanhas`);
   const response = await axios.get(`${META_BASE_URL}/${adAccountId}/campaigns`, {
     params: {
       access_token: accessToken,
       fields: 'id,name,status,objective,daily_budget,lifetime_budget,start_time,stop_time',
-      limit: 100,
+      limit: 200,
     }
   });
-
   const campaigns = response.data.data || [];
-  let synced = 0;
-
-  for (const campaign of campaigns) {
+  for (const c of campaigns) {
     await query(`
-      INSERT INTO campaigns
-        (user_id, integration_id, external_id, name, status, objective,
-         daily_budget, lifetime_budget, start_time, stop_time, synced_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW())
-      ON CONFLICT (user_id, external_id)
-      DO UPDATE SET
-        name = EXCLUDED.name,
-        status = EXCLUDED.status,
-        daily_budget = EXCLUDED.daily_budget,
-        synced_at = NOW()
-    `, [
-      userId, integrationId,
-      campaign.id, campaign.name, campaign.status, campaign.objective,
-      parseFloat(campaign.daily_budget || 0) / 100,   // Meta retorna em centavos
-      parseFloat(campaign.lifetime_budget || 0) / 100,
-      campaign.start_time, campaign.stop_time
-    ]);
-    synced++;
+      INSERT INTO campaigns (user_id, integration_id, external_id, name, status, objective,
+        daily_budget, lifetime_budget, start_time, stop_time, synced_at)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NOW())
+      ON CONFLICT (user_id, external_id) DO UPDATE SET
+        name=EXCLUDED.name, status=EXCLUDED.status,
+        daily_budget=EXCLUDED.daily_budget, synced_at=NOW()
+    `, [userId, integrationId, c.id, c.name, c.status, c.objective,
+        parseFloat(c.daily_budget||0)/100, parseFloat(c.lifetime_budget||0)/100,
+        c.start_time, c.stop_time]);
   }
-
-  console.log(`[Meta] ${synced} campanhas sincronizadas`);
-  return synced;
+  console.log(`[Meta] ${campaigns.length} campanhas sincronizadas`);
+  return campaigns.length;
 };
 
-// ─── SINCRONIZAR METRICAS DE ANUNCIOS ─────────────────────────────────────
-const syncAdMetrics = async (userId, accessToken, adAccountId, daysBack = 7) => {
-  console.log(`[Meta] Sincronizando metricas dos ultimos ${daysBack} dias`);
+// ═══════════════════════════════════════════════════════════════════════════
+// SYNC NIVEL 2 — CONJUNTOS DE ANUNCIOS (Ad Sets)
+// ═══════════════════════════════════════════════════════════════════════════
 
-  const since = new Date();
-  since.setDate(since.getDate() - daysBack);
-  const sinceStr = since.toISOString().split('T')[0];
-  const untilStr = new Date().toISOString().split('T')[0];
-
-  // Buscar metricas agrupadas por campanha e dia
-  const response = await axios.get(`${META_BASE_URL}/${adAccountId}/insights`, {
+const syncAdSets = async (integrationId, userId, accessToken, adAccountId) => {
+  console.log(`[Meta] Sincronizando conjuntos de anuncios`);
+  const response = await axios.get(`${META_BASE_URL}/${adAccountId}/adsets`, {
     params: {
       access_token: accessToken,
-      fields: 'campaign_id,campaign_name,spend,impressions,clicks,reach,cpm,ctr,cpc,actions',
-      time_range: JSON.stringify({ since: sinceStr, until: untilStr }),
-      level: 'campaign',
-      time_increment: 1,  // Um resultado por dia
+      fields: 'id,name,status,campaign_id,daily_budget,lifetime_budget',
       limit: 500,
     }
   });
-
-  const insights = response.data.data || [];
+  const adSets = response.data.data || [];
   let synced = 0;
-
-  for (const insight of insights) {
-    // Buscar campaign_id interno
+  for (const adSet of adSets) {
     const campResult = await query(
       'SELECT id FROM campaigns WHERE user_id = $1 AND external_id = $2',
-      [userId, insight.campaign_id]
+      [userId, adSet.campaign_id]
     );
     if (campResult.rows.length === 0) continue;
-
     const campaignId = campResult.rows[0].id;
-
     await query(`
-      INSERT INTO ad_metrics
-        (user_id, campaign_id, date, spend, impressions, clicks, cpm, ctr, cpc)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-      ON CONFLICT (ad_id, date) DO NOTHING
-    `, [
-      userId, campaignId,
-      insight.date_start,
-      parseFloat(insight.spend || 0),
-      parseInt(insight.impressions || 0),
-      parseInt(insight.clicks || 0),
-      parseFloat(insight.cpm || 0),
-      parseFloat(insight.ctr || 0),
-      parseFloat(insight.cpc || 0),
-    ]).catch(() => {
-      // Ignora conflito de unique constraint
-    });
-
+      INSERT INTO ad_sets (user_id, integration_id, campaign_id, external_id, name, status,
+        daily_budget, lifetime_budget, synced_at)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW())
+      ON CONFLICT (user_id, external_id) DO UPDATE SET
+        name=EXCLUDED.name, status=EXCLUDED.status,
+        daily_budget=EXCLUDED.daily_budget, synced_at=NOW()
+    `, [userId, integrationId, campaignId, adSet.id, adSet.name, adSet.status,
+        parseFloat(adSet.daily_budget||0)/100, parseFloat(adSet.lifetime_budget||0)/100]);
     synced++;
   }
-
-  // Atualizar ultima sincronizacao
-  await query(
-    'UPDATE integrations SET last_synced_at = NOW() WHERE user_id = $1 AND platform = $2',
-    [userId, 'meta_ads']
-  );
-
-  console.log(`[Meta] ${synced} registros de metricas sincronizados`);
+  console.log(`[Meta] ${synced} conjuntos sincronizados`);
   return synced;
 };
 
-// ─── SINCRONIZACAO COMPLETA ────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// SYNC NIVEL 3 — ANUNCIOS INDIVIDUAIS
+// ═══════════════════════════════════════════════════════════════════════════
+
+const syncAds = async (integrationId, userId, accessToken, adAccountId) => {
+  console.log(`[Meta] Sincronizando anuncios individuais`);
+  const response = await axios.get(`${META_BASE_URL}/${adAccountId}/ads`, {
+    params: {
+      access_token: accessToken,
+      fields: 'id,name,status,campaign_id,adset_id,creative{id}',
+      limit: 500,
+    }
+  });
+  const ads = response.data.data || [];
+  let synced = 0;
+  for (const ad of ads) {
+    const campResult  = await query('SELECT id FROM campaigns WHERE user_id=$1 AND external_id=$2', [userId, ad.campaign_id]);
+    const adSetResult = await query('SELECT id FROM ad_sets WHERE user_id=$1 AND external_id=$2', [userId, ad.adset_id]);
+    if (campResult.rows.length === 0) continue;
+    await query(`
+      INSERT INTO ads (user_id, integration_id, campaign_id, ad_set_id, external_id, name, status, creative_id, synced_at)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW())
+      ON CONFLICT (user_id, external_id) DO UPDATE SET
+        name=EXCLUDED.name, status=EXCLUDED.status, synced_at=NOW()
+    `, [userId, integrationId, campResult.rows[0].id, adSetResult.rows[0]?.id||null,
+        ad.id, ad.name, ad.status, ad.creative?.id||null]);
+    synced++;
+  }
+  console.log(`[Meta] ${synced} anuncios sincronizados`);
+  return synced;
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// METRICAS NIVEL CAMPANHA
+// ═══════════════════════════════════════════════════════════════════════════
+
+const syncAdMetrics = async (userId, accessToken, adAccountId, daysBack = 7) => {
+  const since = new Date(); since.setDate(since.getDate() - daysBack);
+  const sinceStr = since.toISOString().split('T')[0];
+  const untilStr = new Date().toISOString().split('T')[0];
+  const response = await axios.get(`${META_BASE_URL}/${adAccountId}/insights`, {
+    params: {
+      access_token: accessToken,
+      fields: 'campaign_id,spend,impressions,clicks,reach,cpm,ctr,cpc',
+      time_range: JSON.stringify({ since: sinceStr, until: untilStr }),
+      level: 'campaign', time_increment: 1, limit: 500,
+    }
+  });
+  const insights = response.data.data || [];
+  for (const insight of insights) {
+    const campResult = await query('SELECT id FROM campaigns WHERE user_id=$1 AND external_id=$2', [userId, insight.campaign_id]);
+    if (campResult.rows.length === 0) continue;
+    await query(`
+      INSERT INTO ad_metrics (user_id, campaign_id, date, spend, impressions, clicks, cpm, ctr, cpc)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ON CONFLICT DO NOTHING
+    `, [userId, campResult.rows[0].id, insight.date_start,
+        parseFloat(insight.spend||0), parseInt(insight.impressions||0), parseInt(insight.clicks||0),
+        parseFloat(insight.cpm||0), parseFloat(insight.ctr||0), parseFloat(insight.cpc||0)]).catch(()=>{});
+  }
+  await query('UPDATE integrations SET last_synced_at=NOW() WHERE user_id=$1 AND platform=$2', [userId,'meta_ads']);
+  console.log(`[Meta] ${insights.length} metricas de campanha sincronizadas`);
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// METRICAS NIVEL AD SET
+// ═══════════════════════════════════════════════════════════════════════════
+
+const syncAdSetMetrics = async (userId, accessToken, adAccountId, daysBack = 7) => {
+  const since = new Date(); since.setDate(since.getDate() - daysBack);
+  const sinceStr = since.toISOString().split('T')[0];
+  const untilStr = new Date().toISOString().split('T')[0];
+  const response = await axios.get(`${META_BASE_URL}/${adAccountId}/insights`, {
+    params: {
+      access_token: accessToken,
+      fields: 'adset_id,campaign_id,spend,impressions,clicks,reach,cpm,ctr,cpc',
+      time_range: JSON.stringify({ since: sinceStr, until: untilStr }),
+      level: 'adset', time_increment: 1, limit: 1000,
+    }
+  });
+  const insights = response.data.data || [];
+  for (const insight of insights) {
+    const adSetResult = await query('SELECT id, campaign_id FROM ad_sets WHERE user_id=$1 AND external_id=$2', [userId, insight.adset_id]);
+    if (adSetResult.rows.length === 0) continue;
+    const { id: adSetId, campaign_id: campaignId } = adSetResult.rows[0];
+    await query(`
+      INSERT INTO ad_set_metrics (user_id, ad_set_id, campaign_id, date, spend, impressions, clicks, reach, cpm, ctr, cpc)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+      ON CONFLICT (ad_set_id, date) DO UPDATE SET
+        spend=EXCLUDED.spend, impressions=EXCLUDED.impressions,
+        clicks=EXCLUDED.clicks, cpm=EXCLUDED.cpm, ctr=EXCLUDED.ctr, cpc=EXCLUDED.cpc
+    `, [userId, adSetId, campaignId, insight.date_start,
+        parseFloat(insight.spend||0), parseInt(insight.impressions||0), parseInt(insight.clicks||0),
+        parseInt(insight.reach||0), parseFloat(insight.cpm||0), parseFloat(insight.ctr||0), parseFloat(insight.cpc||0)]).catch(()=>{});
+  }
+  console.log(`[Meta] ${insights.length} metricas de conjuntos sincronizadas`);
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// METRICAS NIVEL ANUNCIO INDIVIDUAL
+// ═══════════════════════════════════════════════════════════════════════════
+
+const syncAdLevelMetrics = async (userId, accessToken, adAccountId, daysBack = 7) => {
+  const since = new Date(); since.setDate(since.getDate() - daysBack);
+  const sinceStr = since.toISOString().split('T')[0];
+  const untilStr = new Date().toISOString().split('T')[0];
+  const response = await axios.get(`${META_BASE_URL}/${adAccountId}/insights`, {
+    params: {
+      access_token: accessToken,
+      fields: 'ad_id,adset_id,campaign_id,spend,impressions,clicks,reach,cpm,ctr,cpc',
+      time_range: JSON.stringify({ since: sinceStr, until: untilStr }),
+      level: 'ad', time_increment: 1, limit: 2000,
+    }
+  });
+  const insights = response.data.data || [];
+  for (const insight of insights) {
+    const adResult = await query('SELECT id, ad_set_id, campaign_id FROM ads WHERE user_id=$1 AND external_id=$2', [userId, insight.ad_id]);
+    if (adResult.rows.length === 0) continue;
+    const { id: adId, ad_set_id: adSetId, campaign_id: campaignId } = adResult.rows[0];
+    await query(`
+      INSERT INTO ad_level_metrics (user_id, ad_id, ad_set_id, campaign_id, date, spend, impressions, clicks, reach, cpm, ctr, cpc)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+      ON CONFLICT (ad_id, date) DO UPDATE SET
+        spend=EXCLUDED.spend, impressions=EXCLUDED.impressions,
+        clicks=EXCLUDED.clicks, cpm=EXCLUDED.cpm, ctr=EXCLUDED.ctr, cpc=EXCLUDED.cpc
+    `, [userId, adId, adSetId, campaignId, insight.date_start,
+        parseFloat(insight.spend||0), parseInt(insight.impressions||0), parseInt(insight.clicks||0),
+        parseInt(insight.reach||0), parseFloat(insight.cpm||0), parseFloat(insight.ctr||0), parseFloat(insight.cpc||0)]).catch(()=>{});
+  }
+  console.log(`[Meta] ${insights.length} metricas de anuncios sincronizadas`);
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ACOES AUTOMATICAS — EXECUCAO VIA API META
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Pausar campanha, conjunto ou anuncio
+const pauseEntity = async (entityId, accessToken) => {
+  await axios.post(`${META_BASE_URL}/${entityId}`, null, {
+    params: { access_token: accessToken, status: 'PAUSED' }
+  });
+  console.log(`[Meta Action] PAUSADO: ${entityId}`);
+};
+
+// Aumentar orcamento diario (em reais)
+const updateDailyBudget = async (entityId, newBudgetReais, accessToken) => {
+  const budgetCentavos = Math.round(newBudgetReais * 100);
+  await axios.post(`${META_BASE_URL}/${entityId}`, null, {
+    params: { access_token: accessToken, daily_budget: budgetCentavos }
+  });
+  console.log(`[Meta Action] BUDGET: ${entityId} → R$${newBudgetReais}`);
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SINCRONIZACAO COMPLETA (3 NIVEIS)
+// ═══════════════════════════════════════════════════════════════════════════
+
 const runFullSync = async (userId) => {
-  // Buscar integracao ativa do Meta Ads
-  const intResult = await query(
-    'SELECT * FROM integrations WHERE user_id = $1 AND platform = $2 AND is_active = true',
-    [userId, 'meta_ads']
-  );
+  const tokenData = await getIntegrationToken(userId);
+  if (!tokenData) return null;
+  const { accessToken, adAccountId, integration } = tokenData;
+  if (!accessToken) return null;
 
-  if (intResult.rows.length === 0) {
-    console.log(`[Meta] Usuario ${userId} nao tem integracao com Meta Ads`);
-    return null;
-  }
-
-  const integration = intResult.rows[0];
-  const accessToken = decrypt(integration.access_token);
-
-  if (!accessToken) {
-    console.error(`[Meta] Token invalido para usuario ${userId}`);
-    return null;
-  }
-
-  const adAccountId = `act_${integration.account_id}`;
-
+  // Entidades (estrutura)
   await syncCampaigns(integration.id, userId, accessToken, adAccountId);
+  await syncAdSets(integration.id, userId, accessToken, adAccountId);
+  await syncAds(integration.id, userId, accessToken, adAccountId);
+
+  // Metricas (desempenho)
   await syncAdMetrics(userId, accessToken, adAccountId, 7);
+  await syncAdSetMetrics(userId, accessToken, adAccountId, 7);
+  await syncAdLevelMetrics(userId, accessToken, adAccountId, 7);
 
   return true;
 };
 
-module.exports = { getOAuthUrl, exchangeCodeForToken, getAdAccounts, syncCampaigns, syncAdMetrics, runFullSync };
+module.exports = {
+  getOAuthUrl, exchangeCodeForToken, getAdAccounts,
+  syncCampaigns, syncAdSets, syncAds,
+  syncAdMetrics, syncAdSetMetrics, syncAdLevelMetrics,
+  pauseEntity, updateDailyBudget, getIntegrationToken,
+  runFullSync,
+};
