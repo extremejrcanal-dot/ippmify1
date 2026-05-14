@@ -3,10 +3,12 @@ const twilio = require('twilio');
 const { query } = require('../config/database');
 const { exists, setEx } = require('../config/redis');
 
+// Inicializa SendGrid apenas se a chave estiver configurada
 if (process.env.SENDGRID_API_KEY && process.env.SENDGRID_API_KEY.startsWith('SG.')) {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 }
 
+// Inicializa Twilio de forma lazy (so quando for usar)
 const getTwilioClient = () => {
   if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) return null;
   return twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
@@ -101,6 +103,8 @@ const sendAlert = async (userId, decision) => {
   // ── Enviar WhatsApp (apenas para alertas criticos) ────────────────────
   if (decision.severity >= 7 && user.whatsapp && process.env.TWILIO_ACCOUNT_SID) {
     try {
+      const twilioClient = getTwilioClient();
+      if (!twilioClient) throw new Error('Twilio nao configurado');
       const message = formatWhatsAppMessage(decision, user.name);
       await twilioClient.messages.create({
         from: process.env.TWILIO_WHATSAPP_FROM,
