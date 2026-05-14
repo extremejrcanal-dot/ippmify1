@@ -5,6 +5,7 @@ const { query } = require('../config/database');
 const { encrypt, decrypt } = require('../services/encryptionService');
 const { getOAuthUrl, exchangeCodeForToken, getAdAccounts, runFullSync: metaSync } = require('../services/metaAds');
 const { getAccessToken, runFullSync: hotmartSync, processWebhook: hotmartWebhook } = require('../services/hotmart');
+const { processWebhook: kirvanoWebhook } = require('../services/kirvano');
 
 const router = express.Router();
 
@@ -177,6 +178,54 @@ router.post('/kiwify/connect', requireAuth, async (req, res) => {
     res.json({ message: 'Kiwify conectado com sucesso!' });
   } catch (error) {
     res.status(500).json({ error: 'Erro ao conectar Kiwify' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// KIRVANO
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Conectar Kirvano (cria registro de integracao — sem API key)
+// POST /api/integrations/kirvano/connect
+router.post('/kirvano/connect', requireAuth, async (req, res) => {
+  try {
+    await query(`
+      INSERT INTO integrations
+        (user_id, platform, account_name, is_active)
+      VALUES ($1, 'kirvano', 'Kirvano', true)
+      ON CONFLICT DO NOTHING
+    `, [req.user.id]);
+
+    res.json({ message: 'Kirvano configurado! Agora adicione a URL do webhook no seu painel Kirvano.' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao configurar Kirvano' });
+  }
+});
+
+// Webhook da Kirvano (notificacoes em tempo real)
+// POST /api/integrations/webhook/kirvano
+router.post('/webhook/kirvano', async (req, res) => {
+  try {
+    const payload = req.body;
+
+    if (!payload || !payload.event) return res.sendStatus(400);
+
+    console.log(`[Kirvano Webhook] Evento recebido: ${payload.event}`);
+
+    // Buscar integracao ativa da Kirvano
+    const intResult = await query(
+      "SELECT user_id, id FROM integrations WHERE platform = 'kirvano' AND is_active = true LIMIT 1"
+    );
+
+    if (intResult.rows.length > 0) {
+      const { user_id, id } = intResult.rows[0];
+      await kirvanoWebhook(user_id, id, payload);
+    }
+
+    res.sendStatus(200);
+  } catch (error) {
+    console.error('[Kirvano Webhook] Erro:', error.message);
+    res.sendStatus(500);
   }
 });
 
