@@ -8,7 +8,6 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Segoe UI', sans-serif; background: #0f1117; color: #e0e0e0; min-height: 100vh; }
 
-  /* NAV */
   nav { background: #1a237e; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
   nav .logo { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: 1px; }
   nav .logo span { color: #00bcd4; }
@@ -16,17 +15,14 @@
   nav .btn-logout { background: transparent; border: 1px solid #3949ab; color: #b3c5f7; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; }
   nav .btn-logout:hover { background: #3949ab; }
 
-  /* LAYOUT */
   .container { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
   .page { display: none; }
   .page.active { display: block; }
 
-  /* CARDS */
   .card { background: #1e2130; border: 1px solid #2a2d3e; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
   .card h2 { font-size: 18px; color: #fff; margin-bottom: 16px; }
   .card h3 { font-size: 14px; color: #90a4ae; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
 
-  /* GRID DE METRICAS */
   .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
   .metric-box { background: #252840; border-radius: 10px; padding: 18px; text-align: center; }
   .metric-box .label { font-size: 12px; color: #78909c; margin-bottom: 8px; }
@@ -35,13 +31,11 @@
   .metric-box .value.negative { color: #f44336; }
   .metric-box .value.neutral { color: #00bcd4; }
 
-  /* FORMULARIOS */
   .form-group { margin-bottom: 16px; }
   .form-group label { display: block; font-size: 13px; color: #90a4ae; margin-bottom: 6px; }
   .form-group input { width: 100%; background: #252840; border: 1px solid #3a3d52; border-radius: 8px; padding: 10px 14px; color: #fff; font-size: 14px; outline: none; }
   .form-group input:focus { border-color: #1a237e; }
 
-  /* BOTOES */
   .btn { display: inline-block; padding: 10px 22px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: opacity .2s; }
   .btn:hover { opacity: .85; }
   .btn-primary { background: #1a237e; color: #fff; width: 100%; text-align: center; }
@@ -50,13 +44,11 @@
   .btn-danger { background: #c62828; color: #fff; }
   .btn-sm { padding: 6px 14px; font-size: 13px; }
 
-  /* ALERTAS */
   .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; }
   .alert-error { background: #311; border: 1px solid #c62828; color: #ef9a9a; }
   .alert-success { background: #132213; border: 1px solid #2e7d32; color: #a5d6a7; }
   .alert-info { background: #0d1f33; border: 1px solid #1565c0; color: #90caf9; }
 
-  /* DECISIONS */
   .decision-card { background: #252840; border-radius: 10px; padding: 16px; margin-bottom: 12px; border-left: 4px solid #666; }
   .decision-card.severity-9, .decision-card.severity-10 { border-left-color: #f44336; }
   .decision-card.severity-7, .decision-card.severity-8 { border-left-color: #ff9800; }
@@ -71,7 +63,6 @@
   .badge-yellow { background: #f57f17; color: #000; }
   .badge-green { background: #2e7d32; color: #fff; }
 
-  /* INTEGRACOES */
   .integration-item { display: flex; align-items: center; justify-content: space-between; padding: 14px; background: #252840; border-radius: 10px; margin-bottom: 10px; }
   .integration-item .info { display: flex; align-items: center; gap: 12px; }
   .integration-item .dot { width: 10px; height: 10px; border-radius: 50%; }
@@ -80,12 +71,10 @@
   .integration-item .name { font-weight: 600; color: #fff; }
   .integration-item .status { font-size: 12px; color: #78909c; }
 
-  /* TABS */
   .tabs { display: flex; gap: 4px; margin-bottom: 24px; background: #1e2130; padding: 4px; border-radius: 10px; }
   .tab { flex: 1; text-align: center; padding: 10px; border-radius: 8px; cursor: pointer; font-size: 14px; color: #78909c; transition: all .2s; }
   .tab.active { background: #1a237e; color: #fff; font-weight: 600; }
 
-  /* AUTH PAGE */
   .auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #0f1117; }
   .auth-box { background: #1e2130; border: 1px solid #2a2d3e; border-radius: 16px; padding: 40px; width: 100%; max-width: 420px; }
   .auth-box .logo { text-align: center; font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 8px; }
@@ -95,11 +84,9 @@
   .auth-tab { flex: 1; text-align: center; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 14px; color: #78909c; }
   .auth-tab.active { background: #1a237e; color: #fff; font-weight: 600; }
 
-  /* SPINNER */
   .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; margin-right: 8px; vertical-align: middle; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* INSIGHT BOX */
   .insight-box { background: #1a237e22; border: 1px solid #1a237e; border-radius: 10px; padding: 16px; margin-bottom: 12px; }
   .insight-box.problem { background: #c6282822; border-color: #c62828; }
   .insight-box.opportunity { background: #2e7d3222; border-color: #2e7d32; }
@@ -113,17 +100,14 @@
 </head>
 <body>
 
-<!-- ─── AUTH PAGE ──────────────────────────────────────────────────────── -->
 <div id="authPage" class="auth-wrapper">
   <div class="auth-box">
     <div class="logo">IPP<span>MIFY</span></div>
     <div class="subtitle">Profit Intelligence System</div>
-
     <div class="auth-tabs">
       <div class="auth-tab active" onclick="switchAuthTab('login')">Entrar</div>
       <div class="auth-tab" onclick="switchAuthTab('register')">Criar Conta</div>
     </div>
-
     <div id="loginForm">
       <div class="form-group">
         <label>Email</label>
@@ -136,7 +120,6 @@
       <div id="loginMsg"></div>
       <button class="btn btn-primary" onclick="login()">Entrar</button>
     </div>
-
     <div id="registerForm" style="display:none">
       <div class="form-group">
         <label>Nome completo</label>
@@ -156,7 +139,6 @@
   </div>
 </div>
 
-<!-- ─── APP PAGE ───────────────────────────────────────────────────────── -->
 <div id="appPage" style="display:none">
   <nav>
     <div class="logo">IPP<span>MIFY</span></div>
@@ -181,9 +163,7 @@
         <h2 style="color:#fff">Visao Geral — Ultimos 7 dias</h2>
         <button class="btn btn-cyan btn-sm" onclick="loadDashboard()">↻ Atualizar</button>
       </div>
-      <div id="dashboardContent">
-        <div class="empty">Carregando metricas...</div>
-      </div>
+      <div id="dashboardContent"><div class="empty">Carregando metricas...</div></div>
     </div>
 
     <!-- DECISOES -->
@@ -192,9 +172,7 @@
         <h2 style="color:#fff">Motor de Decisao</h2>
         <button class="btn btn-danger btn-sm" onclick="runDecisions()">▶ Executar Agora</button>
       </div>
-      <div id="decisionsContent">
-        <div class="empty">Carregando decisoes...</div>
-      </div>
+      <div id="decisionsContent"><div class="empty">Carregando decisoes...</div></div>
     </div>
 
     <!-- IA INSIGHTS -->
@@ -238,11 +216,36 @@
       </div>
 
       <div class="card">
-        <h2>🔵 Meta Ads (Facebook)</h2>
-        <div class="alert alert-info">Para conectar o Meta Ads, voce precisa criar um App no Facebook Developers e adicionar as variaveis META_APP_ID e META_APP_SECRET no Railway.</div>
-        <div id="metaMsg"></div>
-        <button class="btn btn-primary btn-sm" onclick="connectMeta()">Conectar Meta Ads</button>
-        <button class="btn btn-sm" style="background:#333;color:#fff;margin-left:8px" onclick="syncMeta()">↻ Sincronizar</button>
+        <h2>🔵 Meta Ads — Contas de Contingencia</h2>
+
+        <div id="metaAccountsList" style="margin-bottom:16px">
+          <div style="color:#546e7a;font-size:13px;padding:8px 0">Nenhuma conta conectada ainda.</div>
+        </div>
+
+        <details style="margin-bottom:16px">
+          <summary style="cursor:pointer;color:#90caf9;font-size:13px;user-select:none">➕ Adicionar nova conta</summary>
+          <div style="margin-top:14px;padding:14px;background:#252840;border-radius:8px">
+            <div class="alert alert-info" style="margin-bottom:14px;font-size:13px">
+              <strong>Como gerar o token:</strong> Abra o perfil da conta no Dolphin → acesse
+              <a href="https://developers.facebook.com/tools/explorer" target="_blank" style="color:#90caf9">developers.facebook.com/tools/explorer</a>
+              → selecione seu app → clique em "Gerar token de acesso" → marque <strong>ads_read</strong> e <strong>ads_management</strong> → copie o token.
+              <br><br>
+              O <strong>Ad Account ID</strong> aparece no Gerenciador de Anuncios no canto superior esquerdo (ex: <em>act_123456789</em>).
+            </div>
+            <div class="form-group">
+              <label>Access Token</label>
+              <input type="password" id="metaAccessToken" placeholder="EAAxxxxx...">
+            </div>
+            <div class="form-group">
+              <label>Ad Account ID (ex: act_123456789)</label>
+              <input type="text" id="metaAdAccountId" placeholder="act_123456789">
+            </div>
+            <div id="metaMsg"></div>
+            <button class="btn btn-primary btn-sm" onclick="connectMetaToken()">Conectar Conta</button>
+          </div>
+        </details>
+
+        <button class="btn btn-sm" style="background:#1a3a5c;color:#90caf9;border:1px solid #1565c0" onclick="syncMeta()">↻ Sincronizar Todas as Contas</button>
       </div>
 
       <div class="card">
@@ -255,9 +258,7 @@
     <div id="tab-settings" class="page">
       <div class="card">
         <h2>⚙️ Meus Targets</h2>
-        <p style="color:#78909c;font-size:13px;margin-bottom:16px">
-          Defina seus targets de CPA e ROAS. O motor de decisao usa esses valores para detectar problemas.
-        </p>
+        <p style="color:#78909c;font-size:13px;margin-bottom:16px">Defina seus targets de CPA e ROAS. O motor de decisao usa esses valores para detectar problemas.</p>
         <div class="form-group">
           <label>CPA Target (R$) — Custo maximo por venda</label>
           <input type="number" id="settingCpa" placeholder="Ex: 50.00" step="0.01">
@@ -279,19 +280,13 @@
 </div>
 
 <script>
-// ─── CONFIG ──────────────────────────────────────────────────────────────
-// IMPORTANTE: Substitua pelo seu link do Railway!
 const API_URL = localStorage.getItem('ippmify_api') || prompt('Cole aqui o link do seu Railway (ex: https://ippmify1-production-xxxx.railway.app):') || '';
 if (API_URL) localStorage.setItem('ippmify_api', API_URL);
 
 let token = localStorage.getItem('ippmify_token');
 
-// ─── HELPERS ──────────────────────────────────────────────────────────────
 const api = async (method, path, body) => {
-  const opts = {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-  };
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
   if (token) opts.headers['Authorization'] = `Bearer ${token}`;
   if (body)  opts.body = JSON.stringify(body);
   const res = await fetch(`${API_URL}${path}`, opts);
@@ -306,7 +301,6 @@ const showMsg = (id, msg, type = 'error') => {
 
 const fmt = (v) => `R$ ${Number(v || 0).toFixed(2).replace('.', ',')}`;
 
-// ─── AUTH ──────────────────────────────────────────────────────────────────
 function switchAuthTab(tab) {
   document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
   event.target.classList.add('active');
@@ -350,7 +344,6 @@ function logout() {
   document.getElementById('appPage').style.display  = 'none';
 }
 
-// ─── APP ───────────────────────────────────────────────────────────────────
 function initApp(user) {
   document.getElementById('authPage').style.display = 'none';
   document.getElementById('appPage').style.display  = 'block';
@@ -367,7 +360,6 @@ function showTab(name) {
   event.target.classList.add('active');
 }
 
-// ─── DASHBOARD ─────────────────────────────────────────────────────────────
 async function loadDashboard() {
   try {
     const { data } = await api('GET', '/api/metrics/overview?days=7');
@@ -386,13 +378,10 @@ async function loadDashboard() {
       <div style="margin-top:16px;color:#546e7a;font-size:12px;text-align:right">Ultimos 7 dias • Lucro calculado com dados reais do checkout</div>
     `;
   } catch (e) {
-    document.getElementById('dashboardContent').innerHTML = `
-      <div class="alert alert-info">Conecte suas plataformas na aba "Integracoes" para ver as metricas aqui.</div>
-    `;
+    document.getElementById('dashboardContent').innerHTML = `<div class="alert alert-info">Conecte suas plataformas na aba "Integracoes" para ver as metricas aqui.</div>`;
   }
 }
 
-// ─── DECISOES ──────────────────────────────────────────────────────────────
 async function loadDecisions() {
   try {
     const { data } = await api('GET', '/api/decisions?limit=20');
@@ -433,7 +422,6 @@ async function runDecisions() {
   }
 }
 
-// ─── INSIGHTS ──────────────────────────────────────────────────────────────
 async function generateInsight() {
   const btn = event.target;
   btn.innerHTML = '<span class="spinner"></span> Analisando com IA...';
@@ -470,17 +458,41 @@ async function generateInsight() {
   }
 }
 
-// ─── INTEGRACOES ───────────────────────────────────────────────────────────
 async function loadIntegrations() {
   try {
     const { data } = await api('GET', '/api/integrations');
     if (!data.length) return;
-    document.getElementById('integrationsList').innerHTML = data.map(i => `
+
+    const metaAccounts = data.filter(i => i.platform === 'meta_ads');
+    const others = data.filter(i => i.platform !== 'meta_ads');
+
+    const metaList = document.getElementById('metaAccountsList');
+    if (metaList) {
+      if (metaAccounts.length === 0) {
+        metaList.innerHTML = '<div style="color:#546e7a;font-size:13px;padding:8px 0">Nenhuma conta conectada ainda.</div>';
+      } else {
+        metaList.innerHTML = metaAccounts.map(i => `
+          <div class="integration-item" style="margin-bottom:8px">
+            <div class="info">
+              <div class="dot ${i.is_active?'dot-green':'dot-gray'}"></div>
+              <div>
+                <div class="name">${i.account_name || 'Conta Meta'}</div>
+                <div class="status">${i.last_synced_at ? 'Sync: '+new Date(i.last_synced_at).toLocaleString('pt-BR') : 'Nunca sincronizado'}</div>
+              </div>
+            </div>
+            <button class="btn btn-danger btn-sm" onclick="removeIntegration('${i.id}')">Remover</button>
+          </div>
+        `).join('');
+      }
+    }
+
+    const allItems = [...metaAccounts, ...others];
+    document.getElementById('integrationsList').innerHTML = allItems.map(i => `
       <div class="integration-item">
         <div class="info">
           <div class="dot ${i.is_active?'dot-green':'dot-gray'}"></div>
           <div>
-            <div class="name">${i.platform.toUpperCase()} — ${i.account_name||''}</div>
+            <div class="name">${i.platform === 'meta_ads' ? '🔵 META' : i.platform.toUpperCase()} — ${i.account_name||''}</div>
             <div class="status">${i.last_synced_at ? 'Ultima sync: '+new Date(i.last_synced_at).toLocaleString('pt-BR') : 'Nunca sincronizado'}</div>
           </div>
         </div>
@@ -520,20 +532,37 @@ async function connectKiwify() {
   } catch (e) { showMsg('kiwifyMsg', e.message); }
 }
 
-async function connectMeta() {
+async function connectMetaToken() {
+  const accessToken = document.getElementById('metaAccessToken').value.trim();
+  const adAccountId = document.getElementById('metaAdAccountId').value.trim();
+  if (!accessToken) { showMsg('metaMsg', 'Cole o Access Token antes de continuar'); return; }
+  if (!adAccountId) { showMsg('metaMsg', 'Informe o Ad Account ID (ex: act_123456789)'); return; }
+  const btn = event.target;
+  btn.innerHTML = '<span class="spinner"></span> Conectando...';
+  btn.disabled = true;
   try {
-    const { url } = await api('GET', '/api/integrations/meta-ads/connect');
-    window.open(url, '_blank');
+    const data = await api('POST', '/api/integrations/meta-ads/connect-token', {
+      access_token: accessToken,
+      ad_account_id: adAccountId,
+    });
+    showMsg('metaMsg', `✅ ${data.message}`, 'success');
+    document.getElementById('metaAccessToken').value = '';
+    document.getElementById('metaAdAccountId').value = '';
+    loadIntegrations();
   } catch (e) { showMsg('metaMsg', e.message); }
+  finally {
+    btn.innerHTML = 'Conectar Conta';
+    btn.disabled = false;
+  }
 }
 
 async function syncMeta() {
   event.target.textContent = '↻ Sincronizando...';
   try {
     await api('POST', '/api/integrations/meta-ads/sync');
-    showMsg('metaMsg', '✅ Meta Ads sincronizado!', 'success');
+    showMsg('metaMsg', '✅ Todas as contas sincronizadas!', 'success');
   } catch (e) { showMsg('metaMsg', e.message); }
-  event.target.textContent = '↻ Sincronizar';
+  event.target.textContent = '↻ Sincronizar Todas as Contas';
 }
 
 async function removeIntegration(id) {
@@ -542,7 +571,6 @@ async function removeIntegration(id) {
   loadIntegrations();
 }
 
-// ─── CONFIGURACOES ─────────────────────────────────────────────────────────
 async function saveSettings() {
   try {
     await api('PUT', '/api/auth/settings', {
@@ -554,7 +582,6 @@ async function saveSettings() {
   } catch (e) { showMsg('settingsMsg', e.message); }
 }
 
-// ─── INICIALIZAR ────────────────────────────────────────────────────────────
 if (token) {
   const user = JSON.parse(localStorage.getItem('ippmify_user') || '{}');
   if (user.name) initApp(user);
