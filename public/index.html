@@ -538,7 +538,13 @@ async function connectKiwify() {
     loadIntegrations();
   } catch (e) { showMsg('kiwifyMsg', e.message); }
 }
-
+async function connectKirvano() {
+  try {
+    const data = await api('POST', '/api/integrations/kirvano/connect');
+    showMsg('kirvanoMsg', `✅ ${data.message}`, 'success');
+    loadIntegrations();
+  } catch (e) { showMsg('kirvanoMsg', e.message); }
+}
 async function connectMetaToken() {
   const accessToken = document.getElementById('metaAccessToken').value.trim();
   const adAccountId = document.getElementById('metaAdAccountId').value.trim();
