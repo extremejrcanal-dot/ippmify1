@@ -99,6 +99,28 @@
   .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; margin-right: 8px; vertical-align: middle; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* ─── GRÁFICOS ────────────────────────────────────────────────────────── */
+  .charts-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:20px; }
+  .chart-box { background:#1e2130; border:1px solid #2a2d3e; border-radius:12px; padding:18px; }
+  .chart-box h3 { font-size:13px; color:#90a4ae; margin-bottom:14px; text-transform:uppercase; letter-spacing:.8px; }
+  @media(max-width:700px){ .charts-grid{grid-template-columns:1fr} }
+
+  /* ─── WIZARD DE ONBOARDING ────────────────────────────────────────────── */
+  .wizard-overlay { position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:1000; display:flex; align-items:center; justify-content:center; }
+  .wizard-box { background:#1e2130; border:1px solid #2a2d3e; border-radius:16px; padding:36px; width:100%; max-width:520px; }
+  .wizard-box .wiz-title { font-size:22px; font-weight:800; color:#fff; margin-bottom:4px; }
+  .wizard-box .wiz-sub { font-size:13px; color:#78909c; margin-bottom:24px; }
+  .wiz-steps { display:flex; gap:6px; margin-bottom:28px; }
+  .wiz-step { flex:1; height:4px; border-radius:4px; background:#2a2d3e; transition:background .3s; }
+  .wiz-step.done  { background:#4caf50; }
+  .wiz-step.active{ background:#1a237e; }
+  .wiz-panel { display:none; }
+  .wiz-panel.active { display:block; }
+  .wiz-panel h4 { font-size:16px; color:#fff; font-weight:700; margin-bottom:8px; }
+  .wiz-panel p { font-size:13px; color:#90a4ae; margin-bottom:16px; line-height:1.6; }
+  .wiz-nav { display:flex; justify-content:space-between; align-items:center; margin-top:24px; }
+  .wiz-skip { font-size:13px; color:#546e7a; cursor:pointer; text-decoration:underline; }
+
   /* INSIGHT BOX */
   .insight-box { background: #1a237e22; border: 1px solid #1a237e; border-radius: 10px; padding: 16px; margin-bottom: 12px; }
   .insight-box.problem { background: #c6282822; border-color: #c62828; }
@@ -182,8 +204,78 @@
   .camp-totals .tv.r { color:#ef5350; }
   .camp-totals .tv.w { color:#fff; }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
+
+<!-- ─── WIZARD DE ONBOARDING ────────────────────────────────────────────── -->
+<div id="wizardOverlay" class="wizard-overlay" style="display:none">
+  <div class="wizard-box">
+    <div class="wiz-title">👋 Bem-vindo ao IPPMIFY!</div>
+    <div class="wiz-sub">Vamos configurar sua conta em 3 passos rápidos.</div>
+
+    <div class="wiz-steps">
+      <div class="wiz-step active"  id="ws0"></div>
+      <div class="wiz-step"         id="ws1"></div>
+      <div class="wiz-step"         id="ws2"></div>
+    </div>
+
+    <!-- PASSO 1: Meta Ads -->
+    <div class="wiz-panel active" id="wiz-panel-0">
+      <h4>📘 Passo 1 — Conectar Meta Ads</h4>
+      <p>Você precisa conectar sua conta de anúncios para o IPPMIFY buscar seus gastos automaticamente.<br>
+         Use o token gerado no <strong>Graph API Explorer</strong> do Facebook.</p>
+      <div class="form-group">
+        <label>Access Token do Meta Ads</label>
+        <input type="password" id="wiz-metaToken" placeholder="EAAxxxxx...">
+      </div>
+      <div class="form-group">
+        <label>Ad Account ID (ex: act_123456789)</label>
+        <input type="text" id="wiz-metaAccount" placeholder="act_123456789">
+      </div>
+      <div id="wizMetaMsg"></div>
+    </div>
+
+    <!-- PASSO 2: Plataforma de venda -->
+    <div class="wiz-panel" id="wiz-panel-1">
+      <h4>🛒 Passo 2 — Conectar Plataforma de Venda</h4>
+      <p>Conecte onde você vende para que o IPPMIFY calcule o lucro real com os dados do seu checkout.</p>
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <button class="btn btn-sm" onclick="wizSelectPlatform('hotmart')" id="wbtn-hotmart"
+          style="flex:1;background:#252840;border:1px solid #3a3d52;color:#fff">🔴 Hotmart</button>
+        <button class="btn btn-sm" onclick="wizSelectPlatform('kirvano')" id="wbtn-kirvano"
+          style="flex:1;background:#252840;border:1px solid #3a3d52;color:#fff">🟣 Kirvano</button>
+        <button class="btn btn-sm" onclick="wizSelectPlatform('kiwify')" id="wbtn-kiwify"
+          style="flex:1;background:#252840;border:1px solid #3a3d52;color:#fff">🟦 Kiwify</button>
+      </div>
+      <div id="wiz-platform-form"></div>
+      <div id="wizPlatformMsg"></div>
+    </div>
+
+    <!-- PASSO 3: Targets -->
+    <div class="wiz-panel" id="wiz-panel-2">
+      <h4>🎯 Passo 3 — Definir seus Targets</h4>
+      <p>Esses valores definem o que é "bom" para o seu negócio. O IPPMIFY usa isso para colorir as campanhas e disparar alertas.</p>
+      <div class="form-group">
+        <label>CPA Target — Custo máximo aceitável por venda (R$)</label>
+        <input type="number" id="wiz-cpa" placeholder="Ex: 50.00" step="0.01">
+      </div>
+      <div class="form-group">
+        <label>ROAS Target — Retorno mínimo desejado (ex: 2 = 2x)</label>
+        <input type="number" id="wiz-roas" placeholder="Ex: 2.0" step="0.1">
+      </div>
+      <div id="wizTargetsMsg"></div>
+    </div>
+
+    <div class="wiz-nav">
+      <span class="wiz-skip" onclick="closeWizard()">Pular configuração</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-sm" style="background:#252840;color:#fff;display:none" id="wizBtnBack" onclick="wizBack()">← Voltar</button>
+        <button class="btn btn-primary btn-sm" id="wizBtnNext" onclick="wizNext()" style="width:auto">Próximo →</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ─── AUTH PAGE ──────────────────────────────────────────────────────── -->
 <div id="authPage" class="auth-wrapper">
@@ -251,11 +343,29 @@
     <!-- DASHBOARD -->
     <div id="tab-dashboard" class="page active">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <h2 style="color:#fff">Visao Geral — Ultimos 7 dias</h2>
-        <button class="btn btn-cyan btn-sm" onclick="loadDashboard()">↻ Atualizar</button>
+        <div>
+          <h2 style="color:#fff;margin-bottom:2px">Visão Geral</h2>
+          <div style="font-size:12px;color:#546e7a">Lucro calculado com dados reais do checkout</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-sm" style="background:#1a3a1a;color:#81c784;border:1px solid #2e7d32" onclick="downloadPDF()">⬇ PDF</button>
+          <button class="btn btn-sm" style="background:#1a3a1a;color:#81c784;border:1px solid #2e7d32" onclick="sendWhatsAppReport()">📲 WhatsApp</button>
+          <button class="btn btn-cyan btn-sm" onclick="loadDashboard()">↻ Atualizar</button>
+        </div>
       </div>
       <div id="dashboardContent">
-        <div class="empty">Carregando metricas...</div>
+        <div class="empty">Carregando métricas...</div>
+      </div>
+      <!-- Gráficos -->
+      <div class="charts-grid" id="chartsGrid" style="display:none">
+        <div class="chart-box">
+          <h3>💸 Gasto vs 💰 Receita (30 dias)</h3>
+          <canvas id="chartSpendRevenue" height="180"></canvas>
+        </div>
+        <div class="chart-box">
+          <h3>🎯 ROAS Diário (30 dias)</h3>
+          <canvas id="chartRoas" height="180"></canvas>
+        </div>
       </div>
     </div>
 
@@ -387,8 +497,16 @@
           <label>WhatsApp (com DDI, ex: +5511999999999)</label>
           <input type="text" id="settingWhatsapp" placeholder="+5511999999999">
         </div>
+        <div class="form-group">
+          <label>CallMeBot API Key — para receber relatórios automáticos no WhatsApp</label>
+          <input type="text" id="settingWhatsappKey" placeholder="Ex: 1234567">
+          <div style="font-size:12px;color:#546e7a;margin-top:6px">
+            Para obter sua API Key gratuita: salve o número <strong>+34 644 04 95 42</strong> na agenda e envie
+            <em>"I allow callmebot to send me messages"</em> via WhatsApp. Em poucos minutos você recebe sua chave.
+          </div>
+        </div>
         <div id="settingsMsg"></div>
-        <button class="btn btn-primary" onclick="saveSettings()" style="width:auto">Salvar Configuracoes</button>
+        <button class="btn btn-primary" onclick="saveSettings()" style="width:auto">Salvar Configurações</button>
       </div>
     </div>
 
@@ -468,13 +586,26 @@ function logout() {
 }
 
 // ─── APP ───────────────────────────────────────────────────────────────────
-function initApp(user) {
+async function initApp(user) {
   document.getElementById('authPage').style.display = 'none';
   document.getElementById('appPage').style.display  = 'block';
-  document.getElementById('navUser').textContent = `Ola, ${user.name}`;
+  document.getElementById('navUser').textContent = `Olá, ${user.name}`;
   loadDashboard();
   loadDecisions();
   loadIntegrations();
+
+  // Mostrar wizard se nunca foi concluído e não há integração
+  const onboarded = localStorage.getItem('ippmify_onboarded');
+  if (!onboarded) {
+    try {
+      const { data } = await api('GET', '/api/integrations');
+      if (!data || data.filter(i => i.is_active).length === 0) {
+        setTimeout(showWizard, 800);
+      }
+    } catch (e) {
+      // silencioso
+    }
+  }
 }
 
 function showTab(name) {
@@ -486,6 +617,8 @@ function showTab(name) {
 }
 
 // ─── DASHBOARD ─────────────────────────────────────────────────────────────
+let chartSR = null, chartRoas = null;
+
 async function loadDashboard() {
   try {
     const { data } = await api('GET', '/api/metrics/overview?days=7');
@@ -498,15 +631,130 @@ async function loadDashboard() {
         <div class="metric-box"><div class="label">🎯 ROAS</div><div class="value neutral">${Number(data.roas||0).toFixed(2)}x</div></div>
         <div class="metric-box"><div class="label">💡 CPA</div><div class="value neutral">${fmt(data.cpa)}</div></div>
         <div class="metric-box"><div class="label">👆 CTR</div><div class="value neutral">${Number(data.ctr||0).toFixed(2)}%</div></div>
-        <div class="metric-box"><div class="label">🛒 Conversoes</div><div class="value neutral">${data.conversions||0}</div></div>
+        <div class="metric-box"><div class="label">🛒 Conversões</div><div class="value neutral">${data.conversions||0}</div></div>
         <div class="metric-box"><div class="label">📊 ROI</div><div class="value ${profitClass}">${Number(data.roi_pct||0).toFixed(1)}%</div></div>
       </div>
-      <div style="margin-top:16px;color:#546e7a;font-size:12px;text-align:right">Ultimos 7 dias • Lucro calculado com dados reais do checkout</div>
     `;
+    // Carregar gráficos após métricas
+    loadCharts();
   } catch (e) {
     document.getElementById('dashboardContent').innerHTML = `
-      <div class="alert alert-info">Conecte suas plataformas na aba "Integracoes" para ver as metricas aqui.</div>
+      <div class="alert alert-info">Conecte suas plataformas na aba "Integrações" para ver as métricas aqui.</div>
     `;
+  }
+}
+
+async function loadCharts() {
+  try {
+    const { data: history } = await api('GET', '/api/metrics/history?days=30');
+    if (!history || history.length === 0) return;
+    document.getElementById('chartsGrid').style.display = 'grid';
+
+    const labels = history.map(d => {
+      const dt = new Date(d.date);
+      return `${dt.getDate()}/${dt.getMonth()+1}`;
+    });
+    const spends   = history.map(d => d.spend);
+    const revenues = history.map(d => d.revenue);
+    const roasArr  = history.map(d => d.roas);
+
+    const chartDefaults = {
+      responsive: true,
+      plugins: { legend: { labels: { color: '#90a4ae', font: { size: 11 } } } },
+      scales: {
+        x: { ticks: { color: '#546e7a', font: { size: 10 } }, grid: { color: '#1e2130' } },
+        y: { ticks: { color: '#546e7a', font: { size: 10 } }, grid: { color: '#2a2d3e' } },
+      }
+    };
+
+    // Chart 1: Gasto vs Receita
+    if (chartSR) chartSR.destroy();
+    chartSR = new Chart(document.getElementById('chartSpendRevenue'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Gasto',   data: spends,   backgroundColor: '#ef535066', borderColor: '#ef5350', borderWidth: 1 },
+          { label: 'Receita', data: revenues, backgroundColor: '#4caf5066', borderColor: '#4caf50', borderWidth: 1 },
+        ],
+      },
+      options: { ...chartDefaults, interaction: { mode: 'index' } },
+    });
+
+    // Chart 2: ROAS linha
+    if (chartRoas) chartRoas.destroy();
+    chartRoas = new Chart(document.getElementById('chartRoas'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'ROAS',
+          data: roasArr,
+          borderColor: '#00bcd4',
+          backgroundColor: '#00bcd422',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 2,
+        }],
+      },
+      options: {
+        ...chartDefaults,
+        plugins: {
+          ...chartDefaults.plugins,
+          annotation: {},
+        },
+        scales: {
+          ...chartDefaults.scales,
+          y: {
+            ...chartDefaults.scales.y,
+            suggestedMin: 0,
+          }
+        }
+      },
+    });
+  } catch (e) {
+    // Gráficos opcionais — não exibir erro se falhar
+    console.log('[Charts] Sem dados de histórico ainda.');
+  }
+}
+
+// ─── RELATÓRIOS ─────────────────────────────────────────────────────────────
+async function downloadPDF() {
+  const btn = event.target;
+  btn.textContent = '⏳ Gerando...';
+  btn.disabled = true;
+  try {
+    const res = await fetch(`${API_URL}/api/reports/pdf?days=7`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) { const e = await res.json(); throw new Error(e.error); }
+    const blob  = await res.blob();
+    const url   = URL.createObjectURL(blob);
+    const a     = document.createElement('a');
+    a.href      = url;
+    a.download  = `relatorio-ippmify-${new Date().toISOString().split('T')[0]}.pdf`;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    alert('Erro ao gerar PDF: ' + e.message);
+  } finally {
+    btn.textContent = '⬇ PDF';
+    btn.disabled = false;
+  }
+}
+
+async function sendWhatsAppReport() {
+  const btn = event.target;
+  btn.textContent = '⏳ Enviando...';
+  btn.disabled = true;
+  try {
+    const { message } = await api('POST', '/api/reports/send-whatsapp', { days: 7 });
+    alert(message);
+  } catch (e) {
+    alert('Erro: ' + e.message);
+  } finally {
+    btn.textContent = '📲 WhatsApp';
+    btn.disabled = false;
   }
 }
 
@@ -705,16 +953,150 @@ async function removeIntegration(id) {
   loadIntegrations();
 }
 
-// ─── CONFIGURACOES ─────────────────────────────────────────────────────────
+// ─── CONFIGURAÇÕES ─────────────────────────────────────────────────────────
 async function saveSettings() {
   try {
     await api('PUT', '/api/auth/settings', {
-      cpa_target:  parseFloat(document.getElementById('settingCpa').value) || null,
-      roas_target: parseFloat(document.getElementById('settingRoas').value) || null,
-      whatsapp:    document.getElementById('settingWhatsapp').value || null,
+      cpa_target:   parseFloat(document.getElementById('settingCpa').value) || null,
+      roas_target:  parseFloat(document.getElementById('settingRoas').value) || null,
+      whatsapp:     document.getElementById('settingWhatsapp').value || null,
+      whatsapp_key: document.getElementById('settingWhatsappKey').value || null,
     });
-    showMsg('settingsMsg', '✅ Configuracoes salvas!', 'success');
+    showMsg('settingsMsg', '✅ Configurações salvas!', 'success');
   } catch (e) { showMsg('settingsMsg', e.message); }
+}
+
+// ─── WIZARD DE ONBOARDING ──────────────────────────────────────────────────
+let wizStep = 0;
+const WIZ_STEPS = 3;
+let wizSelectedPlatform = null;
+
+function showWizard() {
+  document.getElementById('wizardOverlay').style.display = 'flex';
+  wizStep = 0;
+  updateWizUI();
+}
+
+function closeWizard() {
+  document.getElementById('wizardOverlay').style.display = 'none';
+  localStorage.setItem('ippmify_onboarded', '1');
+}
+
+function updateWizUI() {
+  // Painéis
+  document.querySelectorAll('.wiz-panel').forEach((p, i) => {
+    p.classList.toggle('active', i === wizStep);
+  });
+  // Barra de progresso
+  for (let i = 0; i < WIZ_STEPS; i++) {
+    const s = document.getElementById(`ws${i}`);
+    if (i < wizStep)  s.className = 'wiz-step done';
+    else if (i === wizStep) s.className = 'wiz-step active';
+    else s.className = 'wiz-step';
+  }
+  // Botão voltar
+  document.getElementById('wizBtnBack').style.display = wizStep > 0 ? 'inline-block' : 'none';
+  // Texto do próximo
+  document.getElementById('wizBtnNext').textContent = wizStep === WIZ_STEPS - 1 ? 'Concluir ✓' : 'Próximo →';
+}
+
+async function wizNext() {
+  if (wizStep === 0) {
+    // Salvar Meta Ads
+    const t = document.getElementById('wiz-metaToken').value.trim();
+    const a = document.getElementById('wiz-metaAccount').value.trim();
+    if (!t || !a) { showMsg('wizMetaMsg', 'Preencha o token e o Ad Account ID.'); return; }
+    try {
+      document.getElementById('wizBtnNext').textContent = '⏳';
+      await api('POST', '/api/integrations/meta-ads/connect-token', { access_token: t, ad_account_id: a });
+      showMsg('wizMetaMsg', '✅ Conta conectada!', 'success');
+      wizStep++; updateWizUI();
+    } catch (e) {
+      showMsg('wizMetaMsg', e.message);
+    } finally {
+      document.getElementById('wizBtnNext').textContent = 'Próximo →';
+    }
+    return;
+  }
+
+  if (wizStep === 1) {
+    // Plataforma de venda — opcional, pode pular
+    wizStep++; updateWizUI(); return;
+  }
+
+  if (wizStep === 2) {
+    // Salvar targets
+    const cpa  = parseFloat(document.getElementById('wiz-cpa').value) || null;
+    const roas = parseFloat(document.getElementById('wiz-roas').value) || null;
+    if (!cpa && !roas) { showMsg('wizTargetsMsg', 'Defina ao menos um target.'); return; }
+    try {
+      await api('PUT', '/api/auth/settings', { cpa_target: cpa, roas_target: roas });
+      showMsg('wizTargetsMsg', '✅ Targets salvos!', 'success');
+      setTimeout(() => {
+        closeWizard();
+        // Sincronizar Meta Ads automaticamente
+        api('POST', '/api/integrations/meta-ads/sync').catch(()=>{});
+        loadDashboard();
+        loadIntegrations();
+      }, 1200);
+    } catch (e) {
+      showMsg('wizTargetsMsg', e.message);
+    }
+  }
+}
+
+function wizBack() {
+  if (wizStep > 0) { wizStep--; updateWizUI(); }
+}
+
+function wizSelectPlatform(p) {
+  wizSelectedPlatform = p;
+  ['hotmart','kirvano','kiwify'].forEach(pl => {
+    const btn = document.getElementById(`wbtn-${pl}`);
+    btn.style.borderColor = pl === p ? '#00bcd4' : '#3a3d52';
+    btn.style.color       = pl === p ? '#00bcd4' : '#fff';
+  });
+
+  const forms = {
+    hotmart: `
+      <div class="form-group"><label>Client ID</label><input type="text" id="wiz-hId" placeholder="Client ID do Hotmart"></div>
+      <div class="form-group"><label>Client Secret</label><input type="password" id="wiz-hSecret" placeholder="Client Secret"></div>
+      <button class="btn btn-danger btn-sm" onclick="wizConnectPlatform()">Conectar Hotmart</button>`,
+    kirvano: `
+      <div class="alert alert-info" style="font-size:13px">
+        A Kirvano usa webhook. Clique em conectar e depois adicione a URL no seu painel Kirvano.<br>
+        URL: <strong>${(localStorage.getItem('ippmify_api')||'')}/api/integrations/webhook/kirvano</strong>
+      </div>
+      <button class="btn btn-cyan btn-sm" onclick="wizConnectPlatform()">Conectar Kirvano</button>`,
+    kiwify: `
+      <div class="form-group"><label>API Key</label><input type="password" id="wiz-kwKey" placeholder="Sua API Key do Kiwify"></div>
+      <button class="btn btn-cyan btn-sm" onclick="wizConnectPlatform()">Conectar Kiwify</button>`,
+  };
+  document.getElementById('wiz-platform-form').innerHTML = forms[p] || '';
+}
+
+async function wizConnectPlatform() {
+  try {
+    let msg;
+    if (wizSelectedPlatform === 'hotmart') {
+      const r = await api('POST', '/api/integrations/hotmart/connect', {
+        client_id: document.getElementById('wiz-hId').value,
+        client_secret: document.getElementById('wiz-hSecret').value,
+      });
+      msg = r.message;
+    } else if (wizSelectedPlatform === 'kirvano') {
+      const r = await api('POST', '/api/integrations/kirvano/connect');
+      msg = r.message;
+    } else if (wizSelectedPlatform === 'kiwify') {
+      const r = await api('POST', '/api/integrations/kiwify/connect', {
+        api_key: document.getElementById('wiz-kwKey').value,
+      });
+      msg = r.message;
+    }
+    showMsg('wizPlatformMsg', `✅ ${msg}`, 'success');
+  } catch (e) {
+    showMsg('wizPlatformMsg', e.message);
+  }
 }
 
 // ─── CAMPANHAS (3 NIVEIS — estilo UTMify) ─────────────────────────────────
