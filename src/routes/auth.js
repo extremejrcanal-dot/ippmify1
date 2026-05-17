@@ -167,17 +167,18 @@ router.get('/me', requireAuth, async (req, res) => {
 // PUT /api/auth/settings
 router.put('/settings', requireAuth, async (req, res) => {
   try {
-    const { cpa_target, roas_target, whatsapp, timezone } = req.body;
+    const { cpa_target, roas_target, whatsapp, whatsapp_key, timezone } = req.body;
 
     await query(
       `UPDATE users SET
-        cpa_target = COALESCE($1, cpa_target),
-        roas_target = COALESCE($2, roas_target),
-        whatsapp = COALESCE($3, whatsapp),
-        timezone = COALESCE($4, timezone),
-        updated_at = NOW()
-       WHERE id = $5`,
-      [cpa_target, roas_target, whatsapp, timezone, req.user.id]
+        cpa_target   = COALESCE($1, cpa_target),
+        roas_target  = COALESCE($2, roas_target),
+        whatsapp     = COALESCE($3, whatsapp),
+        whatsapp_key = COALESCE($4, whatsapp_key),
+        timezone     = COALESCE($5, timezone),
+        updated_at   = NOW()
+       WHERE id = $6`,
+      [cpa_target, roas_target, whatsapp, whatsapp_key || null, timezone, req.user.id]
     );
 
     res.json({ message: 'Configuracoes atualizadas com sucesso' });
