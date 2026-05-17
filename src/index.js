@@ -11,6 +11,7 @@ const metricsRoutes      = require('./routes/metrics');
 const decisionsRoutes    = require('./routes/decisions');
 const insightsRoutes     = require('./routes/insights');
 const integrationsRoutes = require('./routes/integrations');
+const reportsRoutes      = require('./routes/reports');
 
 // Workers
 const { startSyncScheduler } = require('./workers/syncWorker');
@@ -18,7 +19,6 @@ const { startSyncScheduler } = require('./workers/syncWorker');
 const path = require('path');
 
 const app  = express();
-app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
 
 // ─── MIDDLEWARES DE SEGURANCA ──────────────────────────────────────────────
@@ -67,6 +67,7 @@ app.use('/api/metrics',      metricsRoutes);
 app.use('/api/decisions',    decisionsRoutes);
 app.use('/api/insights',     insightsRoutes);
 app.use('/api/integrations', integrationsRoutes);
+app.use('/api/reports',      reportsRoutes);
 
 // Rota raiz → retorna o app frontend
 app.get('/', (req, res) => {
