@@ -4,6 +4,7 @@ const { runDecisionEngine } = require('../services/decisionEngine');
 const { generateInsights } = require('../services/aiInsights');
 const { sendAlert, sendDailyReport } = require('../services/alertService');
 const { calculateOverview } = require('../services/metricsEngine');
+const { sendDailyWhatsAppReport } = require('../services/reportService');
 
 // ─── WORKER DE SINCRONIZACAO E AUTOMACAO ──────────────────────────────────
 // Roda em background automaticamente
@@ -61,6 +62,21 @@ const startSyncScheduler = () => {
         console.log(`[Worker] Relatorio diario enviado para ${user.email}`);
       } catch (err) {
         console.error(`[Worker] Erro relatorio diario ${user.email}:`, err.message);
+      }
+    }
+  });
+
+  // Todos os dias as 07:00 BRT (10:00 UTC): relatorio WhatsApp
+  cron.schedule('0 10 * * *', async () => {
+    console.log('[Worker] Enviando relatorios diarios via WhatsApp (07:00 BRT)');
+    const users = await getActiveUsers();
+
+    for (const user of users) {
+      try {
+        const sent = await sendDailyWhatsAppReport(user.id);
+        if (sent) console.log(`[Worker] WhatsApp report enviado: ${user.email}`);
+      } catch (err) {
+        console.error(`[Worker] Erro WhatsApp report ${user.email}:`, err.message);
       }
     }
   });
