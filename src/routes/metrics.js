@@ -2,17 +2,24 @@ const express = require('express');
 const { requireAuth } = require('../middleware/auth');
 const { calculateOverview, calculateByCampaign, calculateDailyHistory } = require('../services/metricsEngine');
 const { get, setEx } = require('../config/redis');
+const { decrypt } = require('../services/encryptionService');
 
 const router = express.Router();
 
+// Todas as rotas exigem login
 router.use(requireAuth);
 
+// ─── VISAO GERAL ───────────────────────────────────────────────────────────
+// GET /api/metrics/overview?days=7
 router.get('/overview', async (req, res) => {
   try {
     const days = parseInt(req.query.days) || 7;
     const cacheKey = `metrics:overview:${req.user.id}:${days}d`;
+
+    // Tentar cache primeiro
     const cached = await get(cacheKey);
     if (cached) return res.json({ data: cached, cached: true });
+
     const metrics = await calculateOverview(req.user.id, days);
     res.json({ data: metrics, cached: false });
   } catch (error) {
@@ -21,6 +28,8 @@ router.get('/overview', async (req, res) => {
   }
 });
 
+// ─── METRICAS POR CAMPANHA ─────────────────────────────────────────────────
+// GET /api/metrics/campaigns?days=7
 router.get('/campaigns', async (req, res) => {
   try {
     const days = parseInt(req.query.days) || 7;
@@ -32,6 +41,8 @@ router.get('/campaigns', async (req, res) => {
   }
 });
 
+// ─── HISTORICO DIARIO ──────────────────────────────────────────────────────
+// GET /api/metrics/history?days=30&campaign_id=xxx
 router.get('/history', async (req, res) => {
   try {
     const days = parseInt(req.query.days) || 30;
@@ -44,12 +55,15 @@ router.get('/history', async (req, res) => {
   }
 });
 
+// ─── ARVORE COMPLETA (3 NIVEIS) ────────────────────────────────────────────
+// GET /api/metrics/tree?days=7
 router.get('/tree', async (req, res) => {
   try {
     const days = parseInt(req.query.days) || 7;
     const userId = req.user.id;
     const { query } = require('../config/database');
 
+    // Buscar targets do usuario para calcular saude
     const userResult = await query('SELECT cpa_target, roas_target FROM users WHERE id=$1', [userId]);
     const cpaTarget  = parseFloat(userResult.rows[0]?.cpa_target  || 50);
     const roasTarget = parseFloat(userResult.rows[0]?.roas_target || 2);
@@ -63,6 +77,7 @@ router.get('/tree', async (req, res) => {
       return 'red';
     };
 
+    // NIVEL 1 — Campanhas
     const campResult = await query(`
       SELECT c.id, c.name, c.status, c.external_id,
         COALESCE(SUM(am.spend), 0)::numeric       AS spend,
@@ -78,6 +93,7 @@ router.get('/tree', async (req, res) => {
       ORDER BY spend DESC
     `, [userId, days]);
 
+    // NIVEL 2 — Conjuntos
     const adSetResult = await query(`
       SELECT ads.id, ads.name, ads.status, ads.campaign_id, ads.external_id,
         COALESCE(SUM(asm.spend), 0)::numeric       AS spend,
@@ -93,6 +109,7 @@ router.get('/tree', async (req, res) => {
       ORDER BY spend DESC
     `, [userId, days]);
 
+    // NIVEL 3 — Anuncios
     const adsResult = await query(`
       SELECT a.id, a.name, a.status, a.campaign_id, a.ad_set_id, a.external_id,
         COALESCE(SUM(alm.spend), 0)::numeric       AS spend,
@@ -108,6 +125,7 @@ router.get('/tree', async (req, res) => {
       ORDER BY spend DESC
     `, [userId, days]);
 
+    // Receita por campanha (via utm_campaign)
     const revenueBycamp = await query(`
       SELECT utm_campaign, SUM(net_revenue) AS revenue, COUNT(*) AS conversions
       FROM sales
@@ -116,6 +134,7 @@ router.get('/tree', async (req, res) => {
       GROUP BY utm_campaign
     `, [userId, days]);
 
+    // Receita por anuncio (via utm_content)
     const revenueByAd = await query(`
       SELECT utm_content, SUM(net_revenue) AS revenue, COUNT(*) AS conversions
       FROM sales
@@ -130,6 +149,7 @@ router.get('/tree', async (req, res) => {
     const adRevMap = {};
     revenueByAd.rows.forEach(r => { adRevMap[r.utm_content] = { revenue: parseFloat(r.revenue||0), conversions: parseInt(r.conversions||0) }; });
 
+    // Montar arvore
     const adsBySet = {};
     adsResult.rows.forEach(ad => {
       const key = ad.ad_set_id;
@@ -152,6 +172,7 @@ router.get('/tree', async (req, res) => {
       const key = adSet.campaign_id;
       if (!setsByCamp[key]) setsByCamp[key] = [];
       const spend = parseFloat(adSet.spend);
+      // Receita do conjunto = soma dos anuncios filhos
       const childAds = adsBySet[adSet.id] || [];
       const revenue = childAds.reduce((s, a) => s + a.revenue, 0);
       const conversions = childAds.reduce((s, a) => s + a.conversions, 0);
@@ -171,6 +192,7 @@ router.get('/tree', async (req, res) => {
       const spend = parseFloat(c.spend);
       const campRev = campRevMap[c.external_id] || { revenue: 0, conversions: 0 };
       const adSets = setsByCamp[c.id] || [];
+      // Receita da campanha: prioriza utm_campaign, fallback soma dos conjuntos
       const revenue = campRev.revenue > 0 ? campRev.revenue : adSets.reduce((s, a) => s + a.revenue, 0);
       const conversions = campRev.conversions > 0 ? campRev.conversions : adSets.reduce((s, a) => s + a.conversions, 0);
       return {
@@ -188,6 +210,61 @@ router.get('/tree', async (req, res) => {
     res.json({ data: tree, count: tree.length });
   } catch (error) {
     console.error('[Metrics] Erro tree:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ─── TOGGLE STATUS (pausar / ativar via Meta API) ──────────────────────────
+// POST /api/metrics/toggle
+// body: { entity_type: 'campaign'|'adset'|'ad', entity_id: <uuid>, action: 'pause'|'activate' }
+router.post('/toggle', async (req, res) => {
+  try {
+    const { entity_type, entity_id, action } = req.body;
+    const userId = req.user.id;
+    const { query } = require('../config/database');
+    const { setEntityStatus } = require('../services/metaAds');
+
+    const newStatus = action === 'pause' ? 'PAUSED' : 'ACTIVE';
+
+    const tableMap = { campaign: 'campaigns', adset: 'ad_sets', ad: 'ads' };
+    const tableName = tableMap[entity_type];
+    if (!tableName) return res.status(400).json({ error: 'entity_type invalido' });
+
+    // Buscar external_id e integration_id da entidade
+    const entityResult = await query(
+      `SELECT external_id, integration_id FROM ${tableName} WHERE id=$1 AND user_id=$2`,
+      [entity_id, userId]
+    );
+    if (entityResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Entidade nao encontrada' });
+    }
+    const { external_id, integration_id } = entityResult.rows[0];
+
+    // Buscar token da integracao
+    const intResult = await query(
+      'SELECT access_token FROM integrations WHERE id=$1',
+      [integration_id]
+    );
+    if (intResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Integracao nao encontrada' });
+    }
+    const accessToken = decrypt(intResult.rows[0].access_token);
+
+    // Chamar a Meta API
+    await setEntityStatus(external_id, newStatus, accessToken);
+
+    // Atualizar status no banco local
+    await query(
+      `UPDATE ${tableName} SET status=$1 WHERE id=$2 AND user_id=$3`,
+      [newStatus, entity_id, userId]
+    );
+
+    res.json({
+      message: `${entity_type} ${newStatus === 'PAUSED' ? 'pausado' : 'ativado'} com sucesso`,
+      status: newStatus,
+    });
+  } catch (error) {
+    console.error('[Toggle] Erro:', error.message);
     res.status(500).json({ error: error.message });
   }
 });
