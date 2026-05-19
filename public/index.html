@@ -1154,7 +1154,7 @@ async function loadBenchmarks() {
   document.getElementById('benchMetrics').innerHTML = '<div style="color:var(--text2);font-size:14px;padding:20px">Carregando dados…</div>';
 
   try {
-    const data = await api(`/api/benchmarks?niche=${niche}`);
+    const data = await api('GET', `/api/benchmarks?niche=${niche}`);
 
     // Score geral
     const score = data.overall_score;
