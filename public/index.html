@@ -1317,8 +1317,16 @@ async function sendWhatsAppReport() {
 // ─── INTEGRAÇÕES ─────────────────────────────────────────────────────────────
 async function loadIntegrations() {
   try {
-    const { data } = await api('GET', '/api/integrations');
-    if (!data.length) return;
+    const { data: raw } = await api('GET', '/api/integrations');
+    if (!raw || !raw.length) return;
+
+    // Deduplicar por plataforma — manter apenas o mais recente de cada uma
+    const seen = {};
+    const data = raw.filter(i => {
+      if (seen[i.platform]) return false;
+      seen[i.platform] = true;
+      return true;
+    });
 
     const metaAccounts = data.filter(i => i.platform === 'meta_ads');
     const others       = data.filter(i => i.platform !== 'meta_ads');
