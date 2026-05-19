@@ -12,6 +12,7 @@ const decisionsRoutes    = require('./routes/decisions');
 const insightsRoutes     = require('./routes/insights');
 const integrationsRoutes = require('./routes/integrations');
 const reportsRoutes      = require('./routes/reports');
+const benchmarksRoutes   = require('./routes/benchmarks');
 
 // Workers
 const { startSyncScheduler } = require('./workers/syncWorker');
@@ -68,6 +69,7 @@ app.use('/api/decisions',    decisionsRoutes);
 app.use('/api/insights',     insightsRoutes);
 app.use('/api/integrations', integrationsRoutes);
 app.use('/api/reports',      reportsRoutes);
+app.use('/api/benchmarks',   benchmarksRoutes);
 
 // Rota raiz → retorna o app frontend
 app.get('/', (req, res) => {
