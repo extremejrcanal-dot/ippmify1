@@ -4,6 +4,7 @@ const express  = require('express');
 const cors     = require('cors');
 const helmet   = require('helmet');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
 
 // Rotas
 const authRoutes         = require('./routes/auth');
@@ -18,52 +19,86 @@ const offersRoutes       = require('./routes/offers');
 // Workers
 const { startSyncScheduler } = require('./workers/syncWorker');
 
-const path = require('path');
+// Database
+const { query } = require('./config/database');
+
+// Migrations automaticas
+const runMigrations = async () => {
+  try {
+    await query("ALTER TABLE users ADD COLUMN IF NOT EXISTS whatsapp_key VARCHAR(50) DEFAULT NULL;");
+
+    await query(`DO $$ BEGIN
+      IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'uq_integrations_user_platform') THEN
+        DELETE FROM integrations WHERE id NOT IN (
+          SELECT DISTINCT ON (user_id, platform) id FROM integrations ORDER BY user_id, platform, created_at DESC
+        );
+        ALTER TABLE integrations ADD CONSTRAINT uq_integrations_user_platform UNIQUE (user_id, platform);
+      END IF;
+    END $$;`);
+
+    await query(`CREATE TABLE IF NOT EXISTS offers (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+      name VARCHAR(500) NOT NULL,
+      description TEXT,
+      price NUMERIC(12,2) DEFAULT 0,
+      cost NUMERIC(12,2) DEFAULT 0,
+      status VARCHAR(50) DEFAULT 'active',
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    );`);
+
+    await query("CREATE INDEX IF NOT EXISTS idx_offers_user ON offers(user_id);");
+
+    await query(`CREATE TABLE IF NOT EXISTS offer_campaigns (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      offer_id UUID REFERENCES offers(id) ON DELETE CASCADE,
+      campaign_id UUID REFERENCES campaigns(id) ON DELETE CASCADE,
+      user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      UNIQUE(offer_id, campaign_id)
+    );`);
+
+    await query("CREATE INDEX IF NOT EXISTS idx_offer_campaigns_offer ON offer_campaigns(offer_id);");
+    await query("CREATE INDEX IF NOT EXISTS idx_offer_campaigns_campaign ON offer_campaigns(campaign_id);");
+
+    console.log('[Migrations] OK');
+  } catch (err) {
+    console.error('[Migrations] Erro:', err.message);
+  }
+};
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
-// ─── MIDDLEWARES DE SEGURANCA ──────────────────────────────────────────────
-app.use(helmet({
-  contentSecurityPolicy: false, // Permite o frontend carregar recursos externos
-}));
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
+  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Rate limiting global
 const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 300,                  // 300 requests por IP a cada 15 min
+  windowMs: 15 * 60 * 1000,
+  max: 300,
   message: { error: 'Muitas requisicoes. Aguarde alguns minutos.' }
 });
 app.use(globalLimiter);
 
-// Rate limiting mais restrito para autenticacao
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
   message: { error: 'Muitas tentativas de login. Aguarde 15 minutos.' }
 });
 
-// ─── HEALTH CHECK ──────────────────────────────────────────────────────────
 app.get('/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    service: 'IPPMIFY API',
-    version: '1.0.0',
-    timestamp: new Date().toISOString()
-  });
+  res.json({ status: 'ok', service: 'IPPMIFY API', version: '1.0.0', timestamp: new Date().toISOString() });
 });
 
-// ─── FRONTEND ESTATICO ────────────────────────────────────────────────────
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
-// ─── ROTAS DA API ──────────────────────────────────────────────────────────
 app.use('/api/auth',         authLimiter, authRoutes);
 app.use('/api/metrics',      metricsRoutes);
 app.use('/api/decisions',    decisionsRoutes);
@@ -73,26 +108,19 @@ app.use('/api/reports',      reportsRoutes);
 app.use('/api/benchmarks',   benchmarksRoutes);
 app.use('/api/offers',       offersRoutes);
 
-// Rota raiz → retorna o app frontend
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
-// Rota nao encontrada (apenas para rotas /api/*)
 app.use('/api/*', (req, res) => {
-  res.status(404).json({
-    error: 'Rota nao encontrada',
-    path: req.originalUrl
-  });
+  res.status(404).json({ error: 'Rota nao encontrada', path: req.originalUrl });
 });
 
-// Handler global de erros
 app.use((err, req, res, next) => {
   console.error('[Error]', err.message);
   res.status(500).json({ error: 'Erro interno do servidor' });
 });
 
-// ─── INICIALIZAR SERVIDOR ──────────────────────────────────────────────────
 app.listen(PORT, async () => {
   console.log('');
   console.log('╔══════════════════════════════════════════╗');
@@ -100,11 +128,11 @@ app.listen(PORT, async () => {
   console.log('║      Decisoes Automaticas de Lucro       ║');
   console.log('╚══════════════════════════════════════════╝');
   console.log('');
-  console.log(`[Server] Rodando na porta ${PORT}`);
-  console.log(`[Server] Ambiente: ${process.env.NODE_ENV || 'development'}`);
+  console.log('[Server] Porta: ' + PORT);
+  console.log('[Server] Ambiente: ' + (process.env.NODE_ENV || 'development'));
   console.log('');
 
-  // Iniciar schedulers automaticos
+  await runMigrations();
   startSyncScheduler();
 });
 
