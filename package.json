@@ -1,6 +1,6 @@
 {
   "name": "ippmify",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "IPPMIFY - Profit Intelligence System",
   "main": "src/index.js",
   "scripts": {
