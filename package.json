@@ -1,6 +1,6 @@
 {
   "name": "ippmify",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "IPPMIFY - Profit Intelligence System",
   "main": "src/index.js",
   "scripts": {
@@ -21,6 +21,7 @@
     "express-rate-limit": "^7.1.5",
     "node-cron": "^3.0.3",
     "openai": "^4.24.1",
+    "@anthropic-ai/sdk": "^0.30.0",
     "@sendgrid/mail": "^8.1.0",
     "twilio": "^4.21.0",
     "crypto": "^1.0.1",
