@@ -867,8 +867,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
 
 <script>
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
-const API_URL = localStorage.getItem('ippmify_api') || prompt('Cole aqui o link do seu Railway (ex: https://ippmify1-production-xxxx.railway.app):') || '';
-if (API_URL) localStorage.setItem('ippmify_api', API_URL);
+const API_URL = window.location.origin;
 
 // Setar URL do webhook da Kirvano
 const kirvanoInput = document.getElementById('kirvanoWebhookUrl');
