@@ -164,12 +164,15 @@ router.post('/generate-image', requireAuth, async (req, res) => {
     const OpenAI = require('openai');
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+    // DALL-E 2 aceita: 256x256, 512x512, 1024x1024
+    const validSizes = ['256x256','512x512','1024x1024'];
+    const finalSize  = validSizes.includes(size) ? size : '1024x1024';
+
     const response = await openai.images.generate({
-      model:   'dall-e-3',
-      prompt:  prompt.trim(),
-      n:       1,
-      size,
-      quality,
+      model:  'dall-e-2',
+      prompt: prompt.trim().substring(0, 900), // DALL-E 2: max 1000 chars
+      n:      1,
+      size:   finalSize,
     });
 
     const image_url = response.data[0].url;
@@ -245,10 +248,10 @@ Retorne APENAS um array JSON com 3 strings (os prompts em inglês). Sem texto ad
     const OpenAI = require('openai');
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-    const imagePromises = prompts.slice(0, 3).map(prompt =>
-      openai.images.generate({ model: 'dall-e-3', prompt, n: 1, size: '1024x1024', quality: 'standard' })
+    const imagePromises = prompts.slice(0, 3).map(p =>
+      openai.images.generate({ model: 'dall-e-2', prompt: p.substring(0, 900), n: 1, size: '1024x1024' })
         .then(r => ({ url: r.data[0].url }))
-        .catch(e => ({ url: null, error: e.message }))
+        .catch(e => { console.error('[Creatives] Falha imagem:', e.message); return { url: null, error: e.message }; })
     );
 
     const images = await Promise.all(imagePromises);
