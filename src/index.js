@@ -15,6 +15,7 @@ const integrationsRoutes = require('./routes/integrations');
 const reportsRoutes      = require('./routes/reports');
 const benchmarksRoutes   = require('./routes/benchmarks');
 const offersRoutes       = require('./routes/offers');
+const creativesRoutes    = require('./routes/creatives');
 
 // Workers
 const { startSyncScheduler } = require('./workers/syncWorker');
@@ -107,6 +108,7 @@ app.use('/api/integrations', integrationsRoutes);
 app.use('/api/reports',      reportsRoutes);
 app.use('/api/benchmarks',   benchmarksRoutes);
 app.use('/api/offers',       offersRoutes);
+app.use('/api/creatives',    creativesRoutes);
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
