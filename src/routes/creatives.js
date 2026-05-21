@@ -148,35 +148,21 @@ Regras importantes:
   }
 });
 
-// ─── GERAR IMAGEM POR PROMPT (DALL-E 3) ───────────────────────────────────────
+// ─── GERAR IMAGEM POR PROMPT (Pollinations.ai — gratuito, sem API key) ────────
 // POST /api/creatives/generate-image
 router.post('/generate-image', requireAuth, async (req, res) => {
   try {
-    const { prompt, size = '1024x1024', quality = 'standard' } = req.body;
+    const { prompt, width = 1024, height = 1024 } = req.body;
 
     if (!prompt || !prompt.trim()) {
       return res.status(400).json({ error: 'Prompt é obrigatório' });
     }
-    if (!process.env.OPENAI_API_KEY) {
-      return res.status(500).json({ error: 'OPENAI_API_KEY não configurada no servidor' });
-    }
 
-    const OpenAI = require('openai');
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    const seed      = Math.floor(Math.random() * 999999);
+    const encoded   = encodeURIComponent(prompt.trim());
+    const image_url = `https://image.pollinations.ai/prompt/${encoded}?width=${width}&height=${height}&seed=${seed}&model=flux&nologo=true`;
 
-    // DALL-E 2 aceita: 256x256, 512x512, 1024x1024
-    const validSizes = ['256x256','512x512','1024x1024'];
-    const finalSize  = validSizes.includes(size) ? size : '1024x1024';
-
-    const response = await openai.images.generate({
-      model:  'dall-e-2',
-      prompt: prompt.trim().substring(0, 900), // DALL-E 2: max 1000 chars
-      n:      1,
-      size:   finalSize,
-    });
-
-    const image_url = response.data[0].url;
-    console.log(`[Creatives] Imagem gerada por prompt (user: ${req.user.id})`);
+    console.log(`[Creatives] URL de imagem gerada (user: ${req.user.id})`);
     res.json({ image_url });
 
   } catch (error) {
@@ -185,7 +171,7 @@ router.post('/generate-image', requireAuth, async (req, res) => {
   }
 });
 
-// ─── VARIAÇÕES DE IMAGEM (analisa criativo + gera 3 versões com DALL-E 3) ────
+// ─── VARIAÇÕES DE IMAGEM (Claude analisa + Pollinations gera) ─────────────────
 // POST /api/creatives/generate-image-variations
 router.post('/generate-image-variations', requireAuth, async (req, res) => {
   try {
@@ -197,13 +183,8 @@ router.post('/generate-image-variations', requireAuth, async (req, res) => {
     if (!process.env.ANTHROPIC_API_KEY) {
       return res.status(500).json({ error: 'ANTHROPIC_API_KEY não configurada' });
     }
-    if (!process.env.OPENAI_API_KEY) {
-      return res.status(500).json({ error: 'OPENAI_API_KEY não configurada' });
-    }
 
-    // 1. Claude analisa o criativo e gera 3 prompts para DALL-E
-    const clientAI = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
+    // Claude analisa o criativo e gera 3 prompts
     let mediaType = 'image/jpeg';
     let imageData = image_base64;
     if (image_base64.startsWith('data:')) {
@@ -211,54 +192,47 @@ router.post('/generate-image-variations', requireAuth, async (req, res) => {
       if (match) { mediaType = match[1]; imageData = match[2]; }
     }
 
-    const analysisMsg = await clientAI.messages.create({
+    const analysisMsg = await client.messages.create({
       model:      'claude-sonnet-4-5',
       max_tokens: 1500,
       system: `Você é um especialista em criativos de tráfego pago de alta conversão.
-Analise a imagem do criativo fornecida e gere 3 prompts em inglês para o DALL-E 3 criar variações diferentes.
+Analise a imagem do criativo fornecida e gere 3 prompts em inglês para gerar variações com IA.
 Cada prompt deve:
 - Manter o conceito central do produto/serviço
-- Ter um ângulo visual diferente (close-up, lifestyle, produto isolado, etc.)
+- Ter um ângulo visual diferente (close-up, lifestyle, produto isolado, cena de uso, etc.)
 - Ser no estilo: ${style}
 ${context ? `- Considerar o contexto: ${context}` : ''}
-- Ser otimizado para anúncio de alta conversão
-- Ter no máximo 200 palavras
+- Ser detalhado, descritivo e otimizado para geração de imagem de alta conversão
+- Ter entre 50 e 150 palavras
 
 Retorne APENAS um array JSON com 3 strings (os prompts em inglês). Sem texto adicional.`,
       messages: [{
         role: 'user',
         content: [
           { type: 'image', source: { type: 'base64', media_type: mediaType, data: imageData } },
-          { type: 'text', text: 'Analise este criativo e gere 3 prompts DALL-E para variações de alta conversão.' }
+          { type: 'text', text: 'Analise este criativo e gere 3 prompts para variações de alta conversão.' }
         ]
       }]
     });
 
     let prompts;
     try {
-      const raw = analysisMsg.content[0].text.trim();
+      const raw     = analysisMsg.content[0].text.trim();
       const jsonStr = raw.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '').trim();
       prompts = JSON.parse(jsonStr);
       if (!Array.isArray(prompts)) throw new Error('Não é array');
     } catch (e) {
-      return res.status(500).json({ error: 'Erro ao gerar prompts de variação. Tente novamente.' });
+      return res.status(500).json({ error: 'Erro ao analisar criativo. Tente novamente.' });
     }
 
-    // 2. Gera as imagens com DALL-E 3
-    const OpenAI = require('openai');
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    // Gera URLs do Pollinations para cada prompt
+    const images = prompts.slice(0, 3).map((p, i) => ({
+      url:    `https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?width=1024&height=1024&seed=${i * 1000 + Math.floor(Math.random() * 999)}&model=flux&nologo=true`,
+      prompt: p,
+    }));
 
-    const imagePromises = prompts.slice(0, 3).map(p =>
-      openai.images.generate({ model: 'dall-e-2', prompt: p.substring(0, 900), n: 1, size: '1024x1024' })
-        .then(r => ({ url: r.data[0].url }))
-        .catch(e => { console.error('[Creatives] Falha imagem:', e.message); return { url: null, error: e.message }; })
-    );
-
-    const images = await Promise.all(imagePromises);
-    const validImages = images.filter(img => img.url);
-
-    console.log(`[Creatives] ${validImages.length} variações de imagem geradas (user: ${req.user.id})`);
-    res.json({ images: validImages });
+    console.log(`[Creatives] ${images.length} variações de imagem geradas (user: ${req.user.id})`);
+    res.json({ images });
 
   } catch (error) {
     console.error('[Creatives] Erro variações imagem:', error.message);
