@@ -578,9 +578,50 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       <div id="mode-copy">
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:24px;">
           <div style="font-size:15px;font-weight:700;font-family:'Sora',sans-serif;margin-bottom:20px;">📝 Gerar Variações de Copy</div>
+
+          <!-- Campos de precisão -->
+          <div style="background:var(--bg3);border-radius:12px;padding:18px;margin-bottom:20px;border:1px solid var(--border);">
+            <div style="font-size:12px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;">🎯 Precisão do Criativo</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label>Produto / Serviço</label>
+                <input type="text" id="creativeProduto" placeholder="Ex: Curso de Tráfego Pago, Suplemento X...">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label>Nicho</label>
+                <select id="creativeNicho" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:11px 14px;border-radius:10px;font-family:'Montserrat',sans-serif;font-size:14px;outline:none;">
+                  <option value="">Selecione o nicho…</option>
+                  <option value="infoproduto">Infoproduto / Curso Online</option>
+                  <option value="ecommerce">E-commerce / Produto Físico</option>
+                  <option value="saude_beleza">Saúde e Beleza</option>
+                  <option value="servico">Serviço / Consultoria</option>
+                  <option value="financas">Finanças / Investimentos</option>
+                  <option value="educacao">Educação</option>
+                  <option value="fitness">Fitness / Esporte</option>
+                  <option value="outro">Outro</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label>Público-Alvo</label>
+                <input type="text" id="creativePublico" placeholder="Ex: Mulheres 25-40 anos que querem emagrecer">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label>Tom de Voz</label>
+                <select id="creativeTom" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:11px 14px;border-radius:10px;font-family:'Montserrat',sans-serif;font-size:14px;outline:none;">
+                  <option value="urgente">⚡ Urgente e Direto</option>
+                  <option value="inspirador">🚀 Inspirador e Motivacional</option>
+                  <option value="descontraido">😊 Descontraído e Próximo</option>
+                  <option value="formal">💼 Profissional e Formal</option>
+                  <option value="empatico">❤️ Empático e Acolhedor</option>
+                  <option value="agressivo">🔥 Agressivo e Provocativo</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
           <div class="form-group">
-            <label>Texto / Copy do criativo atual</label>
-            <textarea id="creativeText" rows="5" placeholder="Cole aqui o texto do seu anúncio, a copy da página de vendas ou descreva o produto e público-alvo..." style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;font-family:'Montserrat',sans-serif;outline:none;resize:vertical;transition:.2s;line-height:1.6;"></textarea>
+            <label>Texto / Copy atual (opcional se preencheu os campos acima)</label>
+            <textarea id="creativeText" rows="4" placeholder="Cole o texto do seu anúncio atual ou descreva mais sobre o produto..." style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;font-family:'Montserrat',sans-serif;outline:none;resize:vertical;transition:.2s;line-height:1.6;"></textarea>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
             <div class="form-group">
@@ -1295,12 +1336,16 @@ function clearCreativeImage() {
 }
 
 async function generateCreatives() {
-  const text = document.getElementById('creativeText').value.trim();
-  const url  = document.getElementById('creativeUrl').value.trim();
-  const msg  = document.getElementById('creativesMsg');
+  const text    = document.getElementById('creativeText').value.trim();
+  const url     = document.getElementById('creativeUrl').value.trim();
+  const produto = document.getElementById('creativeProduto').value.trim();
+  const nicho   = document.getElementById('creativeNicho').value;
+  const publico = document.getElementById('creativePublico').value.trim();
+  const tom     = document.getElementById('creativeTom').value;
+  const msg     = document.getElementById('creativesMsg');
 
-  if (!text && !url && !creativeImageBase64) {
-    msg.innerHTML = '<div class="alert alert-error">Preencha pelo menos um campo: texto, URL ou imagem.</div>';
+  if (!text && !url && !creativeImageBase64 && !produto) {
+    msg.innerHTML = '<div class="alert alert-error">Preencha pelo menos o produto ou cole um texto/URL.</div>';
     return;
   }
   msg.innerHTML = '';
@@ -1312,8 +1357,12 @@ async function generateCreatives() {
 
   try {
     const body = {};
-    if (text) body.text = text;
-    if (url)  body.url  = url;
+    if (text)    body.text    = text;
+    if (url)     body.url     = url;
+    if (produto) body.produto = produto;
+    if (nicho)   body.nicho   = nicho;
+    if (publico) body.publico = publico;
+    if (tom)     body.tom     = tom;
     if (creativeImageBase64) body.image_base64 = creativeImageBase64;
 
     const { variations, tokens_used } = await api('POST', '/api/creatives/generate', body);
@@ -1451,27 +1500,35 @@ async function generateImgVariations() {
       </div>
     `).join('');
 
-    // Carregar imagens com delay para evitar rate limit do Pollinations
-    function loadImgvarOne(img, i) {
-      const wrap = document.getElementById(`imgvar-wrap-${i}`);
-      if (!wrap) return;
-      const el = new Image();
-      el.style.cssText = 'width:100%;border-radius:10px;';
-      el.onload = () => { wrap.innerHTML = ''; wrap.appendChild(el); };
-      el.onerror = () => {
-        // Tenta novamente uma vez após 3 segundos
-        wrap.innerHTML = '<div style="color:var(--text2);font-size:12px;"><span class="spinner"></span> Tentando novamente…</div>';
-        setTimeout(() => {
-          const el2 = new Image();
-          el2.style.cssText = 'width:100%;border-radius:10px;';
-          el2.onload  = () => { wrap.innerHTML = ''; wrap.appendChild(el2); };
-          el2.onerror = () => { wrap.innerHTML = '<div style="color:var(--text3);font-size:12px;">Erro ao carregar — tente reabrir o link</div>'; };
-          el2.src = img.url + '&retry=1';
-        }, 3000);
-      };
-      el.src = img.url;
+    // Carregar imagens sequencialmente para evitar rate limit do Pollinations
+    async function loadImgvarSequential(images) {
+      for (let i = 0; i < images.length; i++) {
+        const img  = images[i];
+        const wrap = document.getElementById(`imgvar-wrap-${i}`);
+        if (!wrap) continue;
+        await new Promise(resolve => {
+          const tryLoad = (attempt) => {
+            const el = new Image();
+            el.style.cssText = 'width:100%;border-radius:10px;';
+            el.onload = () => { wrap.innerHTML = ''; wrap.appendChild(el); resolve(); };
+            el.onerror = () => {
+              if (attempt < 2) {
+                wrap.innerHTML = '<div style="color:var(--text2);font-size:12px;"><span class="spinner"></span> Tentando novamente…</div>';
+                setTimeout(() => tryLoad(attempt + 1), 4000);
+              } else {
+                wrap.innerHTML = `<div style="color:var(--text3);font-size:12px;padding:10px;">Não carregou — <a href="${img.url}" target="_blank" style="color:var(--blue);">abrir direto</a></div>`;
+                resolve();
+              }
+            };
+            el.src = img.url + (attempt > 0 ? `&r=${attempt}` : '');
+          };
+          tryLoad(0);
+        });
+        // Pausa entre imagens para respeitar rate limit
+        if (i < images.length - 1) await new Promise(r => setTimeout(r, 2000));
+      }
     }
-    images.forEach((img, i) => setTimeout(() => loadImgvarOne(img, i), i * 3000));
+    loadImgvarSequential(images);
 
     document.getElementById('imgvarResults').style.display = 'block';
     document.getElementById('imgvarResults').scrollIntoView({ behavior: 'smooth', block: 'start' });
