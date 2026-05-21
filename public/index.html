@@ -423,8 +423,8 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       <div class="nav-item" id="nav-campaigns" onclick="showTab('campaigns')">
         <span class="nav-icon">📢</span> Campanhas
       </div>
-      <div class="nav-item" id="nav-offers" onclick="showTab('offers')">
-        <span class="nav-icon">🛒</span> Ofertas
+      <div class="nav-item" id="nav-creatives" onclick="showTab('creatives')">
+        <span class="nav-icon">✨</span> IA Criativa
       </div>
       <div class="nav-item" id="nav-reports" onclick="showTab('reports')">
         <span class="nav-icon">📋</span> Relatórios
@@ -558,80 +558,60 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
     </div>
 
-    <!-- ── OFERTAS ── -->
-    <div id="tab-offers" class="tab-page">
+    <!-- ── IA CRIATIVA ── -->
+    <div id="tab-creatives" class="tab-page">
       <div class="page-header">
         <div>
-          <div class="page-title">Ofertas</div>
-          <div class="page-subtitle">Acompanhe o desempenho de cada produto ou oferta</div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:center;">
-          <select id="offersDays" onchange="loadOffers()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 14px;border-radius:10px;font-family:'Montserrat',sans-serif;font-size:13px;">
-            <option value="7">Últimos 7 dias</option>
-            <option value="14">Últimos 14 dias</option>
-            <option value="30" selected>Últimos 30 dias</option>
-          </select>
-          <button class="btn btn-primary btn-sm" onclick="openOfferModal()">+ Nova Oferta</button>
+          <div class="page-title">✨ IA Criativa</div>
+          <div class="page-subtitle">Cole o texto, URL ou imagem do seu criativo e gere 6 variações com ganchos, ângulos e formatos diferentes para escalar</div>
         </div>
       </div>
 
-      <!-- Lista de ofertas -->
-      <div id="offersGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;"></div>
-      <div id="offersEmpty" style="display:none;text-align:center;padding:60px 20px;color:var(--text2);">
-        <div style="font-size:48px;margin-bottom:16px;">🛒</div>
-        <div style="font-size:18px;font-weight:700;margin-bottom:8px;font-family:'Sora',sans-serif;">Nenhuma oferta cadastrada</div>
-        <div style="font-size:14px;margin-bottom:20px;">Crie sua primeira oferta para começar a acompanhar os resultados por produto</div>
-        <button class="btn btn-primary" onclick="openOfferModal()">+ Criar primeira oferta</button>
-      </div>
-    </div>
+      <!-- Input Card -->
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:24px;">
+        <div style="font-size:15px;font-weight:700;font-family:'Sora',sans-serif;margin-bottom:20px;">📥 Material do Criativo</div>
 
-    <!-- ── MODAL OFERTA ── -->
-    <div id="offerModal" style="display:none;position:fixed;inset:0;background:#0009;z-index:1000;align-items:center;justify-content:center;">
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:32px;width:100%;max-width:500px;margin:20px;max-height:90vh;overflow-y:auto;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
-          <div style="font-size:18px;font-weight:700;font-family:'Sora',sans-serif;" id="offerModalTitle">Nova Oferta</div>
-          <button onclick="closeOfferModal()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;">✕</button>
-        </div>
-        <input type="hidden" id="offerEditId">
         <div class="form-group">
-          <label>Nome da Oferta *</label>
-          <input type="text" id="offerName" placeholder="Ex: Curso de Tráfego Pago">
+          <label>Texto / Copy do criativo atual</label>
+          <textarea id="creativeText" rows="5" placeholder="Cole aqui o texto atual do seu anúncio, a copy da página de vendas ou descreva o produto e público-alvo..." style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;font-family:'Montserrat',sans-serif;outline:none;resize:vertical;transition:.2s;line-height:1.6;"></textarea>
         </div>
-        <div class="form-group">
-          <label>Descrição</label>
-          <input type="text" id="offerDesc" placeholder="Descrição opcional">
-        </div>
+
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
           <div class="form-group">
-            <label>Preço de Venda (R$)</label>
-            <input type="number" id="offerPrice" placeholder="0.00" min="0" step="0.01">
+            <label>URL da Página de Vendas</label>
+            <input type="url" id="creativeUrl" placeholder="https://seuproduto.com.br">
           </div>
           <div class="form-group">
-            <label>Custo do Produto (R$)</label>
-            <input type="number" id="offerCost" placeholder="0.00" min="0" step="0.01">
+            <label>Imagem do Criativo</label>
+            <div id="creativeImageDrop" onclick="document.getElementById('creativeImageInput').click()" style="background:var(--bg3);border:1px dashed var(--border);border-radius:10px;padding:18px;text-align:center;cursor:pointer;transition:.2s;" onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='var(--border)'">
+              <div id="creativeImagePreview" style="display:none;position:relative;">
+                <img id="creativeImageThumb" style="max-height:80px;border-radius:6px;max-width:100%;">
+                <button onclick="event.stopPropagation();clearCreativeImage()" style="position:absolute;top:-8px;right:-8px;background:var(--red);border:none;color:#fff;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:12px;line-height:1;">✕</button>
+              </div>
+              <div id="creativeImagePlaceholder">
+                <div style="font-size:24px;margin-bottom:6px;">🖼️</div>
+                <div style="font-size:12px;color:var(--text2);">Clique para selecionar imagem</div>
+                <div style="font-size:11px;color:var(--text3);margin-top:3px;">JPG, PNG — máx 5MB</div>
+              </div>
+            </div>
+            <input type="file" id="creativeImageInput" accept="image/*" style="display:none" onchange="handleCreativeImage(event)">
           </div>
         </div>
-        <div id="offerModalMsg"></div>
-        <div style="display:flex;gap:12px;margin-top:8px;">
-          <button class="btn btn-ghost" onclick="closeOfferModal()" style="flex:1;">Cancelar</button>
-          <button class="btn btn-primary" onclick="saveOffer()" style="flex:1;" id="offerSaveBtn">Salvar Oferta</button>
-        </div>
-      </div>
-    </div>
 
-    <!-- ── MODAL CAMPANHAS DA OFERTA ── -->
-    <div id="offerCampaignModal" style="display:none;position:fixed;inset:0;background:#0009;z-index:1000;align-items:center;justify-content:center;">
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:32px;width:100%;max-width:540px;margin:20px;max-height:90vh;overflow-y:auto;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-          <div style="font-size:18px;font-weight:700;font-family:'Sora',sans-serif;">Vincular Campanhas</div>
-          <button onclick="closeCampaignModal()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;">✕</button>
+        <div id="creativesMsg" style="margin-bottom:12px;"></div>
+
+        <button class="btn btn-primary" onclick="generateCreatives()" id="generateBtn" style="font-size:15px;padding:14px 22px;">
+          ✨ Gerar 6 Variações com IA
+        </button>
+      </div>
+
+      <!-- Results -->
+      <div id="creativesResults" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div style="font-size:15px;font-weight:700;font-family:'Sora',sans-serif;">🎯 Variações Geradas</div>
+          <div id="creativesTokens" style="font-size:12px;color:var(--text3);"></div>
         </div>
-        <div style="font-size:13px;color:var(--text2);margin-bottom:16px;">Vincule campanhas Meta Ads a esta oferta para ver as métricas consolidadas.</div>
-        <input type="hidden" id="campaignModalOfferId">
-        <div id="linkedCampaignsList" style="margin-bottom:16px;"></div>
-        <div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;">Disponíveis para vincular</div>
-        <div id="availableCampaignsList"></div>
-        <button class="btn btn-ghost" onclick="closeCampaignModal()" style="width:100%;margin-top:16px;">Fechar</button>
+        <div id="creativesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px;"></div>
       </div>
     </div>
 
@@ -997,7 +977,7 @@ function showTab(name) {
   if (name === 'campaigns')   loadCampaigns();
   if (name === 'alerts')      loadAlerts();
   if (name === 'benchmarks')  loadBenchmarks();
-  if (name === 'offers')      loadOffers();
+  // creatives tab has no auto-load (it's a generator)
 }
 
 // ─── DASHBOARD ───────────────────────────────────────────────────────────────
@@ -1207,215 +1187,120 @@ async function runDecisions() {
   finally { btn.innerHTML = '▶ Executar Motor'; btn.disabled = false; }
 }
 
-// ─── OFERTAS ─────────────────────────────────────────────────────────────────
-async function loadOffers() {
-  const days = document.getElementById('offersDays')?.value || 30;
-  const grid  = document.getElementById('offersGrid');
-  const empty = document.getElementById('offersEmpty');
-  grid.innerHTML = '<div style="color:var(--text2);font-size:14px;padding:20px;grid-column:1/-1">Carregando ofertas…</div>';
+// ─── IA CRIATIVA ──────────────────────────────────────────────────────────────
+let creativeImageBase64 = null;
 
-  try {
-    const { offers } = await api('GET', `/api/offers?days=${days}`);
-
-    if (!offers || offers.length === 0) {
-      grid.innerHTML = '';
-      empty.style.display = 'block';
-      return;
-    }
-    empty.style.display = 'none';
-
-    const fmt   = v => `R$ ${Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
-    const fmtN  = (v,d=2) => v !== null && v !== undefined ? Number(v).toFixed(d) : '—';
-    const pColor = v => v > 0 ? 'var(--green)' : v < 0 ? 'var(--red)' : 'var(--text2)';
-    const statusLabel = { active:'🟢 Ativa', paused:'🟡 Pausada', archived:'⚫ Arquivada' };
-
-    grid.innerHTML = offers.map(o => `
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:16px;">
-
-        <!-- Header -->
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
-          <div style="flex:1;min-width:0;">
-            <div style="font-weight:700;font-size:16px;font-family:'Sora',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${o.name}</div>
-            ${o.description ? `<div style="color:var(--text3);font-size:12px;margin-top:3px;">${o.description}</div>` : ''}
-          </div>
-          <span style="font-size:12px;white-space:nowrap;">${statusLabel[o.status]||o.status}</span>
-        </div>
-
-        <!-- Métricas principais -->
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
-          <div style="background:var(--bg3);border-radius:10px;padding:12px;text-align:center;">
-            <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">Receita</div>
-            <div style="font-size:15px;font-weight:700;color:var(--green);">${fmt(o.revenue)}</div>
-          </div>
-          <div style="background:var(--bg3);border-radius:10px;padding:12px;text-align:center;">
-            <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">Gasto</div>
-            <div style="font-size:15px;font-weight:700;color:var(--blue);">${fmt(o.spend)}</div>
-          </div>
-          <div style="background:var(--bg3);border-radius:10px;padding:12px;text-align:center;">
-            <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">Lucro</div>
-            <div style="font-size:15px;font-weight:700;color:${pColor(o.profit)};">${fmt(o.profit)}</div>
-          </div>
-        </div>
-
-        <!-- ROAS / CPA / Conversões -->
-        <div style="display:flex;justify-content:space-between;padding:12px;background:var(--bg3);border-radius:10px;">
-          <div style="text-align:center;">
-            <div style="font-size:11px;color:var(--text3);">ROAS</div>
-            <div style="font-size:16px;font-weight:700;color:${o.roas>=2?'var(--green)':o.roas>=1?'var(--orange)':'var(--red)'};">${fmtN(o.roas)}x</div>
-          </div>
-          <div style="text-align:center;">
-            <div style="font-size:11px;color:var(--text3);">CPA</div>
-            <div style="font-size:16px;font-weight:700;">${o.cpa ? fmt(o.cpa) : '—'}</div>
-          </div>
-          <div style="text-align:center;">
-            <div style="font-size:11px;color:var(--text3);">Conversões</div>
-            <div style="font-size:16px;font-weight:700;">${Math.round(o.conversions)}</div>
-          </div>
-          <div style="text-align:center;">
-            <div style="font-size:11px;color:var(--text3);">Ticket</div>
-            <div style="font-size:16px;font-weight:700;">${fmt(o.price)}</div>
-          </div>
-        </div>
-
-        <!-- Campanhas vinculadas -->
-        <div style="font-size:12px;color:var(--text3);">
-          📢 ${o.linked_campaigns} campanha${o.linked_campaigns!==1?'s':''} vinculada${o.linked_campaigns!==1?'s':''}
-        </div>
-
-        <!-- Ações -->
-        <div style="display:flex;gap:8px;">
-          <button class="btn btn-ghost btn-xs" style="flex:1;" onclick="openCampaignModal('${o.id}')">🔗 Campanhas</button>
-          <button class="btn btn-ghost btn-xs" style="flex:1;" onclick="editOffer('${o.id}','${o.name.replace(/'/g,"\\'")}','${(o.description||'').replace(/'/g,"\\'")}',${o.price},${o.cost})">✏️ Editar</button>
-          <button class="btn btn-red btn-xs" onclick="deleteOffer('${o.id}')">🗑️</button>
-        </div>
-      </div>
-    `).join('');
-
-  } catch(e) {
-    grid.innerHTML = `<div style="color:var(--red);font-size:14px;padding:20px;grid-column:1/-1">Erro: ${e.message}</div>`;
-  }
-}
-
-function openOfferModal() {
-  document.getElementById('offerEditId').value = '';
-  document.getElementById('offerModalTitle').textContent = 'Nova Oferta';
-  document.getElementById('offerName').value = '';
-  document.getElementById('offerDesc').value = '';
-  document.getElementById('offerPrice').value = '';
-  document.getElementById('offerCost').value = '';
-  document.getElementById('offerModalMsg').innerHTML = '';
-  document.getElementById('offerModal').style.display = 'flex';
-}
-
-function editOffer(id, name, desc, price, cost) {
-  document.getElementById('offerEditId').value = id;
-  document.getElementById('offerModalTitle').textContent = 'Editar Oferta';
-  document.getElementById('offerName').value = name;
-  document.getElementById('offerDesc').value = desc;
-  document.getElementById('offerPrice').value = price;
-  document.getElementById('offerCost').value = cost;
-  document.getElementById('offerModalMsg').innerHTML = '';
-  document.getElementById('offerModal').style.display = 'flex';
-}
-
-function closeOfferModal() {
-  document.getElementById('offerModal').style.display = 'none';
-}
-
-async function saveOffer() {
-  const btn  = document.getElementById('offerSaveBtn');
-  const id   = document.getElementById('offerEditId').value;
-  const name = document.getElementById('offerName').value.trim();
-  const desc = document.getElementById('offerDesc').value.trim();
-  const price = parseFloat(document.getElementById('offerPrice').value) || 0;
-  const cost  = parseFloat(document.getElementById('offerCost').value)  || 0;
-
-  if (!name) {
-    document.getElementById('offerModalMsg').innerHTML = '<div class="alert alert-error">Nome é obrigatório</div>';
+function handleCreativeImage(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    document.getElementById('creativesMsg').innerHTML = '<div class="alert alert-error">Imagem muito grande. Máximo 5MB.</div>';
     return;
   }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    creativeImageBase64 = e.target.result;
+    document.getElementById('creativeImageThumb').src = e.target.result;
+    document.getElementById('creativeImagePreview').style.display = 'block';
+    document.getElementById('creativeImagePlaceholder').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
 
-  btn.innerHTML = '<span class="spinner"></span>';
+function clearCreativeImage() {
+  creativeImageBase64 = null;
+  document.getElementById('creativeImageInput').value = '';
+  document.getElementById('creativeImagePreview').style.display = 'none';
+  document.getElementById('creativeImagePlaceholder').style.display = 'block';
+}
+
+async function generateCreatives() {
+  const text = document.getElementById('creativeText').value.trim();
+  const url  = document.getElementById('creativeUrl').value.trim();
+  const msg  = document.getElementById('creativesMsg');
+
+  if (!text && !url && !creativeImageBase64) {
+    msg.innerHTML = '<div class="alert alert-error">Preencha pelo menos um campo: texto, URL ou imagem.</div>';
+    return;
+  }
+  msg.innerHTML = '';
+
+  const btn = document.getElementById('generateBtn');
+  btn.innerHTML = '<span class="spinner"></span> Gerando variações…';
   btn.disabled = true;
+  document.getElementById('creativesResults').style.display = 'none';
 
   try {
-    if (id) {
-      await api('PUT', `/api/offers/${id}`, { name, description: desc, price, cost });
-    } else {
-      await api('POST', '/api/offers', { name, description: desc, price, cost });
-    }
-    closeOfferModal();
-    loadOffers();
+    const body = {};
+    if (text) body.text = text;
+    if (url)  body.url  = url;
+    if (creativeImageBase64) body.image_base64 = creativeImageBase64;
+
+    const { variations, tokens_used } = await api('POST', '/api/creatives/generate', body);
+
+    document.getElementById('creativesTokens').textContent = `${tokens_used} tokens usados`;
+    document.getElementById('creativesGrid').innerHTML = variations.map((v, i) => renderCreativeCard(v, i)).join('');
+    document.getElementById('creativesResults').style.display = 'block';
+    document.getElementById('creativesResults').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
   } catch(e) {
-    document.getElementById('offerModalMsg').innerHTML = `<div class="alert alert-error">${e.message}</div>`;
+    msg.innerHTML = `<div class="alert alert-error">${e.message}</div>`;
   } finally {
-    btn.innerHTML = 'Salvar Oferta';
+    btn.innerHTML = '✨ Gerar 6 Variações com IA';
     btn.disabled = false;
   }
 }
 
-async function deleteOffer(id) {
-  if (!confirm('Remover esta oferta? As campanhas vinculadas não serão afetadas.')) return;
-  try {
-    await api('DELETE', `/api/offers/${id}`);
-    loadOffers();
-  } catch(e) { alert(e.message); }
+const hookColors = {
+  curiosidade:   { bg:'#0c1f3d', border:'#1e40af', text:'#93c5fd', label:'🔍 Curiosidade'   },
+  dor:           { bg:'#3a0f0f', border:'#7f1d1d', text:'#fca5a5', label:'😣 Dor'            },
+  prova_social:  { bg:'#052e16', border:'#14532d', text:'#86efac', label:'⭐ Prova Social'   },
+  urgencia:      { bg:'#2d1a00', border:'#78350f', text:'#fcd34d', label:'⚡ Urgência'       },
+  transformacao: { bg:'#1e0a3d', border:'#5b21b6', text:'#c4b5fd', label:'🚀 Transformação'  },
+  identidade:    { bg:'#0f1f2e', border:'#0e7490', text:'#67e8f9', label:'🎯 Identidade'     },
+};
+
+function renderCreativeCard(v, i) {
+  const hook    = hookColors[v.hook_type] || hookColors['curiosidade'];
+  const safeText = (v.primary_text || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const copyText = (v.primary_text || '').replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$');
+  return `
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:14px;">
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <span style="background:${hook.bg};border:1px solid ${hook.border};color:${hook.text};font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;">${hook.label}</span>
+        <span style="background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:11px;padding:4px 10px;border-radius:20px;">📱 ${v.platform || 'Universal'}</span>
+      </div>
+
+      <div style="font-size:11px;color:var(--text3);font-style:italic;">Ângulo: ${v.angle || '—'}</div>
+
+      <div style="font-size:18px;font-weight:800;font-family:'Sora',sans-serif;line-height:1.3;color:var(--text);">${v.headline || ''}</div>
+
+      <div style="font-size:13px;color:var(--text2);line-height:1.75;white-space:pre-wrap;background:var(--bg3);border-radius:10px;padding:14px;">${safeText}</div>
+
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:11px;color:var(--text3);">CTA:</span>
+        <span style="background:var(--blue);color:#fff;font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;">${v.cta || ''}</span>
+      </div>
+
+      <div style="font-size:12px;color:var(--text3);border-top:1px solid var(--border);padding-top:12px;">
+        💡 ${v.why_it_converts || ''}
+      </div>
+
+      <button onclick="copyCreative(this, \`${copyText}\`)" class="btn btn-ghost btn-sm" style="width:100%;">
+        📋 Copiar Texto
+      </button>
+    </div>
+  `;
 }
 
-async function openCampaignModal(offerId) {
-  document.getElementById('campaignModalOfferId').value = offerId;
-  document.getElementById('linkedCampaignsList').innerHTML = '<div style="color:var(--text2);font-size:13px;">Carregando…</div>';
-  document.getElementById('availableCampaignsList').innerHTML = '';
-  document.getElementById('offerCampaignModal').style.display = 'flex';
-
-  try {
-    const { linked, available } = await api('GET', `/api/offers/${offerId}/campaigns`);
-
-    document.getElementById('linkedCampaignsList').innerHTML = linked.length === 0
-      ? '<div style="color:var(--text3);font-size:13px;margin-bottom:8px;">Nenhuma campanha vinculada ainda.</div>'
-      : `<div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">Vinculadas (${linked.length})</div>` +
-        linked.map(c => `
-          <div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg3);border-radius:8px;padding:10px 14px;margin-bottom:6px;">
-            <div>
-              <div style="font-size:13px;font-weight:600;">${c.name}</div>
-              <div style="font-size:11px;color:var(--text3);">${c.status}</div>
-            </div>
-            <button class="btn btn-red btn-xs" onclick="unlinkCampaign('${offerId}','${c.id}')">Remover</button>
-          </div>`).join('');
-
-    document.getElementById('availableCampaignsList').innerHTML = available.length === 0
-      ? '<div style="color:var(--text3);font-size:13px;">Todas as campanhas já estão vinculadas.</div>'
-      : available.map(c => `
-          <div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg3);border-radius:8px;padding:10px 14px;margin-bottom:6px;">
-            <div>
-              <div style="font-size:13px;font-weight:600;">${c.name}</div>
-              <div style="font-size:11px;color:var(--text3);">${c.status}</div>
-            </div>
-            <button class="btn btn-primary btn-xs" onclick="linkCampaign('${offerId}','${c.id}')">+ Vincular</button>
-          </div>`).join('');
-  } catch(e) {
-    document.getElementById('linkedCampaignsList').innerHTML = `<div style="color:var(--red);font-size:13px;">Erro: ${e.message}</div>`;
-  }
-}
-
-function closeCampaignModal() {
-  document.getElementById('offerCampaignModal').style.display = 'none';
-}
-
-async function linkCampaign(offerId, campaignId) {
-  try {
-    await api('POST', `/api/offers/${offerId}/campaigns`, { campaign_id: campaignId });
-    openCampaignModal(offerId);
-    loadOffers();
-  } catch(e) { alert(e.message); }
-}
-
-async function unlinkCampaign(offerId, campaignId) {
-  try {
-    await api('DELETE', `/api/offers/${offerId}/campaigns/${campaignId}`);
-    openCampaignModal(offerId);
-    loadOffers();
-  } catch(e) { alert(e.message); }
+function copyCreative(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✅ Copiado!';
+    setTimeout(() => { btn.innerHTML = '📋 Copiar Texto'; }, 2000);
+  }).catch(() => {
+    btn.textContent = 'Erro ao copiar';
+  });
 }
 
 // ─── BENCHMARKS ──────────────────────────────────────────────────────────────
