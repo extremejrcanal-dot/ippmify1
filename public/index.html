@@ -563,55 +563,135 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       <div class="page-header">
         <div>
           <div class="page-title">✨ IA Criativa</div>
-          <div class="page-subtitle">Cole o texto, URL ou imagem do seu criativo e gere 6 variações com ganchos, ângulos e formatos diferentes para escalar</div>
+          <div class="page-subtitle">Gere copies, variações de imagem e novas imagens com inteligência artificial</div>
         </div>
       </div>
 
-      <!-- Input Card -->
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:24px;">
-        <div style="font-size:15px;font-weight:700;font-family:'Sora',sans-serif;margin-bottom:20px;">📥 Material do Criativo</div>
+      <!-- Mode Selector -->
+      <div style="display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:5px;margin-bottom:24px;width:fit-content;">
+        <button id="modeBtn-copy"   onclick="switchCreativeMode('copy')"   style="padding:10px 22px;border-radius:10px;border:none;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;background:var(--blue);color:#fff;">📝 Copy</button>
+        <button id="modeBtn-imgvar" onclick="switchCreativeMode('imgvar')" style="padding:10px 22px;border-radius:10px;border:none;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;background:transparent;color:var(--text2);">🖼️ Variação de Imagem</button>
+        <button id="modeBtn-imggen" onclick="switchCreativeMode('imggen')" style="padding:10px 22px;border-radius:10px;border:none;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;background:transparent;color:var(--text2);">🎨 Gerar por Prompt</button>
+      </div>
 
-        <div class="form-group">
-          <label>Texto / Copy do criativo atual</label>
-          <textarea id="creativeText" rows="5" placeholder="Cole aqui o texto atual do seu anúncio, a copy da página de vendas ou descreva o produto e público-alvo..." style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;font-family:'Montserrat',sans-serif;outline:none;resize:vertical;transition:.2s;line-height:1.6;"></textarea>
-        </div>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <!-- ── MODO COPY ── -->
+      <div id="mode-copy">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:24px;">
+          <div style="font-size:15px;font-weight:700;font-family:'Sora',sans-serif;margin-bottom:20px;">📝 Gerar Variações de Copy</div>
           <div class="form-group">
-            <label>URL da Página de Vendas</label>
-            <input type="url" id="creativeUrl" placeholder="https://seuproduto.com.br">
+            <label>Texto / Copy do criativo atual</label>
+            <textarea id="creativeText" rows="5" placeholder="Cole aqui o texto do seu anúncio, a copy da página de vendas ou descreva o produto e público-alvo..." style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;font-family:'Montserrat',sans-serif;outline:none;resize:vertical;transition:.2s;line-height:1.6;"></textarea>
           </div>
-          <div class="form-group">
-            <label>Imagem do Criativo</label>
-            <div id="creativeImageDrop" onclick="document.getElementById('creativeImageInput').click()" style="background:var(--bg3);border:1px dashed var(--border);border-radius:10px;padding:18px;text-align:center;cursor:pointer;transition:.2s;" onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='var(--border)'">
-              <div id="creativeImagePreview" style="display:none;position:relative;">
-                <img id="creativeImageThumb" style="max-height:80px;border-radius:6px;max-width:100%;">
-                <button onclick="event.stopPropagation();clearCreativeImage()" style="position:absolute;top:-8px;right:-8px;background:var(--red);border:none;color:#fff;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:12px;line-height:1;">✕</button>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="form-group">
+              <label>URL da Página de Vendas</label>
+              <input type="url" id="creativeUrl" placeholder="https://seuproduto.com.br">
+            </div>
+            <div class="form-group">
+              <label>Imagem do Criativo (opcional)</label>
+              <div onclick="document.getElementById('creativeImageInput').click()" style="background:var(--bg3);border:1px dashed var(--border);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:.2s;" onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='var(--border)'">
+                <div id="creativeImagePreview" style="display:none;position:relative;">
+                  <img id="creativeImageThumb" style="max-height:70px;border-radius:6px;max-width:100%;">
+                  <button onclick="event.stopPropagation();clearCreativeImage()" style="position:absolute;top:-8px;right:-8px;background:var(--red);border:none;color:#fff;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:12px;line-height:1;">✕</button>
+                </div>
+                <div id="creativeImagePlaceholder"><div style="font-size:20px;">🖼️</div><div style="font-size:12px;color:var(--text2);margin-top:4px;">Clique para selecionar</div></div>
               </div>
-              <div id="creativeImagePlaceholder">
-                <div style="font-size:24px;margin-bottom:6px;">🖼️</div>
-                <div style="font-size:12px;color:var(--text2);">Clique para selecionar imagem</div>
-                <div style="font-size:11px;color:var(--text3);margin-top:3px;">JPG, PNG — máx 5MB</div>
+              <input type="file" id="creativeImageInput" accept="image/*" style="display:none" onchange="handleCreativeImage(event)">
+            </div>
+          </div>
+          <div id="creativesMsg" style="margin-bottom:12px;"></div>
+          <button class="btn btn-primary" onclick="generateCreatives()" id="generateBtn" style="font-size:15px;padding:14px 22px;">✨ Gerar 6 Variações de Copy</button>
+        </div>
+        <div id="creativesResults" style="display:none;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div style="font-size:15px;font-weight:700;font-family:'Sora',sans-serif;">🎯 Variações Geradas</div>
+            <div id="creativesTokens" style="font-size:12px;color:var(--text3);"></div>
+          </div>
+          <div id="creativesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px;"></div>
+        </div>
+      </div>
+
+      <!-- ── MODO VARIAÇÃO DE IMAGEM ── -->
+      <div id="mode-imgvar" style="display:none;">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:24px;">
+          <div style="font-size:15px;font-weight:700;font-family:'Sora',sans-serif;margin-bottom:8px;">🖼️ Variação de Imagem</div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">Sobe o seu criativo atual e a IA gera 3 novas versões com ângulos e estilos diferentes usando DALL-E 3.</div>
+          <div class="form-group">
+            <label>Imagem do Criativo Atual *</label>
+            <div onclick="document.getElementById('imgvarInput').click()" style="background:var(--bg3);border:2px dashed var(--border);border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:.2s;" onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='var(--border)'">
+              <div id="imgvarPreview" style="display:none;position:relative;display:inline-block;">
+                <img id="imgvarThumb" style="max-height:160px;border-radius:8px;max-width:100%;">
+                <button onclick="event.stopPropagation();clearImgvar()" style="position:absolute;top:-10px;right:-10px;background:var(--red);border:none;color:#fff;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:13px;">✕</button>
+              </div>
+              <div id="imgvarPlaceholder">
+                <div style="font-size:40px;margin-bottom:10px;">🖼️</div>
+                <div style="font-size:14px;color:var(--text2);font-weight:600;">Clique para selecionar o criativo</div>
+                <div style="font-size:12px;color:var(--text3);margin-top:6px;">JPG ou PNG — máx 5MB</div>
               </div>
             </div>
-            <input type="file" id="creativeImageInput" accept="image/*" style="display:none" onchange="handleCreativeImage(event)">
+            <input type="file" id="imgvarInput" accept="image/*" style="display:none" onchange="handleImgvar(event)">
           </div>
+          <div class="form-group">
+            <label>Contexto adicional (opcional)</label>
+            <input type="text" id="imgvarContext" placeholder="Ex: produto fitness, público feminino 25-35 anos, tom motivacional">
+          </div>
+          <div class="form-group">
+            <label>Estilo das variações</label>
+            <select id="imgvarStyle" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:11px 14px;border-radius:10px;font-family:'Montserrat',sans-serif;font-size:14px;outline:none;">
+              <option value="photorealistic">Fotorrealista</option>
+              <option value="cinematic">Cinematográfico</option>
+              <option value="minimalist">Minimalista</option>
+              <option value="bold graphic">Gráfico Bold</option>
+              <option value="lifestyle">Lifestyle / Natural</option>
+            </select>
+          </div>
+          <div id="imgvarMsg" style="margin-bottom:12px;"></div>
+          <button class="btn btn-primary" onclick="generateImgVariations()" id="imgvarBtn" style="font-size:15px;padding:14px 22px;">🖼️ Gerar 3 Variações de Imagem</button>
         </div>
-
-        <div id="creativesMsg" style="margin-bottom:12px;"></div>
-
-        <button class="btn btn-primary" onclick="generateCreatives()" id="generateBtn" style="font-size:15px;padding:14px 22px;">
-          ✨ Gerar 6 Variações com IA
-        </button>
+        <div id="imgvarResults" style="display:none;">
+          <div style="font-size:15px;font-weight:700;font-family:'Sora',sans-serif;margin-bottom:16px;">🎨 Imagens Geradas</div>
+          <div id="imgvarGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;"></div>
+        </div>
       </div>
 
-      <!-- Results -->
-      <div id="creativesResults" style="display:none;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-          <div style="font-size:15px;font-weight:700;font-family:'Sora',sans-serif;">🎯 Variações Geradas</div>
-          <div id="creativesTokens" style="font-size:12px;color:var(--text3);"></div>
+      <!-- ── MODO GERAR POR PROMPT ── -->
+      <div id="mode-imggen" style="display:none;">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:24px;">
+          <div style="font-size:15px;font-weight:700;font-family:'Sora',sans-serif;margin-bottom:8px;">🎨 Gerar Imagem por Prompt</div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">Descreva a imagem que você quer criar e o DALL-E 3 vai gerar para você.</div>
+          <div class="form-group">
+            <label>Prompt da Imagem *</label>
+            <textarea id="imggenPrompt" rows="4" placeholder="Ex: Foto de um homem de negócios confiante segurando um celular, fundo de escritório moderno, iluminação profissional, estilo fotorrealista, alta qualidade..." style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;font-family:'Montserrat',sans-serif;outline:none;resize:vertical;line-height:1.6;"></textarea>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="form-group">
+              <label>Formato</label>
+              <select id="imggenSize" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:11px 14px;border-radius:10px;font-family:'Montserrat',sans-serif;font-size:14px;outline:none;">
+                <option value="1024x1024">Quadrado 1:1 (Feed)</option>
+                <option value="1792x1024">Paisagem 16:9 (Stories / Banner)</option>
+                <option value="1024x1792">Retrato 9:16 (Reels / TikTok)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Qualidade</label>
+              <select id="imggenQuality" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:11px 14px;border-radius:10px;font-family:'Montserrat',sans-serif;font-size:14px;outline:none;">
+                <option value="standard">Padrão (mais rápido)</option>
+                <option value="hd">HD (mais detalhado)</option>
+              </select>
+            </div>
+          </div>
+          <div id="imggenMsg" style="margin-bottom:12px;"></div>
+          <button class="btn btn-primary" onclick="generateImgFromPrompt()" id="imggenBtn" style="font-size:15px;padding:14px 22px;">🎨 Gerar Imagem</button>
         </div>
-        <div id="creativesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px;"></div>
+        <div id="imggenResult" style="display:none;">
+          <div style="font-size:15px;font-weight:700;font-family:'Sora',sans-serif;margin-bottom:16px;">🖼️ Imagem Gerada</div>
+          <div id="imggenImageWrap" style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center;">
+            <img id="imggenImage" style="max-width:100%;border-radius:12px;max-height:600px;">
+            <div style="margin-top:16px;">
+              <a id="imggenDownload" href="#" download="criativo.png" class="btn btn-ghost btn-sm">⬇ Baixar Imagem</a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1301,6 +1381,115 @@ function copyCreative(btn, text) {
   }).catch(() => {
     btn.textContent = 'Erro ao copiar';
   });
+}
+
+// ─── MODO SELECTOR ────────────────────────────────────────────────────────────
+function switchCreativeMode(mode) {
+  ['copy','imgvar','imggen'].forEach(m => {
+    document.getElementById('mode-' + m).style.display     = m === mode ? 'block' : 'none';
+    const btn = document.getElementById('modeBtn-' + m);
+    btn.style.background = m === mode ? 'var(--blue)' : 'transparent';
+    btn.style.color      = m === mode ? '#fff'        : 'var(--text2)';
+  });
+}
+
+// ─── VARIAÇÃO DE IMAGEM (imgvar) ──────────────────────────────────────────────
+let imgvarBase64 = null;
+
+function handleImgvar(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    document.getElementById('imgvarMsg').innerHTML = '<div class="alert alert-error">Imagem muito grande. Máximo 5MB.</div>';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    imgvarBase64 = e.target.result;
+    document.getElementById('imgvarThumb').src = e.target.result;
+    document.getElementById('imgvarPreview').style.display = 'inline-block';
+    document.getElementById('imgvarPlaceholder').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearImgvar() {
+  imgvarBase64 = null;
+  document.getElementById('imgvarInput').value = '';
+  document.getElementById('imgvarPreview').style.display = 'none';
+  document.getElementById('imgvarPlaceholder').style.display = 'block';
+}
+
+async function generateImgVariations() {
+  if (!imgvarBase64) {
+    document.getElementById('imgvarMsg').innerHTML = '<div class="alert alert-error">Selecione uma imagem do criativo primeiro.</div>';
+    return;
+  }
+  document.getElementById('imgvarMsg').innerHTML = '';
+  const btn = document.getElementById('imgvarBtn');
+  btn.innerHTML = '<span class="spinner"></span> Gerando variações…';
+  btn.disabled = true;
+  document.getElementById('imgvarResults').style.display = 'none';
+
+  try {
+    const context = document.getElementById('imgvarContext').value.trim();
+    const style   = document.getElementById('imgvarStyle').value;
+
+    const { images } = await api('POST', '/api/creatives/generate-image-variations', {
+      image_base64: imgvarBase64,
+      context,
+      style
+    });
+
+    document.getElementById('imgvarGrid').innerHTML = images.map((img, i) => `
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px;text-align:center;">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:10px;font-weight:600;">Variação ${i + 1}</div>
+        <img src="${img.url}" style="width:100%;border-radius:10px;margin-bottom:12px;" onerror="this.src='';this.alt='Imagem indisponível'">
+        <a href="${img.url}" download="variacao-${i+1}.png" target="_blank" class="btn btn-ghost btn-sm" style="width:100%;">⬇ Baixar</a>
+      </div>
+    `).join('');
+
+    document.getElementById('imgvarResults').style.display = 'block';
+    document.getElementById('imgvarResults').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  } catch(e) {
+    document.getElementById('imgvarMsg').innerHTML = `<div class="alert alert-error">${e.message}</div>`;
+  } finally {
+    btn.innerHTML = '🖼️ Gerar 3 Variações de Imagem';
+    btn.disabled = false;
+  }
+}
+
+// ─── GERAR POR PROMPT (imggen) ────────────────────────────────────────────────
+async function generateImgFromPrompt() {
+  const prompt = document.getElementById('imggenPrompt').value.trim();
+  if (!prompt) {
+    document.getElementById('imggenMsg').innerHTML = '<div class="alert alert-error">Escreva um prompt para gerar a imagem.</div>';
+    return;
+  }
+  document.getElementById('imggenMsg').innerHTML = '';
+  const btn = document.getElementById('imggenBtn');
+  btn.innerHTML = '<span class="spinner"></span> Gerando imagem…';
+  btn.disabled = true;
+  document.getElementById('imggenResult').style.display = 'none';
+
+  try {
+    const size    = document.getElementById('imggenSize').value;
+    const quality = document.getElementById('imggenQuality').value;
+
+    const { image_url } = await api('POST', '/api/creatives/generate-image', { prompt, size, quality });
+
+    document.getElementById('imggenImage').src = image_url;
+    document.getElementById('imggenDownload').href = image_url;
+    document.getElementById('imggenResult').style.display = 'block';
+    document.getElementById('imggenResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  } catch(e) {
+    document.getElementById('imggenMsg').innerHTML = `<div class="alert alert-error">${e.message}</div>`;
+  } finally {
+    btn.innerHTML = '🎨 Gerar Imagem';
+    btn.disabled = false;
+  }
 }
 
 // ─── BENCHMARKS ──────────────────────────────────────────────────────────────
