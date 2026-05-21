@@ -1,4 +1,5 @@
-const express  = require('express');
+const express    = require('express');
+const Anthropic   = require('@anthropic-ai/sdk');
 const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
@@ -13,17 +14,13 @@ router.post('/generate', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Forneça pelo menos um: texto, imagem ou URL' });
     }
 
-    if (!process.env.OPENAI_API_KEY) {
-      return res.status(500).json({ error: 'OPENAI_API_KEY não configurada no servidor' });
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return res.status(500).json({ error: 'ANTHROPIC_API_KEY não configurada no servidor' });
     }
 
-    const OpenAI = require('openai');
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-    const messages = [
-      {
-        role: 'system',
-        content: `Você é um especialista em copywriting de resposta direta e criativos de alta conversão para tráfego pago (Meta Ads, Google Ads, TikTok Ads).
+    const systemPrompt = `Você é um especialista em copywriting de resposta direta e criativos de alta conversão para tráfego pago (Meta Ads, Google Ads, TikTok Ads).
 
 Sua missão: analisar o material fornecido e gerar 6 variações de criativo com máxima conversão, cada uma com um hook, ângulo e formato completamente diferentes.
 
@@ -33,21 +30,20 @@ Para cada variação, retorne um objeto JSON com exatamente estes campos:
   "angle": "nome do ângulo psicológico (ex: Medo de perder, Desejo de pertencer, Autoridade, Escassez...)",
   "platform": "Meta Ads" | "TikTok Ads" | "Google Ads" | "Universal",
   "headline": "título chamativo com no máximo 45 caracteres",
-  "primary_text": "texto principal do anúncio com emojis estratégicos, máx 400 caracteres",
+  "primary_text": "texto principal do anúncio com emojis estratégicos, máx 400 caracteres, com quebras de linha",
   "cta": "texto do botão (ex: Quero Agora, Saiba Mais, Começar Grátis, Garantir Vaga, Ver Oferta)",
   "why_it_converts": "explicação de 1 linha sobre por que essa variação gera conversão"
 }
 
 Regras importantes:
-- Cada variação DEVE ter um hook_type diferente (use os 6 tipos diferentes)
+- Cada variação DEVE ter um hook_type diferente (use os 6 tipos, um por variação)
 - Use linguagem direta, persuasiva e focada no benefício e transformação
 - Adapte o tom e formato para a plataforma indicada
 - Inclua emojis estratégicos no primary_text
 - O primary_text deve ter quebras de linha para facilitar a leitura
-- Retorne SOMENTE um array JSON válido com 6 objetos. Sem markdown, sem texto adicional antes ou depois.`
-      }
-    ];
+- Retorne SOMENTE um array JSON válido com 6 objetos. Sem markdown, sem texto adicional antes ou depois.`;
 
+    // Montar conteúdo da mensagem
     const userContent = [];
 
     if (text) {
@@ -85,12 +81,25 @@ Regras importantes:
     }
 
     if (image_base64) {
-      const imageUrl = image_base64.startsWith('data:')
-        ? image_base64
-        : `data:image/jpeg;base64,${image_base64}`;
+      // Extrair media_type e dados base64
+      let mediaType = 'image/jpeg';
+      let imageData = image_base64;
+
+      if (image_base64.startsWith('data:')) {
+        const match = image_base64.match(/^data:([^;]+);base64,(.+)$/);
+        if (match) {
+          mediaType = match[1];
+          imageData = match[2];
+        }
+      }
+
       userContent.push({
-        type: 'image_url',
-        image_url: { url: imageUrl, detail: 'high' }
+        type: 'image',
+        source: {
+          type:       'base64',
+          media_type: mediaType,
+          data:       imageData,
+        }
       });
       userContent.push({
         type: 'text',
@@ -102,16 +111,21 @@ Regras importantes:
       return res.status(400).json({ error: 'Nenhum conteúdo fornecido' });
     }
 
-    messages.push({ role: 'user', content: userContent });
-
-    const completion = await openai.chat.completions.create({
-      model:       'gpt-4o',
-      messages,
-      max_tokens:  3000,
-      temperature: 0.85,
+    userContent.push({
+      type: 'text',
+      text: 'Gere as 6 variações agora. Retorne apenas o array JSON.'
     });
 
-    const raw = completion.choices[0].message.content.trim();
+    const message = await client.messages.create({
+      model:      'claude-sonnet-4-5',
+      max_tokens: 3000,
+      system:     systemPrompt,
+      messages: [
+        { role: 'user', content: userContent }
+      ]
+    });
+
+    const raw = message.content[0].text.trim();
 
     let variations;
     try {
@@ -123,8 +137,10 @@ Regras importantes:
       return res.status(500).json({ error: 'Erro ao processar resposta da IA. Tente novamente.' });
     }
 
-    console.log(`[Creatives] ${variations.length} variações geradas (user: ${req.user.id})`);
-    res.json({ variations, tokens_used: completion.usage?.total_tokens || 0 });
+    const tokensUsed = (message.usage?.input_tokens || 0) + (message.usage?.output_tokens || 0);
+    console.log(`[Creatives] ${variations.length} variações geradas (user: ${req.user.id}, tokens: ${tokensUsed})`);
+
+    res.json({ variations, tokens_used: tokensUsed });
 
   } catch (error) {
     console.error('[Creatives] Erro:', error.message);
