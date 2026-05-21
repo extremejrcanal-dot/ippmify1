@@ -20,36 +20,38 @@ router.get('/', requireAuth, async (req, res) => {
         o.cost,
         o.status,
         o.created_at,
-        -- Gasto total das campanhas vinculadas (Meta Ads)
-        COALESCE(SUM(DISTINCT am.spend_total), 0)::float         AS spend,
-        -- Receita total das vendas vinculadas (por utm_campaign)
-        COALESCE(SUM(DISTINCT s.revenue_total), 0)::float        AS revenue,
-        -- Conversões
-        COALESCE(SUM(DISTINCT s.conversions_total), 0)::float    AS conversions,
-        -- Campanhas vinculadas
-        COUNT(DISTINCT oc.campaign_id)::int                      AS linked_campaigns
+        COALESCE(spend_data.spend, 0)::float           AS spend,
+        COALESCE(rev_data.revenue_total, 0)::float     AS revenue,
+        COALESCE(rev_data.conversions_total, 0)::float AS conversions,
+        COALESCE(camp_data.cnt, 0)::int                AS linked_campaigns
       FROM offers o
-      LEFT JOIN offer_campaigns oc ON oc.offer_id = o.id
       LEFT JOIN LATERAL (
-        SELECT campaign_id, SUM(spend)::float AS spend_total
-        FROM ad_metrics
-        WHERE campaign_id = oc.campaign_id
-          AND date >= NOW() - ($2 || ' days')::INTERVAL
-        GROUP BY campaign_id
-      ) am ON true
+        SELECT SUM(am.spend)::float AS spend
+        FROM offer_campaigns oc
+        JOIN ad_metrics am ON am.campaign_id = oc.campaign_id
+        WHERE oc.offer_id = o.id
+          AND oc.user_id = $1
+          AND am.date >= NOW() - ($2::text || ' days')::INTERVAL
+      ) spend_data ON true
       LEFT JOIN LATERAL (
         SELECT
-          SUM(net_revenue)::float AS revenue_total,
-          COUNT(*)::float         AS conversions_total
-        FROM sales s2
-        JOIN campaigns c ON c.external_id = s2.utm_campaign
-        WHERE c.id = oc.campaign_id
-          AND s2.user_id = o.user_id
-          AND s2.status = 'approved'
-          AND s2.sale_date >= NOW() - ($2 || ' days')::INTERVAL
-      ) s ON true
+          SUM(s2.net_revenue)::float AS revenue_total,
+          COUNT(*)::float            AS conversions_total
+        FROM offer_campaigns oc
+        JOIN campaigns c  ON c.id = oc.campaign_id
+        JOIN sales s2     ON s2.utm_campaign = c.external_id
+        WHERE oc.offer_id = o.id
+          AND oc.user_id  = $1
+          AND s2.user_id  = $1
+          AND s2.status   = 'approved'
+          AND s2.sale_date >= NOW() - ($2::text || ' days')::INTERVAL
+      ) rev_data ON true
+      LEFT JOIN LATERAL (
+        SELECT COUNT(*)::int AS cnt
+        FROM offer_campaigns oc
+        WHERE oc.offer_id = o.id AND oc.user_id = $1
+      ) camp_data ON true
       WHERE o.user_id = $1
-      GROUP BY o.id
       ORDER BY o.created_at DESC
     `, [req.user.id, days]);
 
