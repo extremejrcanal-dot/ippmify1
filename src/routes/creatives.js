@@ -4,6 +4,11 @@ const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Cliente Anthropic compartilhado entre todas as rotas
+const client = process.env.ANTHROPIC_API_KEY
+  ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  : null;
+
 // ─── GERAR VARIAÇÕES DE CRIATIVO COM IA ───────────────────────────────────────
 // POST /api/creatives/generate
 router.post('/generate', requireAuth, async (req, res) => {
@@ -14,11 +19,9 @@ router.post('/generate', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Forneça pelo menos um: texto, imagem ou URL' });
     }
 
-    if (!process.env.ANTHROPIC_API_KEY) {
+    if (!client) {
       return res.status(500).json({ error: 'ANTHROPIC_API_KEY não configurada no servidor' });
     }
-
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
     const systemPrompt = `Você é um especialista em copywriting de resposta direta e criativos de alta conversão para tráfego pago (Meta Ads, Google Ads, TikTok Ads).
 
@@ -180,7 +183,7 @@ router.post('/generate-image-variations', requireAuth, async (req, res) => {
     if (!image_base64) {
       return res.status(400).json({ error: 'Imagem é obrigatória' });
     }
-    if (!process.env.ANTHROPIC_API_KEY) {
+    if (!client) {
       return res.status(500).json({ error: 'ANTHROPIC_API_KEY não configurada' });
     }
 
