@@ -13,19 +13,30 @@ const client = process.env.ANTHROPIC_API_KEY
 // POST /api/creatives/generate
 router.post('/generate', requireAuth, async (req, res) => {
   try {
-    const { text, image_base64, url } = req.body;
+    const { text, image_base64, url, produto, nicho, publico, tom } = req.body;
 
-    if (!text && !image_base64 && !url) {
-      return res.status(400).json({ error: 'Forneça pelo menos um: texto, imagem ou URL' });
+    if (!text && !image_base64 && !url && !produto) {
+      return res.status(400).json({ error: 'Forneça pelo menos um: produto, texto, imagem ou URL' });
     }
 
     if (!client) {
       return res.status(500).json({ error: 'ANTHROPIC_API_KEY não configurada no servidor' });
     }
 
+    // Contexto de precisão
+    const nichoLabels = { infoproduto:'Infoproduto/Curso Online', ecommerce:'E-commerce/Produto Físico', saude_beleza:'Saúde e Beleza', servico:'Serviço/Consultoria', financas:'Finanças/Investimentos', educacao:'Educação', fitness:'Fitness/Esporte', outro:'Outro' };
+    const tomLabels   = { urgente:'Urgente e Direto', inspirador:'Inspirador e Motivacional', descontraido:'Descontraído e Próximo', formal:'Profissional e Formal', empatico:'Empático e Acolhedor', agressivo:'Agressivo e Provocativo' };
+    const contexto    = [
+      produto ? `Produto/Serviço: ${produto}` : '',
+      nicho   ? `Nicho: ${nichoLabels[nicho] || nicho}` : '',
+      publico ? `Público-alvo: ${publico}` : '',
+      tom     ? `Tom de voz: ${tomLabels[tom] || tom}` : '',
+    ].filter(Boolean).join('\n');
+
     const systemPrompt = `Você é um especialista em copywriting de resposta direta e criativos de alta conversão para tráfego pago (Meta Ads, Google Ads, TikTok Ads).
 
-Sua missão: analisar o material fornecido e gerar 6 variações de criativo com máxima conversão, cada uma com um hook, ângulo e formato completamente diferentes.
+${contexto ? `CONTEXTO DO CRIATIVO:\n${contexto}\n\nUse OBRIGATORIAMENTE essas informações para personalizar cada variação ao máximo. A copy deve ser extremamente específica para o produto, público e tom definidos acima.\n` : ''}
+Sua missão: gerar 6 variações de criativo com máxima conversão, cada uma com um hook, ângulo e formato completamente diferentes.
 
 Para cada variação, retorne um objeto JSON com exatamente estes campos:
 {
