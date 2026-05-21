@@ -1451,14 +1451,27 @@ async function generateImgVariations() {
       </div>
     `).join('');
 
-    // Carregar imagens individualmente
-    images.forEach((img, i) => {
+    // Carregar imagens com delay para evitar rate limit do Pollinations
+    function loadImgvarOne(img, i) {
+      const wrap = document.getElementById(`imgvar-wrap-${i}`);
+      if (!wrap) return;
       const el = new Image();
       el.style.cssText = 'width:100%;border-radius:10px;';
-      el.onload  = () => { document.getElementById(`imgvar-wrap-${i}`).innerHTML = ''; document.getElementById(`imgvar-wrap-${i}`).appendChild(el); };
-      el.onerror = () => { document.getElementById(`imgvar-wrap-${i}`).innerHTML = '<div style="color:var(--text3);font-size:12px;">Erro ao carregar</div>'; };
+      el.onload = () => { wrap.innerHTML = ''; wrap.appendChild(el); };
+      el.onerror = () => {
+        // Tenta novamente uma vez após 3 segundos
+        wrap.innerHTML = '<div style="color:var(--text2);font-size:12px;"><span class="spinner"></span> Tentando novamente…</div>';
+        setTimeout(() => {
+          const el2 = new Image();
+          el2.style.cssText = 'width:100%;border-radius:10px;';
+          el2.onload  = () => { wrap.innerHTML = ''; wrap.appendChild(el2); };
+          el2.onerror = () => { wrap.innerHTML = '<div style="color:var(--text3);font-size:12px;">Erro ao carregar — tente reabrir o link</div>'; };
+          el2.src = img.url + '&retry=1';
+        }, 3000);
+      };
       el.src = img.url;
-    });
+    }
+    images.forEach((img, i) => setTimeout(() => loadImgvarOne(img, i), i * 3000));
 
     document.getElementById('imgvarResults').style.display = 'block';
     document.getElementById('imgvarResults').scrollIntoView({ behavior: 'smooth', block: 'start' });
