@@ -2321,17 +2321,23 @@ function updatePlatformUI(platform, integration) {
     const metaList = document.getElementById('metaAccountsList');
     if (metaList) {
       metaList.innerHTML = metaAccounts.length === 0
-        ? ''
+        ? '<div style="color:var(--text3);font-size:12px;padding:8px 0">Nenhuma conta conectada ainda.</div>'
         : '<div style="margin-bottom:14px">' + metaAccounts.map(i => `
           <div class="int-item">
             <div class="int-info">
               <div class="int-dot ${i.is_active?'on':'off'}"></div>
               <div>
-                <div class="int-name">${i.account_name||'Conta Meta'}</div>
-                <div class="int-status">${i.last_synced_at?'Sync: '+new Date(i.last_synced_at).toLocaleString('pt-BR'):'Nunca sincronizado'}</div>
+                <div class="int-name">${i.account_name||'Conta Meta'} ${i.is_active?'<span style="font-size:10px;color:var(--green);font-weight:700">● ATIVA</span>':'<span style="font-size:10px;color:var(--orange);font-weight:700">● INATIVA</span>'}</div>
+                <div class="int-status">${i.last_synced_at?'Última sync: '+new Date(i.last_synced_at).toLocaleString('pt-BR'):'Nunca sincronizado'}</div>
               </div>
             </div>
-            <button class="btn btn-red btn-xs" onclick="removeIntegration('${i.id}')">Remover</button>
+            <div style="display:flex;gap:6px;flex-shrink:0">
+              ${i.is_active
+                ? `<button class="btn btn-ghost btn-xs" onclick="toggleMetaAccount('${i.id}')">⏸ Desativar</button>`
+                : `<button class="btn btn-green btn-xs" onclick="toggleMetaAccount('${i.id}')">▶ Reativar</button>`
+              }
+              <button class="btn btn-red btn-xs" onclick="removeIntegration('${i.id}')">✕</button>
+            </div>
           </div>`).join('') + '</div>';
     }
   }
@@ -2467,8 +2473,18 @@ async function syncMeta() {
   btn.textContent = '↻ Sincronizar';
 }
 
+async function toggleMetaAccount(id) {
+  try {
+    const r = await api('PATCH', `/api/integrations/${id}/toggle`);
+    await loadIntegrations();
+    // Garante que o card do Meta Ads fique aberto após a atualização
+    const body = document.getElementById('body-meta_ads');
+    if (body && body.style.display === 'none') togglePlatformCard('meta_ads');
+  } catch(e) { alert('Erro ao alterar status: ' + e.message); }
+}
+
 async function removeIntegration(id) {
-  if (!confirm('Remover esta integração?')) return;
+  if (!confirm('Remover esta integração permanentemente?')) return;
   await api('DELETE', `/api/integrations/${id}`);
   await loadIntegrations();
 }
