@@ -2181,15 +2181,12 @@ async function saveBudget() {
 
 async function toggleCampaignStatus(campId, currentStatus) {
   const action = currentStatus === 'ACTIVE' ? 'pause' : 'activate';
-  const label  = action === 'pause' ? 'Pausar' : 'Ativar';
-  if (!confirm(`${label} esta campanha?`)) return;
   try {
-    const { message } = await api('POST', '/api/metrics/toggle', {
+    await api('POST', '/api/metrics/toggle', {
       entity_type: 'campaign',
       entity_id:   campId,
       action,
     });
-    alert(message);
     loadCampaigns();
   } catch(e) {
     alert('Erro: ' + e.message);
@@ -2198,15 +2195,12 @@ async function toggleCampaignStatus(campId, currentStatus) {
 
 async function toggleAdSetStatus(adSetId, currentStatus) {
   const action = currentStatus === 'ACTIVE' ? 'pause' : 'activate';
-  const label  = action === 'pause' ? 'Pausar' : 'Ativar';
-  if (!confirm(`${label} este conjunto?`)) return;
   try {
-    const { message } = await api('POST', '/api/metrics/toggle', {
+    await api('POST', '/api/metrics/toggle', {
       entity_type: 'adset',
       entity_id:   adSetId,
       action,
     });
-    alert(message);
     loadCampaigns();
   } catch(e) {
     alert('Erro: ' + e.message);
