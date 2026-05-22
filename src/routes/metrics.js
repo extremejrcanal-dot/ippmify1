@@ -56,12 +56,27 @@ router.get('/history', async (req, res) => {
 });
 
 // ─── ARVORE COMPLETA (3 NIVEIS) ────────────────────────────────────────────
-// GET /api/metrics/tree?days=7
+// GET /api/metrics/tree?days=7&period=today|month|7|14|30&integration_id=uuid
 router.get('/tree', async (req, res) => {
   try {
-    const days = parseInt(req.query.days) || 7;
     const userId = req.user.id;
     const { query } = require('../config/database');
+
+    // Calcular intervalo de datas
+    let startDate, days;
+    const period = req.query.period || req.query.days || '7';
+    if (period === 'today') {
+      startDate = 'CURRENT_DATE';
+      days = 1;
+    } else if (period === 'month') {
+      startDate = "date_trunc('month', CURRENT_DATE)";
+      days = 31;
+    } else {
+      days = parseInt(period) || 7;
+      startDate = `CURRENT_DATE - ${days}::integer`;
+    }
+
+    const integrationId = req.query.integration_id || null;
 
     // Buscar targets do usuario para calcular saude
     const userResult = await query('SELECT cpa_target, roas_target FROM users WHERE id=$1', [userId]);
@@ -77,9 +92,15 @@ router.get('/tree', async (req, res) => {
       return 'red';
     };
 
+    // Filtro de integration_id (conta de anúncio)
+    const integFilter = integrationId ? `AND c.integration_id = '${integrationId}'` : '';
+    const integFilterSet = integrationId ? `AND ads.integration_id = '${integrationId}'` : '';
+    const integFilterAd  = integrationId ? `AND a.integration_id = '${integrationId}'` : '';
+
     // NIVEL 1 — Campanhas
     const campResult = await query(`
-      SELECT c.id, c.name, c.status, c.external_id,
+      SELECT c.id, c.name, c.status, c.external_id, c.objective,
+        c.integration_id, c.daily_budget, c.lifetime_budget,
         COALESCE(SUM(am.spend), 0)::numeric       AS spend,
         COALESCE(SUM(am.impressions), 0)::integer AS impressions,
         COALESCE(SUM(am.clicks), 0)::integer      AS clicks,
@@ -87,15 +108,17 @@ router.get('/tree', async (req, res) => {
         COALESCE(AVG(am.ctr), 0)::numeric         AS ctr
       FROM campaigns c
       LEFT JOIN ad_metrics am ON am.campaign_id = c.id
-        AND am.date >= CURRENT_DATE - $2::integer
-      WHERE c.user_id = $1
-      GROUP BY c.id, c.name, c.status, c.external_id
+        AND am.date >= ${startDate}
+      WHERE c.user_id = $1 ${integFilter}
+      GROUP BY c.id, c.name, c.status, c.external_id, c.objective,
+               c.integration_id, c.daily_budget, c.lifetime_budget
       ORDER BY spend DESC
-    `, [userId, days]);
+    `, [userId]);
 
     // NIVEL 2 — Conjuntos
     const adSetResult = await query(`
       SELECT ads.id, ads.name, ads.status, ads.campaign_id, ads.external_id,
+        ads.daily_budget, ads.lifetime_budget,
         COALESCE(SUM(asm.spend), 0)::numeric       AS spend,
         COALESCE(SUM(asm.impressions), 0)::integer AS impressions,
         COALESCE(SUM(asm.clicks), 0)::integer      AS clicks,
@@ -103,11 +126,12 @@ router.get('/tree', async (req, res) => {
         COALESCE(AVG(asm.ctr), 0)::numeric         AS ctr
       FROM ad_sets ads
       LEFT JOIN ad_set_metrics asm ON asm.ad_set_id = ads.id
-        AND asm.date >= CURRENT_DATE - $2::integer
-      WHERE ads.user_id = $1
-      GROUP BY ads.id, ads.name, ads.status, ads.campaign_id, ads.external_id
+        AND asm.date >= ${startDate}
+      WHERE ads.user_id = $1 ${integFilterSet}
+      GROUP BY ads.id, ads.name, ads.status, ads.campaign_id, ads.external_id,
+               ads.daily_budget, ads.lifetime_budget
       ORDER BY spend DESC
-    `, [userId, days]);
+    `, [userId]);
 
     // NIVEL 3 — Anuncios
     const adsResult = await query(`
@@ -119,29 +143,29 @@ router.get('/tree', async (req, res) => {
         COALESCE(AVG(alm.ctr), 0)::numeric         AS ctr
       FROM ads a
       LEFT JOIN ad_level_metrics alm ON alm.ad_id = a.id
-        AND alm.date >= CURRENT_DATE - $2::integer
-      WHERE a.user_id = $1
+        AND alm.date >= ${startDate}
+      WHERE a.user_id = $1 ${integFilterAd}
       GROUP BY a.id, a.name, a.status, a.campaign_id, a.ad_set_id, a.external_id
       ORDER BY spend DESC
-    `, [userId, days]);
+    `, [userId]);
 
     // Receita por campanha (via utm_campaign)
     const revenueBycamp = await query(`
       SELECT utm_campaign, SUM(net_revenue) AS revenue, COUNT(*) AS conversions
       FROM sales
       WHERE user_id=$1 AND status='approved'
-        AND sale_date >= CURRENT_DATE - $2::integer
+        AND sale_date::date >= ${startDate}
       GROUP BY utm_campaign
-    `, [userId, days]);
+    `, [userId]);
 
     // Receita por anuncio (via utm_content)
     const revenueByAd = await query(`
       SELECT utm_content, SUM(net_revenue) AS revenue, COUNT(*) AS conversions
       FROM sales
       WHERE user_id=$1 AND status='approved'
-        AND sale_date >= CURRENT_DATE - $2::integer
+        AND sale_date::date >= ${startDate}
       GROUP BY utm_content
-    `, [userId, days]);
+    `, [userId]);
 
     const campRevMap = {};
     revenueBycamp.rows.forEach(r => { campRevMap[r.utm_campaign] = { revenue: parseFloat(r.revenue||0), conversions: parseInt(r.conversions||0) }; });
@@ -172,12 +196,13 @@ router.get('/tree', async (req, res) => {
       const key = adSet.campaign_id;
       if (!setsByCamp[key]) setsByCamp[key] = [];
       const spend = parseFloat(adSet.spend);
-      // Receita do conjunto = soma dos anuncios filhos
       const childAds = adsBySet[adSet.id] || [];
       const revenue = childAds.reduce((s, a) => s + a.revenue, 0);
       const conversions = childAds.reduce((s, a) => s + a.conversions, 0);
       setsByCamp[key].push({
         id: adSet.id, name: adSet.name, status: adSet.status, external_id: adSet.external_id,
+        daily_budget: parseFloat(adSet.daily_budget || 0),
+        lifetime_budget: parseFloat(adSet.lifetime_budget || 0),
         spend, revenue, conversions,
         roas: spend > 0 ? revenue / spend : 0,
         cpa: conversions > 0 ? spend / conversions : 0,
@@ -192,11 +217,16 @@ router.get('/tree', async (req, res) => {
       const spend = parseFloat(c.spend);
       const campRev = campRevMap[c.external_id] || { revenue: 0, conversions: 0 };
       const adSets = setsByCamp[c.id] || [];
-      // Receita da campanha: prioriza utm_campaign, fallback soma dos conjuntos
       const revenue = campRev.revenue > 0 ? campRev.revenue : adSets.reduce((s, a) => s + a.revenue, 0);
       const conversions = campRev.conversions > 0 ? campRev.conversions : adSets.reduce((s, a) => s + a.conversions, 0);
+      const dailyBudget = parseFloat(c.daily_budget || 0);
+      const lifetimeBudget = parseFloat(c.lifetime_budget || 0);
+      // CBO: orçamento definido no nível da campanha (daily_budget > 0)
+      const is_cbo = dailyBudget > 0 || lifetimeBudget > 0;
       return {
         id: c.id, name: c.name, status: c.status, external_id: c.external_id,
+        objective: c.objective, integration_id: c.integration_id,
+        daily_budget: dailyBudget, lifetime_budget: lifetimeBudget, is_cbo,
         spend, revenue, conversions,
         roas: spend > 0 ? revenue / spend : 0,
         cpa: conversions > 0 ? spend / conversions : 0,
@@ -266,6 +296,56 @@ router.post('/toggle', async (req, res) => {
   } catch (error) {
     console.error('[Toggle] Erro:', error.message);
     res.status(500).json({ error: error.message });
+  }
+});
+
+// ─── ATUALIZAR ORÇAMENTO (CBO / ABO) ──────────────────────────────────────
+// POST /api/metrics/update-budget
+// body: { entity_type: 'campaign'|'adset', entity_id: <uuid>, new_budget: number }
+router.post('/update-budget', async (req, res) => {
+  try {
+    const { entity_type, entity_id, new_budget } = req.body;
+    const userId = req.user.id;
+    const { query } = require('../config/database');
+    const { updateDailyBudget, getIntegrationToken } = require('../services/metaAds');
+
+    if (!entity_type || !entity_id || !new_budget || new_budget <= 0) {
+      return res.status(400).json({ error: 'entity_type, entity_id e new_budget são obrigatórios' });
+    }
+
+    const tableMap = { campaign: 'campaigns', adset: 'ad_sets' };
+    const tableName = tableMap[entity_type];
+    if (!tableName) return res.status(400).json({ error: 'entity_type deve ser campaign ou adset' });
+
+    // Buscar entidade
+    const entityResult = await query(
+      `SELECT external_id, integration_id FROM ${tableName} WHERE id=$1 AND user_id=$2`,
+      [entity_id, userId]
+    );
+    if (!entityResult.rows.length) return res.status(404).json({ error: 'Entidade não encontrada' });
+
+    const { external_id, integration_id } = entityResult.rows[0];
+
+    // Buscar token da integração
+    const integrations = await (require('../services/metaAds').getAllIntegrations)(userId);
+    const intData = integrations.find(i => i.integration.id === integration_id) || integrations[0];
+    if (!intData) return res.status(400).json({ error: 'Conta Meta Ads não encontrada ou desconectada' });
+
+    // Atualizar via Meta API
+    await updateDailyBudget(external_id, parseFloat(new_budget), intData.accessToken);
+
+    // Atualizar DB
+    await query(
+      `UPDATE ${tableName} SET daily_budget=$1 WHERE id=$2 AND user_id=$3`,
+      [new_budget, entity_id, userId]
+    );
+
+    console.log(`[Budget] ${entity_type} ${entity_id} → R$${new_budget} (user: ${userId})`);
+    res.json({ message: `Orçamento atualizado para R$ ${parseFloat(new_budget).toFixed(2)}` });
+
+  } catch (error) {
+    console.error('[Budget] Erro:', error.message);
+    res.status(500).json({ error: error.response?.data?.error?.message || error.message || 'Erro ao atualizar orçamento' });
   }
 });
 
