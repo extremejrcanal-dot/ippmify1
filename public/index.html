@@ -1961,8 +1961,11 @@ function selectCampaign(campId) {
       <td style="padding:10px 8px;font-size:13px;text-align:right;color:${sRoas>=2?'var(--green)':sRoas>=1?'var(--orange)':'var(--red)'}">${fmtN(sRoas)}x</td>
       <td style="padding:10px 8px;text-align:right">
         ${!isCBO && hasBudget
-          ? `<button class="btn btn-ghost btn-xs" onclick="openBudgetModal('adset','${s.id}','${(s.name||'').replace(/'/g,"\\'")}',${s.daily_budget||0},false,${s.spend||0},${sRoas},0)">💰 editar</button>`
-          : '<span style="font-size:11px;color:var(--text3)">—</span>'}
+          ? `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+               <span style="font-size:12px;font-weight:600;color:var(--text)">${fmt(s.daily_budget)}</span>
+               <button class="btn btn-ghost btn-xs" style="padding:2px 8px" onclick="openBudgetModal('adset','${s.id}','${(s.name||'').replace(/'/g,"\\'")}',${s.daily_budget||0},false,${s.spend||0},${sRoas},0)">✏️ editar</button>
+             </div>`
+          : '<span style="font-size:11px;color:var(--text3)">CBO</span>'}
       </td>
       <td style="padding:10px 8px;text-align:center">
         <button class="btn btn-xs" style="background:${s.status==='ACTIVE'?'var(--red)':'var(--green)'};color:#fff;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px"
@@ -1981,7 +1984,7 @@ function selectCampaign(campId) {
         <div style="font-size:16px;font-weight:700;font-family:'Sora',sans-serif;color:var(--text);margin-bottom:4px">${camp.name}</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <span class="camp-badge ${isCBO?'cbo':'abo'}">${isCBO?'CBO':'ABO'}</span>
-          ${isCBO && camp.daily_budget > 0 ? `<span style="font-size:12px;color:var(--text2)">Orçamento diário: <strong style="color:var(--text)">${fmt(camp.daily_budget/100)}</strong></span>` : ''}
+          ${isCBO && camp.daily_budget > 0 ? `<span style="font-size:12px;color:var(--text2)">Orçamento diário: <strong style="color:var(--text)">${fmt(camp.daily_budget)}</strong></span>` : ''}
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
@@ -2053,7 +2056,7 @@ function selectAdSet(campId, adSetId) {
 
 function openBudgetModal(entityType, entityId, name, currentBudget, isCBO, spend, roas, cpa) {
   _budgetCtx = { entityType, entityId, name, currentBudget, isCBO, spend, roas, cpa };
-  const bud = currentBudget / 100;
+  const bud = parseFloat(currentBudget) || 0;
   document.getElementById('bmodalTitle').textContent = isCBO ? `Orçamento CBO — ${name}` : `Orçamento ABO — ${name}`;
   document.getElementById('bmodalCurrentBudget').textContent = fmt(bud);
   document.getElementById('bmodalNewBudget').value = bud.toFixed(2);
@@ -2071,7 +2074,7 @@ function closeBudgetModal() {
 
 function updateBudgetImpact() {
   const newBud = parseFloat(document.getElementById('bmodalNewBudget')?.value) || 0;
-  const curBud = (_budgetCtx.currentBudget || 0) / 100;
+  const curBud = parseFloat(_budgetCtx.currentBudget) || 0;
   const delta  = curBud > 0 ? ((newBud - curBud) / curBud) * 100 : 0;
   const impEl  = document.getElementById('bmodalImpact');
   if (!impEl || newBud <= 0) return;
@@ -2099,7 +2102,7 @@ async function saveBudget() {
     await api('POST', '/api/metrics/update-budget', {
       entity_type: _budgetCtx.entityType,
       entity_id:   _budgetCtx.entityId,
-      new_budget:  Math.round(newBud * 100),
+      new_budget:  newBud,
     });
     closeBudgetModal();
     loadCampaigns();
