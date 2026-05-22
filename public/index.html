@@ -259,13 +259,41 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 /* ══════════════════════════════════════════════════════
    INTEGRAÇÕES
 ══════════════════════════════════════════════════════ */
-.integration-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:14px;}
-.integration-card h3{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
-.int-item{display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--bg3);border-radius:10px;margin-bottom:8px;}
-.int-item .int-info{display:flex;align-items:center;gap:10px;}
+.int-section-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin:20px 0 10px;display:flex;align-items:center;gap:8px;}
+.int-section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.int-pcard{background:var(--bg2);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden;transition:.2s;}
+.int-pcard-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;cursor:pointer;user-select:none;}
+.int-pcard-header:hover{background:rgba(255,255,255,.02);}
+.int-plogo{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;font-family:'Sora',sans-serif;flex-shrink:0;color:#fff;}
+.int-pname{font-size:14px;font-weight:700;font-family:'Sora',sans-serif;color:var(--text);}
+.int-pdesc{font-size:11px;color:var(--text3);margin-top:2px;}
+.int-badge{font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;white-space:nowrap;}
+.int-badge.connected{background:#052e16;color:#86efac;border:1px solid #14532d;}
+.int-badge.inactive{background:#2d1a00;color:#fcd34d;border:1px solid #78350f;}
+.int-badge.disconnected{background:var(--bg3);color:var(--text3);border:1px solid var(--border);}
+.int-toggle-btn{position:relative;width:40px;height:22px;background:var(--bg4);border-radius:11px;cursor:pointer;transition:.3s;border:none;flex-shrink:0;}
+.int-toggle-btn.on{background:var(--green);}
+.int-toggle-btn::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:.3s;}
+.int-toggle-btn.on::after{left:21px;}
+.int-chevron{font-size:11px;color:var(--text3);transition:.3s;flex-shrink:0;}
+.int-chevron.open{transform:rotate(180deg);}
+.int-pbody{padding:0 20px 20px;border-top:1px solid var(--border);}
+.int-guide{background:var(--bg3);border-radius:10px;padding:16px;margin-bottom:16px;}
+.int-guide-title{font-size:12px;font-weight:700;color:var(--text2);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.int-guide-step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;}
+.int-guide-step:last-child{margin-bottom:0;}
+.int-step-num{width:22px;height:22px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;margin-top:1px;}
+.int-step-text{font-size:12px;color:var(--text2);line-height:1.6;}
+.int-step-text a{color:#93c5fd;}
+.int-step-text strong{color:var(--text);}
+.int-webhook-box{display:flex;gap:8px;align-items:center;margin-bottom:4px;}
+.int-webhook-input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text2);font-size:12px;font-family:'Montserrat',sans-serif;cursor:text;}
+.int-connected-info{display:flex;align-items:center;gap:10px;background:var(--bg3);border-radius:10px;padding:12px 16px;margin-bottom:14px;}
 .int-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .int-dot.on{background:var(--green);box-shadow:0 0 6px #22c55e;}
 .int-dot.off{background:var(--text3);}
+.int-item{display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--bg3);border-radius:10px;margin-bottom:8px;}
+.int-item .int-info{display:flex;align-items:center;gap:10px;}
 .int-name{font-size:13px;font-weight:600;color:var(--text);}
 .int-status{font-size:11px;color:var(--text3);}
 
@@ -866,68 +894,325 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         </div>
       </div>
 
+      <!-- ── ANÚNCIOS ── -->
+      <div class="int-section-label">📣 Anúncios</div>
+
       <!-- Meta Ads -->
-      <div class="integration-card">
-        <h3>🔵 Meta Ads — Contas de Contingência</h3>
-        <div id="metaAccountsList" style="margin-bottom:16px"></div>
-        <details>
-          <summary>Adicionar nova conta</summary>
-          <div class="det-body">
-            <div class="alert alert-info" style="margin-bottom:14px;font-size:13px">
-              <strong>Como gerar o token:</strong> Abra o perfil no Dolphin → acesse
-              <a href="https://developers.facebook.com/tools/explorer" target="_blank" style="color:#93c5fd">developers.facebook.com/tools/explorer</a>
-              → selecione seu app → gere o token com <strong>ads_read</strong> e <strong>ads_management</strong>.
+      <div class="int-pcard" id="pcard-meta_ads">
+        <div class="int-pcard-header" onclick="togglePlatformCard('meta_ads')">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="int-plogo" style="background:#1877f2;font-size:14px;">f</div>
+            <div>
+              <div class="int-pname">Meta Ads</div>
+              <div class="int-pdesc">Facebook &amp; Instagram Ads</div>
             </div>
-            <div class="form-group"><label>Access Token</label><input type="password" id="metaAccessToken" placeholder="EAAxxxxx..."></div>
-            <div class="form-group"><label>Ad Account ID (ex: act_123456789)</label><input type="text" id="metaAdAccountId" placeholder="act_123456789"></div>
-            <div id="metaMsg"></div>
-            <button class="btn btn-blue btn-sm" onclick="connectMetaToken()">Conectar Conta</button>
           </div>
-        </details>
-        <div style="margin-top:14px">
-          <button class="btn btn-ghost btn-sm" onclick="syncMeta()">↻ Sincronizar Todas as Contas</button>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="int-badge disconnected" id="badge-meta_ads">Não conectado</span>
+            <button class="int-toggle-btn" id="toggle-meta_ads" style="display:none" onclick="event.stopPropagation();toggleIntegration('meta_ads')"></button>
+            <span class="int-chevron" id="chev-meta_ads">▼</span>
+          </div>
+        </div>
+        <div class="int-pbody" id="body-meta_ads" style="display:none;padding-top:16px">
+          <div class="int-guide">
+            <div class="int-guide-title">📋 Como conectar — passo a passo simples</div>
+            <div class="int-guide-step"><div class="int-step-num">1</div><div class="int-step-text">Acesse <a href="https://business.facebook.com" target="_blank">business.facebook.com</a> e faça login com sua conta Business Manager.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">2</div><div class="int-step-text">No menu lateral, vá em <strong>Configurações do Negócio → Usuários → Usuários do Sistema</strong>. Crie um usuário do sistema com função <strong>Administrador</strong>.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">3</div><div class="int-step-text">Clique em <strong>Gerar novo token</strong>. Selecione o app da sua empresa (ou use o Graph API Explorer em <a href="https://developers.facebook.com/tools/explorer" target="_blank">developers.facebook.com/tools/explorer</a>).</div></div>
+            <div class="int-guide-step"><div class="int-step-num">4</div><div class="int-step-text">Marque as permissões: <strong>ads_read</strong> e <strong>ads_management</strong>. Copie o token gerado.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">5</div><div class="int-step-text">Seu <strong>Ad Account ID</strong> aparece no Gerenciador de Anúncios no canto superior esquerdo, formato: <strong>act_123456789</strong>.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">6</div><div class="int-step-text">Cole o token e o Ad Account ID nos campos abaixo e clique em <strong>Conectar</strong>.</div></div>
+          </div>
+          <div id="metaAccountsList" style="margin-bottom:14px"></div>
+          <div class="form-group"><label>Access Token</label><input type="password" id="metaAccessToken" placeholder="EAAxxxxx..."></div>
+          <div class="form-group"><label>Ad Account ID</label><input type="text" id="metaAdAccountId" placeholder="act_123456789"></div>
+          <div id="metaMsg"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-blue btn-sm" onclick="connectMetaToken()">⚡ Conectar Conta</button>
+            <button class="btn btn-ghost btn-sm" onclick="syncMeta()">↻ Sincronizar</button>
+          </div>
         </div>
       </div>
 
+      <!-- ── CHECKOUTS ── -->
+      <div class="int-section-label" style="margin-top:24px">🛒 Checkouts</div>
+
       <!-- Hotmart -->
-      <div class="integration-card">
-        <h3>🔴 Hotmart</h3>
-        <div class="form-group"><label>Client ID</label><input type="text" id="hotmartClientId" placeholder="Seu Client ID"></div>
-        <div class="form-group"><label>Client Secret</label><input type="password" id="hotmartClientSecret" placeholder="Seu Client Secret"></div>
-        <div id="hotmartMsg"></div>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-red btn-sm" onclick="connectHotmart()">Conectar Hotmart</button>
-          <button class="btn btn-ghost btn-sm" onclick="syncHotmart()">↻ Sincronizar</button>
+      <div class="int-pcard" id="pcard-hotmart">
+        <div class="int-pcard-header" onclick="togglePlatformCard('hotmart')">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="int-plogo" style="background:#e63929">🔥</div>
+            <div>
+              <div class="int-pname">Hotmart</div>
+              <div class="int-pdesc">Infoprodutos e cursos online</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="int-badge disconnected" id="badge-hotmart">Não conectado</span>
+            <button class="int-toggle-btn" id="toggle-hotmart" style="display:none" onclick="event.stopPropagation();toggleIntegration('hotmart')"></button>
+            <span class="int-chevron" id="chev-hotmart">▼</span>
+          </div>
+        </div>
+        <div class="int-pbody" id="body-hotmart" style="display:none;padding-top:16px">
+          <div class="int-guide">
+            <div class="int-guide-title">📋 Como conectar — passo a passo simples</div>
+            <div class="int-guide-step"><div class="int-step-num">1</div><div class="int-step-text">Acesse <a href="https://app-vlc.hotmart.com" target="_blank">app-vlc.hotmart.com</a> e faça login na sua conta Hotmart.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">2</div><div class="int-step-text">No menu, vá em <strong>Ferramentas → Credenciais da API</strong>.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">3</div><div class="int-step-text">Clique em <strong>Gerar credenciais</strong>. Copie o <strong>Client ID</strong> e o <strong>Client Secret</strong> que aparecerem.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">4</div><div class="int-step-text">Cole os dados nos campos abaixo e clique em <strong>Conectar Hotmart</strong>.</div></div>
+          </div>
+          <div class="form-group"><label>Client ID</label><input type="text" id="hotmartClientId" placeholder="Seu Client ID da Hotmart"></div>
+          <div class="form-group"><label>Client Secret</label><input type="password" id="hotmartClientSecret" placeholder="Seu Client Secret da Hotmart"></div>
+          <div id="hotmartMsg"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-sm" style="background:#e63929;color:#fff" onclick="connectHotmart()">⚡ Conectar Hotmart</button>
+            <button class="btn btn-ghost btn-sm" onclick="syncHotmart()">↻ Sincronizar</button>
+          </div>
         </div>
       </div>
 
       <!-- Kiwify -->
-      <div class="integration-card">
-        <h3>🟦 Kiwify</h3>
-        <div class="form-group"><label>API Key</label><input type="password" id="kiwifyApiKey" placeholder="Sua API Key"></div>
-        <div id="kiwifyMsg"></div>
-        <button class="btn btn-blue btn-sm" onclick="connectKiwify()">Conectar Kiwify</button>
+      <div class="int-pcard" id="pcard-kiwify">
+        <div class="int-pcard-header" onclick="togglePlatformCard('kiwify')">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="int-plogo" style="background:#2563eb">K</div>
+            <div>
+              <div class="int-pname">Kiwify</div>
+              <div class="int-pdesc">Checkout e infoprodutos</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="int-badge disconnected" id="badge-kiwify">Não conectado</span>
+            <button class="int-toggle-btn" id="toggle-kiwify" style="display:none" onclick="event.stopPropagation();toggleIntegration('kiwify')"></button>
+            <span class="int-chevron" id="chev-kiwify">▼</span>
+          </div>
+        </div>
+        <div class="int-pbody" id="body-kiwify" style="display:none;padding-top:16px">
+          <div class="int-guide">
+            <div class="int-guide-title">📋 Como conectar — passo a passo simples</div>
+            <div class="int-guide-step"><div class="int-step-num">1</div><div class="int-step-text">Acesse <a href="https://dashboard.kiwify.com.br" target="_blank">dashboard.kiwify.com.br</a> e faça login.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">2</div><div class="int-step-text">Vá em <strong>Configurações → API</strong> no menu lateral.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">3</div><div class="int-step-text">Clique em <strong>Gerar chave de API</strong> e copie a chave gerada.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">4</div><div class="int-step-text">Cole a chave no campo abaixo e clique em <strong>Conectar Kiwify</strong>.</div></div>
+          </div>
+          <div class="form-group"><label>API Key</label><input type="password" id="kiwifyApiKey" placeholder="Sua chave de API da Kiwify"></div>
+          <div id="kiwifyMsg"></div>
+          <button class="btn btn-blue btn-sm" onclick="connectKiwify()">⚡ Conectar Kiwify</button>
+        </div>
       </div>
 
       <!-- Kirvano -->
-      <div class="integration-card">
-        <h3>🟣 Kirvano</h3>
-        <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">
-          A Kirvano usa webhook. Após conectar, adicione a URL abaixo no seu painel Kirvano:
-        </p>
-        <div class="form-group">
-          <label>URL do Webhook</label>
-          <input type="text" id="kirvanoWebhookUrl" readonly style="font-size:12px;cursor:copy" onclick="this.select()">
+      <div class="int-pcard" id="pcard-kirvano">
+        <div class="int-pcard-header" onclick="togglePlatformCard('kirvano')">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="int-plogo" style="background:#7c3aed">Ki</div>
+            <div>
+              <div class="int-pname">Kirvano</div>
+              <div class="int-pdesc">Checkout via webhook</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="int-badge disconnected" id="badge-kirvano">Não conectado</span>
+            <button class="int-toggle-btn" id="toggle-kirvano" style="display:none" onclick="event.stopPropagation();toggleIntegration('kirvano')"></button>
+            <span class="int-chevron" id="chev-kirvano">▼</span>
+          </div>
         </div>
-        <div id="kirvanoMsg"></div>
-        <button class="btn btn-ghost btn-sm" onclick="connectKirvano()">Conectar Kirvano</button>
+        <div class="int-pbody" id="body-kirvano" style="display:none;padding-top:16px">
+          <div class="int-guide">
+            <div class="int-guide-title">📋 Como conectar — passo a passo simples</div>
+            <div class="int-guide-step"><div class="int-step-num">1</div><div class="int-step-text">Clique em <strong>"Gerar URL do Webhook"</strong> abaixo para ativar a integração.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">2</div><div class="int-step-text">Copie a URL do webhook que aparecer logo abaixo do botão.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">3</div><div class="int-step-text">Acesse o painel da <strong>Kirvano</strong>, vá em <strong>Configurações → Webhooks</strong>.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">4</div><div class="int-step-text">Cole a URL copiada no campo de webhook da Kirvano e salve. Pronto!</div></div>
+          </div>
+          <div id="kirvanoWebhookArea" style="display:none;margin-bottom:14px">
+            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">URL do Webhook</label>
+            <div class="int-webhook-box">
+              <input class="int-webhook-input" id="kirvanoWebhookUrl" readonly onclick="this.select()">
+              <button class="btn btn-ghost btn-sm" onclick="copyWebhook('kirvanoWebhookUrl')">📋 Copiar</button>
+            </div>
+          </div>
+          <div id="kirvanoMsg"></div>
+          <button class="btn btn-ghost btn-sm" onclick="connectKirvano()">⚡ Gerar URL do Webhook</button>
+        </div>
       </div>
 
-      <!-- Conexões Ativas -->
-      <div class="integration-card">
-        <h3>✅ Conexões Ativas</h3>
-        <div id="integrationsList"><div class="empty-state" style="padding:20px"><p>Nenhuma conexão ativa ainda.</p></div></div>
+      <!-- Eduzz -->
+      <div class="int-pcard" id="pcard-eduzz">
+        <div class="int-pcard-header" onclick="togglePlatformCard('eduzz')">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="int-plogo" style="background:#0ea5e9">Ed</div>
+            <div>
+              <div class="int-pname">Eduzz</div>
+              <div class="int-pdesc">Checkout via webhook</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="int-badge disconnected" id="badge-eduzz">Não conectado</span>
+            <button class="int-toggle-btn" id="toggle-eduzz" style="display:none" onclick="event.stopPropagation();toggleIntegration('eduzz')"></button>
+            <span class="int-chevron" id="chev-eduzz">▼</span>
+          </div>
+        </div>
+        <div class="int-pbody" id="body-eduzz" style="display:none;padding-top:16px">
+          <div class="int-guide">
+            <div class="int-guide-title">📋 Como conectar — passo a passo simples</div>
+            <div class="int-guide-step"><div class="int-step-num">1</div><div class="int-step-text">Clique em <strong>"Gerar URL do Webhook"</strong> abaixo e copie a URL gerada.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">2</div><div class="int-step-text">Acesse o painel da <strong>Eduzz</strong> em <a href="https://app.eduzz.com" target="_blank">app.eduzz.com</a>.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">3</div><div class="int-step-text">Vá em <strong>Configurações → Notificações → Postback</strong>.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">4</div><div class="int-step-text">Cole a URL gerada no campo de postback e ative. Pronto — as vendas serão enviadas automaticamente!</div></div>
+          </div>
+          <div id="eduzzWebhookArea" style="display:none;margin-bottom:14px">
+            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">URL do Webhook</label>
+            <div class="int-webhook-box">
+              <input class="int-webhook-input" id="eduzzWebhookUrl" readonly onclick="this.select()">
+              <button class="btn btn-ghost btn-sm" onclick="copyWebhook('eduzzWebhookUrl')">📋 Copiar</button>
+            </div>
+          </div>
+          <div id="eduzzMsg"></div>
+          <button class="btn btn-ghost btn-sm" onclick="connectWebhookPlatform('eduzz')">⚡ Gerar URL do Webhook</button>
+        </div>
       </div>
+
+      <!-- Monetizze -->
+      <div class="int-pcard" id="pcard-monetizze">
+        <div class="int-pcard-header" onclick="togglePlatformCard('monetizze')">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="int-plogo" style="background:#16a34a">Mo</div>
+            <div>
+              <div class="int-pname">Monetizze</div>
+              <div class="int-pdesc">Checkout via webhook</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="int-badge disconnected" id="badge-monetizze">Não conectado</span>
+            <button class="int-toggle-btn" id="toggle-monetizze" style="display:none" onclick="event.stopPropagation();toggleIntegration('monetizze')"></button>
+            <span class="int-chevron" id="chev-monetizze">▼</span>
+          </div>
+        </div>
+        <div class="int-pbody" id="body-monetizze" style="display:none;padding-top:16px">
+          <div class="int-guide">
+            <div class="int-guide-title">📋 Como conectar — passo a passo simples</div>
+            <div class="int-guide-step"><div class="int-step-num">1</div><div class="int-step-text">Clique em <strong>"Gerar URL do Webhook"</strong> abaixo e copie a URL.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">2</div><div class="int-step-text">Acesse <a href="https://monetizze.com.br" target="_blank">monetizze.com.br</a> e vá em <strong>Configurações → IPN / Postback</strong>.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">3</div><div class="int-step-text">Cole a URL e salve. As notificações de venda passarão a chegar automaticamente.</div></div>
+          </div>
+          <div id="monetizzeWebhookArea" style="display:none;margin-bottom:14px">
+            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">URL do Webhook</label>
+            <div class="int-webhook-box">
+              <input class="int-webhook-input" id="monetizzeWebhookUrl" readonly onclick="this.select()">
+              <button class="btn btn-ghost btn-sm" onclick="copyWebhook('monetizzeWebhookUrl')">📋 Copiar</button>
+            </div>
+          </div>
+          <div id="monetizzeMsg"></div>
+          <button class="btn btn-ghost btn-sm" onclick="connectWebhookPlatform('monetizze')">⚡ Gerar URL do Webhook</button>
+        </div>
+      </div>
+
+      <!-- Braip -->
+      <div class="int-pcard" id="pcard-braip">
+        <div class="int-pcard-header" onclick="togglePlatformCard('braip')">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="int-plogo" style="background:#dc2626">Br</div>
+            <div>
+              <div class="int-pname">Braip</div>
+              <div class="int-pdesc">Checkout via webhook</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="int-badge disconnected" id="badge-braip">Não conectado</span>
+            <button class="int-toggle-btn" id="toggle-braip" style="display:none" onclick="event.stopPropagation();toggleIntegration('braip')"></button>
+            <span class="int-chevron" id="chev-braip">▼</span>
+          </div>
+        </div>
+        <div class="int-pbody" id="body-braip" style="display:none;padding-top:16px">
+          <div class="int-guide">
+            <div class="int-guide-title">📋 Como conectar — passo a passo simples</div>
+            <div class="int-guide-step"><div class="int-step-num">1</div><div class="int-step-text">Clique em <strong>"Gerar URL do Webhook"</strong> abaixo e copie a URL.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">2</div><div class="int-step-text">Acesse o painel da <strong>Braip</strong> em <a href="https://braip.com.br" target="_blank">braip.com.br</a>.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">3</div><div class="int-step-text">Vá em <strong>Configurações → Webhook</strong>, cole a URL e salve.</div></div>
+          </div>
+          <div id="braipWebhookArea" style="display:none;margin-bottom:14px">
+            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">URL do Webhook</label>
+            <div class="int-webhook-box">
+              <input class="int-webhook-input" id="braipWebhookUrl" readonly onclick="this.select()">
+              <button class="btn btn-ghost btn-sm" onclick="copyWebhook('braipWebhookUrl')">📋 Copiar</button>
+            </div>
+          </div>
+          <div id="braipMsg"></div>
+          <button class="btn btn-ghost btn-sm" onclick="connectWebhookPlatform('braip')">⚡ Gerar URL do Webhook</button>
+        </div>
+      </div>
+
+      <!-- PerfectPay -->
+      <div class="int-pcard" id="pcard-perfectpay">
+        <div class="int-pcard-header" onclick="togglePlatformCard('perfectpay')">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="int-plogo" style="background:#d97706">PP</div>
+            <div>
+              <div class="int-pname">PerfectPay</div>
+              <div class="int-pdesc">Checkout via webhook</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="int-badge disconnected" id="badge-perfectpay">Não conectado</span>
+            <button class="int-toggle-btn" id="toggle-perfectpay" style="display:none" onclick="event.stopPropagation();toggleIntegration('perfectpay')"></button>
+            <span class="int-chevron" id="chev-perfectpay">▼</span>
+          </div>
+        </div>
+        <div class="int-pbody" id="body-perfectpay" style="display:none;padding-top:16px">
+          <div class="int-guide">
+            <div class="int-guide-title">📋 Como conectar — passo a passo simples</div>
+            <div class="int-guide-step"><div class="int-step-num">1</div><div class="int-step-text">Clique em <strong>"Gerar URL do Webhook"</strong> abaixo e copie a URL.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">2</div><div class="int-step-text">Acesse <a href="https://app.perfectpay.com.br" target="_blank">app.perfectpay.com.br</a> e faça login.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">3</div><div class="int-step-text">Vá em <strong>Configurações → Webhooks → Adicionar</strong>. Cole a URL e escolha os eventos de venda.</div></div>
+          </div>
+          <div id="perfectpayWebhookArea" style="display:none;margin-bottom:14px">
+            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">URL do Webhook</label>
+            <div class="int-webhook-box">
+              <input class="int-webhook-input" id="perfectpayWebhookUrl" readonly onclick="this.select()">
+              <button class="btn btn-ghost btn-sm" onclick="copyWebhook('perfectpayWebhookUrl')">📋 Copiar</button>
+            </div>
+          </div>
+          <div id="perfectpayMsg"></div>
+          <button class="btn btn-ghost btn-sm" onclick="connectWebhookPlatform('perfectpay')">⚡ Gerar URL do Webhook</button>
+        </div>
+      </div>
+
+      <!-- Ticto -->
+      <div class="int-pcard" id="pcard-ticto">
+        <div class="int-pcard-header" onclick="togglePlatformCard('ticto')">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="int-plogo" style="background:#0f766e">Ti</div>
+            <div>
+              <div class="int-pname">Ticto</div>
+              <div class="int-pdesc">Checkout via webhook</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="int-badge disconnected" id="badge-ticto">Não conectado</span>
+            <button class="int-toggle-btn" id="toggle-ticto" style="display:none" onclick="event.stopPropagation();toggleIntegration('ticto')"></button>
+            <span class="int-chevron" id="chev-ticto">▼</span>
+          </div>
+        </div>
+        <div class="int-pbody" id="body-ticto" style="display:none;padding-top:16px">
+          <div class="int-guide">
+            <div class="int-guide-title">📋 Como conectar — passo a passo simples</div>
+            <div class="int-guide-step"><div class="int-step-num">1</div><div class="int-step-text">Clique em <strong>"Gerar URL do Webhook"</strong> abaixo e copie a URL.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">2</div><div class="int-step-text">Acesse o painel da <strong>Ticto</strong> em <a href="https://app.ticto.com.br" target="_blank">app.ticto.com.br</a>.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">3</div><div class="int-step-text">Vá em <strong>Configurações → Webhooks</strong>, cole a URL e ative os eventos de venda.</div></div>
+          </div>
+          <div id="tictoWebhookArea" style="display:none;margin-bottom:14px">
+            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">URL do Webhook</label>
+            <div class="int-webhook-box">
+              <input class="int-webhook-input" id="tictoWebhookUrl" readonly onclick="this.select()">
+              <button class="btn btn-ghost btn-sm" onclick="copyWebhook('tictoWebhookUrl')">📋 Copiar</button>
+            </div>
+          </div>
+          <div id="tictoMsg"></div>
+          <button class="btn btn-ghost btn-sm" onclick="connectWebhookPlatform('ticto')">⚡ Gerar URL do Webhook</button>
+        </div>
+      </div>
+
     </div>
 
     <!-- ── CONFIGURAÇÕES ── -->
@@ -1839,27 +2124,57 @@ async function sendWhatsAppReport() {
 }
 
 // ─── INTEGRAÇÕES ─────────────────────────────────────────────────────────────
-async function loadIntegrations() {
-  try {
-    const { data: raw } = await api('GET', '/api/integrations');
-    if (!raw || !raw.length) return;
 
-    // Deduplicar por plataforma — manter apenas o mais recente de cada uma
-    const seen = {};
-    const data = raw.filter(i => {
-      if (seen[i.platform]) return false;
-      seen[i.platform] = true;
-      return true;
-    });
+// Mapa de integração por plataforma (id → objeto)
+let _integrationMap = {};
 
-    const metaAccounts = data.filter(i => i.platform === 'meta_ads');
-    const others       = data.filter(i => i.platform !== 'meta_ads');
+// Webhook-based platforms list
+const WEBHOOK_PLATFORMS = ['kirvano','eduzz','monetizze','braip','perfectpay','ticto'];
 
+function togglePlatformCard(platform) {
+  const body  = document.getElementById('body-'  + platform);
+  const chev  = document.getElementById('chev-'  + platform);
+  if (!body) return;
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  if (chev) { chev.classList.toggle('open', !isOpen); }
+}
+
+function updatePlatformUI(platform, integration) {
+  const badge  = document.getElementById('badge-'  + platform);
+  const toggle = document.getElementById('toggle-' + platform);
+  if (!badge) return;
+
+  if (!integration) {
+    badge.textContent = 'Não conectado';
+    badge.className   = 'int-badge disconnected';
+    if (toggle) toggle.style.display = 'none';
+  } else if (integration.is_active) {
+    badge.textContent = 'Conectado ✓';
+    badge.className   = 'int-badge connected';
+    if (toggle) { toggle.style.display = 'inline-block'; toggle.className = 'int-toggle-btn on'; toggle.dataset.id = integration.id; }
+  } else {
+    badge.textContent = 'Inativo';
+    badge.className   = 'int-badge inactive';
+    if (toggle) { toggle.style.display = 'inline-block'; toggle.className = 'int-toggle-btn'; toggle.dataset.id = integration.id; }
+  }
+
+  // For webhook platforms: show webhook URL area if connected
+  if (WEBHOOK_PLATFORMS.includes(platform) && integration) {
+    const area = document.getElementById(platform + 'WebhookArea');
+    const inp  = document.getElementById(platform + 'WebhookUrl');
+    if (area) area.style.display = 'block';
+    if (inp)  inp.value = `${window.location.origin}/api/integrations/webhook/${platform}`;
+  }
+
+  // For meta_ads: show connected accounts list
+  if (platform === 'meta_ads') {
+    const metaAccounts = Object.values(_integrationMap).filter(i => i.platform === 'meta_ads');
     const metaList = document.getElementById('metaAccountsList');
     if (metaList) {
       metaList.innerHTML = metaAccounts.length === 0
-        ? '<div style="color:var(--text3);font-size:13px">Nenhuma conta conectada ainda.</div>'
-        : metaAccounts.map(i => `
+        ? ''
+        : '<div style="margin-bottom:14px">' + metaAccounts.map(i => `
           <div class="int-item">
             <div class="int-info">
               <div class="int-dot ${i.is_active?'on':'off'}"></div>
@@ -1869,58 +2184,111 @@ async function loadIntegrations() {
               </div>
             </div>
             <button class="btn btn-red btn-xs" onclick="removeIntegration('${i.id}')">Remover</button>
-          </div>`).join('');
+          </div>`).join('') + '</div>';
+    }
+  }
+}
+
+async function loadIntegrations() {
+  try {
+    const { data: raw } = await api('GET', '/api/integrations');
+    _integrationMap = {};
+    if (raw && raw.length) {
+      raw.forEach(i => {
+        // For meta_ads (multiple accounts) use id as key; others use platform
+        const key = i.platform === 'meta_ads' ? 'meta_ads_' + i.id : i.platform;
+        _integrationMap[key] = i;
+      });
     }
 
-    const platIcon = { meta_ads:'🔵 META', hotmart:'🔴 HOTMART', kiwify:'🟦 KIWIFY', kirvano:'🟣 KIRVANO' };
-    document.getElementById('integrationsList').innerHTML = [...metaAccounts, ...others].map(i => `
-      <div class="int-item">
-        <div class="int-info">
-          <div class="int-dot ${i.is_active?'on':'off'}"></div>
-          <div>
-            <div class="int-name">${platIcon[i.platform]||i.platform.toUpperCase()} — ${i.account_name||''}</div>
-            <div class="int-status">${i.last_synced_at?'Última sync: '+new Date(i.last_synced_at).toLocaleString('pt-BR'):'Nunca sincronizado'}</div>
-          </div>
-        </div>
-        <button class="btn btn-red btn-xs" onclick="removeIntegration('${i.id}')">Remover</button>
-      </div>`).join('') || '<div class="empty-state" style="padding:20px"><p>Nenhuma conexão ativa.</p></div>';
-  } catch(e) {}
+    // Update each platform card
+    const platforms = ['meta_ads','hotmart','kiwify','kirvano','eduzz','monetizze','braip','perfectpay','ticto'];
+    platforms.forEach(p => {
+      if (p === 'meta_ads') {
+        const metaInt = raw && raw.find(i => i.platform === 'meta_ads' && i.is_active);
+        updatePlatformUI(p, metaInt || null);
+      } else {
+        const found = raw && raw.find(i => i.platform === p);
+        updatePlatformUI(p, found || null);
+      }
+    });
+  } catch(e) { console.error('[Integrations]', e); }
+}
+
+async function toggleIntegration(platform) {
+  const toggle = document.getElementById('toggle-' + platform);
+  const id = toggle && toggle.dataset.id;
+  if (!id) return;
+  try {
+    const r = await api('PATCH', `/api/integrations/${id}/toggle`);
+    // Reload to update UI
+    await loadIntegrations();
+  } catch(e) { console.error('[Toggle]', e); }
 }
 
 async function connectHotmart() {
+  const btn = event.target;
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true;
   try {
     await api('POST', '/api/integrations/hotmart/connect', {
       client_id: document.getElementById('hotmartClientId').value,
       client_secret: document.getElementById('hotmartClientSecret').value,
     });
     showMsg('hotmartMsg', '✅ Hotmart conectado com sucesso!', 'success');
-    loadIntegrations();
+    document.getElementById('hotmartClientId').value = '';
+    document.getElementById('hotmartClientSecret').value = '';
+    await loadIntegrations();
   } catch(e) { showMsg('hotmartMsg', e.message); }
+  finally { btn.innerHTML = '⚡ Conectar Hotmart'; btn.disabled = false; }
 }
 
 async function syncHotmart() {
-  event.target.textContent = '⏳ Sincronizando...';
+  const btn = event.target;
+  btn.textContent = '⏳ Sincronizando...';
   try {
     await api('POST', '/api/integrations/hotmart/sync');
     showMsg('hotmartMsg', '✅ Sincronização concluída!', 'success');
   } catch(e) { showMsg('hotmartMsg', e.message); }
-  event.target.textContent = '↻ Sincronizar';
+  btn.textContent = '↻ Sincronizar';
 }
 
 async function connectKiwify() {
+  const btn = event.target;
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true;
   try {
     await api('POST', '/api/integrations/kiwify/connect', { api_key: document.getElementById('kiwifyApiKey').value });
     showMsg('kiwifyMsg', '✅ Kiwify conectado!', 'success');
-    loadIntegrations();
+    document.getElementById('kiwifyApiKey').value = '';
+    await loadIntegrations();
   } catch(e) { showMsg('kiwifyMsg', e.message); }
+  finally { btn.innerHTML = '⚡ Conectar Kiwify'; btn.disabled = false; }
 }
 
 async function connectKirvano() {
+  const btn = event.target;
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true;
   try {
     const r = await api('POST', '/api/integrations/kirvano/connect');
-    showMsg('kirvanoMsg', `✅ ${r.message}`, 'success');
-    loadIntegrations();
+    showMsg('kirvanoMsg', '✅ Kirvano configurado! Cole a URL do webhook no painel Kirvano.', 'success');
+    await loadIntegrations();
   } catch(e) { showMsg('kirvanoMsg', e.message); }
+  finally { btn.innerHTML = '⚡ Gerar URL do Webhook'; btn.disabled = false; }
+}
+
+async function connectWebhookPlatform(platform) {
+  const btn = event.target;
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true;
+  try {
+    const r = await api('POST', `/api/integrations/${platform}/connect`);
+    const names = { eduzz:'Eduzz', monetizze:'Monetizze', braip:'Braip', perfectpay:'PerfectPay', ticto:'Ticto' };
+    showMsg(platform + 'Msg', `✅ ${names[platform]||platform} configurado! Cole a URL do webhook no painel.`, 'success');
+    await loadIntegrations();
+  } catch(e) { showMsg(platform + 'Msg', e.message); }
+  finally { btn.innerHTML = '⚡ Gerar URL do Webhook'; btn.disabled = false; }
 }
 
 async function connectMetaToken() {
@@ -1936,24 +2304,35 @@ async function connectMetaToken() {
     showMsg('metaMsg', `✅ ${data.message}`, 'success');
     document.getElementById('metaAccessToken').value = '';
     document.getElementById('metaAdAccountId').value = '';
-    loadIntegrations();
+    await loadIntegrations();
   } catch(e) { showMsg('metaMsg', e.message); }
-  finally { btn.innerHTML = 'Conectar Conta'; btn.disabled = false; }
+  finally { btn.innerHTML = '⚡ Conectar Conta'; btn.disabled = false; }
 }
 
 async function syncMeta() {
-  event.target.textContent = '⏳ Sincronizando...';
+  const btn = event.target;
+  btn.textContent = '⏳ Sincronizando...';
   try {
     await api('POST', '/api/integrations/meta-ads/sync');
     showMsg('metaMsg', '✅ Meta Ads sincronizado!', 'success');
   } catch(e) { showMsg('metaMsg', e.message); }
-  event.target.textContent = '↻ Sincronizar Todas as Contas';
+  btn.textContent = '↻ Sincronizar';
 }
 
 async function removeIntegration(id) {
   if (!confirm('Remover esta integração?')) return;
   await api('DELETE', `/api/integrations/${id}`);
-  loadIntegrations();
+  await loadIntegrations();
+}
+
+function copyWebhook(inputId) {
+  const inp = document.getElementById(inputId);
+  if (!inp) return;
+  inp.select();
+  document.execCommand('copy');
+  const platformId = inputId.replace('WebhookUrl','Msg');
+  showMsg(platformId, '📋 URL copiada!', 'success');
+  setTimeout(() => { const m = document.getElementById(platformId); if(m) m.innerHTML=''; }, 2000);
 }
 
 // ─── CONFIGURAÇÕES ───────────────────────────────────────────────────────────
