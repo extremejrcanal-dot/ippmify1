@@ -193,33 +193,72 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .dl-pct{color:var(--text);font-weight:600;}
 
 /* ══════════════════════════════════════════════════════
-   CAMPAIGNS TAB (mantido do redesign anterior)
+   CAMPAIGNS TAB — REDESIGN
 ══════════════════════════════════════════════════════ */
-.tr-camp,.tr-adset,.tr-ad{display:grid;align-items:center;padding:11px 12px;cursor:pointer;transition:background .15s;grid-template-columns:2.4fr 88px 88px 88px 70px 80px 68px 110px;}
-.tr-camp{background:var(--bg2);border-left:3px solid var(--blue);}
-.tr-camp:hover{background:var(--bg3);}
-.tr-adset{background:#0e2035;border-left:3px solid #22c55e66;padding-left:28px;}
-.tr-adset:hover{background:var(--bg3);}
-.tr-ad{background:#0b1a2b;border-left:3px solid var(--border);padding-left:52px;}
-.tr-ad:hover{background:#0f2236;}
-.col-name{display:flex;align-items:center;gap:7px;min-width:0;}
-.col-name .expand-icon{color:var(--text3);font-size:10px;flex-shrink:0;transition:transform .2s;}
-.col-name .expand-icon.open{transform:rotate(90deg);}
-.col-name .entity-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.col-name .entity-label{font-size:10px;color:var(--text3);flex-shrink:0;}
-.col-val{font-size:13px;text-align:right;color:var(--text2);}
-.col-val.revenue{color:var(--green);}
-.col-val.profit.pos{color:var(--green);}
-.col-val.profit.neg{color:var(--red);}
-.col-roas.green{color:var(--green);font-weight:700;}
-.col-roas.yellow{color:var(--orange);font-weight:700;}
-.col-roas.red{color:var(--red);font-weight:700;}
-.col-roas.gray{color:var(--text3);}
+/* KPI cards topo */
+.camp-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+@media(max-width:900px){.camp-kpis{grid-template-columns:repeat(2,1fr);}}
+.camp-kpi{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px 18px;}
+.camp-kpi .ck-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
+.camp-kpi .ck-val{font-size:20px;font-weight:800;font-family:'Sora',sans-serif;color:var(--text);}
+.camp-kpi .ck-val.green{color:var(--green);}
+.camp-kpi .ck-val.blue{color:var(--blue);}
+.camp-kpi .ck-val.orange{color:var(--orange);}
+.camp-kpi .ck-sub{font-size:11px;color:var(--text3);margin-top:4px;}
+
+/* Two-panel layout */
+.camp-two-panel{display:grid;grid-template-columns:360px 1fr;gap:14px;align-items:start;}
+@media(max-width:1100px){.camp-two-panel{grid-template-columns:1fr;}}
+
+/* Campaign list panel */
+.camp-list-panel{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.camp-list-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);background:#091523;}
+.camp-list-hdr-title{font-size:13px;font-weight:700;font-family:'Sora',sans-serif;color:var(--text);}
+.camp-list-item{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:.15s;position:relative;}
+.camp-list-item:hover{background:var(--bg3);}
+.camp-list-item.selected{background:linear-gradient(90deg,#146ef520,transparent);border-left:3px solid var(--blue);}
+.camp-list-item .cli-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;}
+.camp-list-item .cli-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.camp-list-item .cli-roas{font-size:12px;font-weight:700;padding:3px 7px;border-radius:6px;white-space:nowrap;flex-shrink:0;}
+.cli-roas.green{background:#052e16;color:#86efac;}
+.cli-roas.yellow{background:#2d1a00;color:#fcd34d;}
+.cli-roas.red{background:#3a0f0f;color:#fca5a5;}
+.cli-roas.gray{background:var(--bg3);color:var(--text3);}
+.camp-badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;flex-shrink:0;}
+.camp-badge.cbo{background:#1e3a5f;color:#93c5fd;}
+.camp-badge.abo{background:#1a1a2e;color:#a78bfa;}
+
+/* Health dot */
 .hdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .hdot.green{background:var(--green);box-shadow:0 0 5px #22c55e88;}
 .hdot.yellow{background:var(--orange);box-shadow:0 0 5px #ffba0088;}
 .hdot.red{background:var(--red);box-shadow:0 0 5px #ef444488;}
 .hdot.gray{background:var(--text3);}
+
+/* Detail panel */
+.camp-detail-panel{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;min-height:400px;}
+.camp-detail-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);background:#091523;flex-wrap:wrap;gap:8px;}
+.camp-detail-title{font-size:14px;font-weight:700;font-family:'Sora',sans-serif;color:var(--text);}
+.camp-detail-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:320px;gap:12px;color:var(--text3);}
+.camp-detail-empty .de-icon{font-size:44px;}
+
+/* Detail metric rows */
+.detail-table{width:100%;}
+.detail-hdr-row{display:grid;padding:8px 16px;background:#091523;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
+.detail-hdr-row.adsets{grid-template-columns:1fr 80px 80px 70px 90px 110px;}
+.detail-hdr-row.ads{grid-template-columns:1fr 80px 80px 68px 90px 110px;}
+.detail-row{display:grid;padding:11px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:.15s;align-items:center;}
+.detail-row:hover{background:var(--bg3);}
+.detail-row.selected{background:linear-gradient(90deg,#22c55e15,transparent);}
+.detail-row.adsets{grid-template-columns:1fr 80px 80px 70px 90px 110px;}
+.detail-row.ads{grid-template-columns:1fr 80px 80px 68px 90px 110px;}
+.dr-name{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dr-sub{font-size:10px;color:var(--text3);margin-top:1px;}
+.dr-val{font-size:12px;text-align:right;color:var(--text2);}
+.dr-val.green{color:var(--green);}
+.dr-val.red{color:var(--red);}
+
+/* Toggle switch */
 .toggle-wrap{display:flex;align-items:center;gap:6px;justify-content:flex-end;}
 .toggle-label{font-size:11px;font-weight:600;}
 .toggle-label.on{color:var(--green);}
@@ -231,11 +270,23 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .tog input:checked+.tog-slider{background:#15803d;}
 .tog input:checked+.tog-slider:before{transform:translateX(18px);}
 .tog input:disabled+.tog-slider{opacity:.5;cursor:default;}
-.camp-totals{display:grid;grid-template-columns:2.4fr 88px 88px 88px 70px 80px 68px 110px;padding:10px 12px;background:#091523;border-top:1px solid var(--border);font-size:12px;font-weight:700;color:var(--text2);}
-.camp-totals .tv{text-align:right;}
-.camp-totals .tv.g{color:var(--green);}
-.camp-totals .tv.r{color:var(--red);}
-.camp-totals .tv.w{color:var(--text);}
+
+/* Budget Modal */
+.bmodal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:flex;align-items:center;justify-content:center;}
+.bmodal{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:32px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;}
+.bmodal-title{font-family:'Sora',sans-serif;font-size:18px;font-weight:800;margin-bottom:6px;}
+.bmodal-sub{font-size:13px;color:var(--text2);margin-bottom:24px;}
+.bmodal-impact{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:16px 0;}
+.bmodal-impact-card{background:var(--bg3);border-radius:10px;padding:12px;text-align:center;}
+.bic-label{font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.bic-val{font-size:16px;font-weight:800;font-family:'Sora',sans-serif;}
+.bic-val.blue{color:var(--blue);}
+.bic-val.green{color:var(--green);}
+.bic-val.orange{color:var(--orange);}
+
+/* Batch modal */
+.batch-camp-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.batch-camp-item:last-child{border-bottom:none;}
 
 /* ══════════════════════════════════════════════════════
    RELATÓRIOS TAB
@@ -570,19 +621,116 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       <div class="page-header">
         <div>
           <div class="page-title">Campanhas</div>
-          <div class="page-subtitle">Campanha → Conjunto → Anúncio &nbsp;•&nbsp; Clique para expandir &nbsp;•&nbsp; Toggle para pausar/ativar</div>
+          <div class="page-subtitle">Meta Ads — BM, conta, período e orçamento em um só lugar</div>
         </div>
-        <div class="page-actions">
-          <select id="campDays" onchange="loadCampaigns()" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;font-family:'Montserrat',sans-serif;outline:none;">
-            <option value="7">7 dias</option>
-            <option value="14">14 dias</option>
-            <option value="30">30 dias</option>
+        <div class="page-actions" style="flex-wrap:wrap;gap:8px;">
+          <select id="campAccount" onchange="loadCampaigns()" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;font-family:'Montserrat',sans-serif;outline:none;max-width:180px;">
+            <option value="">Todas as contas</option>
+          </select>
+          <select id="campPeriod" onchange="loadCampaigns()" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;font-family:'Montserrat',sans-serif;outline:none;">
+            <option value="today">Hoje</option>
+            <option value="month">Este mês</option>
+            <option value="7" selected>Últimos 7 dias</option>
+            <option value="14">Últimos 14 dias</option>
+            <option value="30">Últimos 30 dias</option>
           </select>
           <button class="btn btn-blue btn-sm" onclick="loadCampaigns()">↻ Atualizar</button>
         </div>
       </div>
-      <div class="card" style="padding:0;overflow:hidden">
-        <div id="campaignsContent"><div class="empty-state"><div class="spinner"></div></div></div>
+
+      <!-- KPI Cards -->
+      <div class="camp-kpis" id="campKpis">
+        <div class="camp-kpi"><div class="ck-label">Gasto</div><div class="ck-val" id="kpiSpend">—</div><div class="ck-sub" id="kpiSpendSub"></div></div>
+        <div class="camp-kpi"><div class="ck-label">Receita</div><div class="ck-val green" id="kpiRevenue">—</div><div class="ck-sub" id="kpiRevSub"></div></div>
+        <div class="camp-kpi"><div class="ck-label">Lucro</div><div class="ck-val" id="kpiProfit">—</div><div class="ck-sub" id="kpiProfSub"></div></div>
+        <div class="camp-kpi"><div class="ck-label">ROAS Médio</div><div class="ck-val blue" id="kpiRoas">—</div><div class="ck-sub" id="kpiRoasSub"></div></div>
+      </div>
+
+      <!-- Two-Panel Layout -->
+      <div class="camp-two-panel">
+
+        <!-- PAINEL ESQUERDO: Lista de Campanhas -->
+        <div class="camp-list-panel">
+          <div class="camp-list-hdr">
+            <div class="camp-list-hdr-title">📢 Campanhas</div>
+            <button class="btn btn-ghost btn-xs" onclick="openBatchModal()">📊 Ajuste em lote</button>
+          </div>
+          <div id="campListContent">
+            <div class="camp-detail-empty" style="height:200px"><div class="de-icon"><div class="spinner"></div></div></div>
+          </div>
+        </div>
+
+        <!-- PAINEL DIREITO: Detalhes -->
+        <div class="camp-detail-panel" id="campDetailPanel">
+          <div class="camp-detail-empty">
+            <div class="de-icon">📢</div>
+            <div style="font-size:14px;font-weight:600;color:var(--text2)">Selecione uma campanha</div>
+            <div style="font-size:12px">Clique em uma campanha para ver conjuntos e anúncios</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MODAL ORÇAMENTO ── -->
+    <div id="budgetModal" class="bmodal-overlay" style="display:none" onclick="if(event.target===this)closeBudgetModal()">
+      <div class="bmodal">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div class="bmodal-title" id="bmodalTitle">Editar Orçamento</div>
+          <button onclick="closeBudgetModal()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;line-height:1">✕</button>
+        </div>
+        <div class="bmodal-sub" id="bmodalSub">Orçamento diário</div>
+        <div class="alert alert-info" id="bmodalTypeInfo" style="font-size:12px;margin-bottom:16px"></div>
+        <div style="background:var(--bg3);border-radius:10px;padding:14px;margin-bottom:16px">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:6px">Orçamento atual</div>
+          <div id="bmodalCurrentBudget" style="font-size:22px;font-weight:800;font-family:'Sora',sans-serif;color:var(--orange)">R$ —</div>
+        </div>
+        <div class="form-group">
+          <label>Novo orçamento diário (R$)</label>
+          <input type="number" id="bmodalNewBudget" min="1" step="0.01" placeholder="Ex: 150.00" oninput="updateBudgetImpact()" style="font-size:18px;font-weight:700;color:var(--text)">
+        </div>
+        <div class="bmodal-impact" id="bmodalImpact" style="display:none">
+          <div class="bmodal-impact-card"><div class="bic-label">Gasto/dia</div><div class="bic-val blue" id="bimpSpend">—</div></div>
+          <div class="bmodal-impact-card"><div class="bic-label">ROAS estimado</div><div class="bic-val green" id="bimpRoas">—</div></div>
+          <div class="bmodal-impact-card"><div class="bic-label">CPA estimado</div><div class="bic-val orange" id="bimpCpa">—</div></div>
+        </div>
+        <div id="bmodalMsg"></div>
+        <div style="display:flex;gap:8px;margin-top:20px">
+          <button class="btn btn-ghost" onclick="closeBudgetModal()" style="flex:1">Cancelar</button>
+          <button class="btn btn-primary" onclick="saveBudget()" id="bmodalSaveBtn" style="flex:1">💰 Aplicar Orçamento</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MODAL AJUSTE EM LOTE ── -->
+    <div id="batchModal" class="bmodal-overlay" style="display:none" onclick="if(event.target===this)closeBatchModal()">
+      <div class="bmodal" style="max-width:520px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div class="bmodal-title">📊 Ajuste em Lote</div>
+          <button onclick="closeBatchModal()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;line-height:1">✕</button>
+        </div>
+        <div class="bmodal-sub">Selecione as campanhas CBO e aplique uma variação percentual</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:16px;">
+          <input type="number" id="batchPercent" value="20" min="-90" max="500" step="1" style="width:90px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:18px;font-weight:700;font-family:'Sora',sans-serif;text-align:center;outline:none">
+          <span style="font-size:18px;font-weight:700;color:var(--text)">%</span>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn btn-green btn-sm" onclick="setBatchPct(10)">+10%</button>
+            <button class="btn btn-green btn-sm" onclick="setBatchPct(20)">+20%</button>
+            <button class="btn btn-green btn-sm" onclick="setBatchPct(50)">+50%</button>
+            <button class="btn btn-red btn-sm" onclick="setBatchPct(-10)">-10%</button>
+            <button class="btn btn-red btn-sm" onclick="setBatchPct(-20)">-20%</button>
+            <button class="btn btn-red btn-sm" onclick="setBatchPct(-30)">-30%</button>
+          </div>
+        </div>
+        <div id="batchCampList" style="max-height:280px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:8px 12px"></div>
+        <div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="toggleSelectAll(true)">Selecionar todos</button>
+          <button class="btn btn-ghost btn-sm" onclick="toggleSelectAll(false)">Desmarcar todos</button>
+        </div>
+        <div id="batchMsg" style="margin-top:12px"></div>
+        <div style="display:flex;gap:8px;margin-top:16px">
+          <button class="btn btn-ghost" onclick="closeBatchModal()" style="flex:1">Cancelar</button>
+          <button class="btn btn-primary" onclick="applyBatchBudget()" id="batchSaveBtn" style="flex:1">⚡ Aplicar a Selecionadas</button>
+        </div>
       </div>
     </div>
 
@@ -1455,7 +1603,7 @@ function showTab(name) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById(`tab-${name}`)?.classList.add('active');
   document.getElementById(`nav-${name}`)?.classList.add('active');
-  if (name === 'campaigns')   loadCampaigns();
+  if (name === 'campaigns')   { loadCampAccountSelector().then(loadCampaigns); }
   if (name === 'alerts')      loadAlerts();
   if (name === 'benchmarks')  loadBenchmarks();
   if (name === 'settings')    loadSettings();
@@ -2390,98 +2538,190 @@ async function saveSettings() {
   }
 }
 
-// ─── CAMPANHAS (3 NÍVEIS) ────────────────────────────────────────────────────
+// ─── CAMPANHAS — REDESIGN ────────────────────────────────────────────────────
 const fmtBRL = (v) => `R$ ${Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
 
-function campHeader() {
-  const cols = ['Nome','Gasto','Receita','Lucro','ROAS','CPA','CTR','Status'];
-  return `<div style="display:grid;grid-template-columns:2.4fr 88px 88px 88px 70px 80px 68px 110px;padding:8px 12px;background:#091523;border-bottom:1px solid var(--border)">
-    ${cols.map((c,i)=>`<div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;${i>0?'text-align:right':''}">${c}</div>`).join('')}
-  </div>`;
+let _campData       = [];   // árvore completa
+let _selectedCampId = null; // campanha selecionada no painel esq
+let _selectedSetId  = null; // conjunto selecionado no painel dir
+let _budgetCtx      = {};   // contexto do modal de orçamento
+
+// Popula o seletor de contas com as integrações Meta Ads
+async function loadCampAccountSelector() {
+  try {
+    const { data } = await api('GET', '/api/integrations');
+    const metaAccts = (data || []).filter(i => i.platform === 'meta_ads' && i.is_active);
+    const sel = document.getElementById('campAccount');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">Todas as contas</option>' +
+      metaAccts.map(i => `<option value="${i.id}">${i.account_name || 'Conta Meta'}</option>`).join('');
+  } catch(e) {}
 }
 
-function roasClass(h){ return {green:'col-roas green',yellow:'col-roas yellow',red:'col-roas red',gray:'col-roas gray'}[h]||'col-roas gray'; }
+async function loadCampaigns() {
+  const period        = document.getElementById('campPeriod')?.value || '7';
+  const integrationId = document.getElementById('campAccount')?.value || '';
+  let url = `/api/metrics/tree?period=${period}`;
+  if (integrationId) url += `&integration_id=${integrationId}`;
+
+  // Spinner no painel esq
+  document.getElementById('campListContent').innerHTML = '<div class="camp-detail-empty" style="height:180px"><div class="de-icon"><div class="spinner"></div></div></div>';
+  document.getElementById('campDetailPanel').innerHTML  = '<div class="camp-detail-empty"><div class="de-icon">📢</div><div style="font-size:14px;font-weight:600;color:var(--text2)">Selecione uma campanha</div></div>';
+  _selectedCampId = null; _selectedSetId = null;
+
+  try {
+    const { data } = await api('GET', url);
+    _campData = data || [];
+
+    // --- KPI cards ---
+    const totSpend = _campData.reduce((s,c)=>s+c.spend,0);
+    const totRev   = _campData.reduce((s,c)=>s+c.revenue,0);
+    const totProfit= totRev - totSpend;
+    const totRoas  = totSpend>0?totRev/totSpend:0;
+    const periodLabel = {today:'Hoje',month:'Este mês','7':'7 dias','14':'14 dias','30':'30 dias'}[period]||period;
+
+    document.getElementById('kpiSpend').textContent   = fmtBRL(totSpend);
+    document.getElementById('kpiSpendSub').textContent = `${_campData.length} campanhas • ${periodLabel}`;
+    document.getElementById('kpiRevenue').textContent  = fmtBRL(totRev);
+    document.getElementById('kpiRevSub').textContent   = `receita total`;
+    const pEl = document.getElementById('kpiProfit');
+    pEl.textContent = fmtBRL(Math.abs(totProfit));
+    pEl.className   = 'ck-val ' + (totProfit >= 0 ? 'green' : 'orange');
+    document.getElementById('kpiProfSub').textContent  = totProfit < 0 ? '⚠️ prejuízo' : '✓ lucro';
+    document.getElementById('kpiRoas').textContent  = fmtN(totRoas,2) + 'x';
+    document.getElementById('kpiRoasSub').textContent = 'retorno por R$1 gasto';
+
+    // --- Lista de campanhas ---
+    if (!_campData.length) {
+      document.getElementById('campListContent').innerHTML = '<div class="camp-detail-empty" style="height:200px"><div class="de-icon">📢</div><div style="font-size:12px">Nenhuma campanha encontrada.<br>Sincronize o Meta Ads primeiro.</div></div>';
+      return;
+    }
+
+    document.getElementById('campListContent').innerHTML = _campData.map(c => {
+      const roasCls = c.health || 'gray';
+      const budType = c.is_cbo ? 'CBO' : 'ABO';
+      const budBadge = `<span class="camp-badge ${c.is_cbo?'cbo':'abo'}">${budType}</span>`;
+      const budVal = c.daily_budget > 0 ? fmtBRL(c.daily_budget)+'/dia' : (c.lifetime_budget > 0 ? fmtBRL(c.lifetime_budget)+' total' : '—');
+      return `<div class="camp-list-item" id="cli-${c.id}" onclick="selectCampaign('${c.id}')">
+        <div class="hdot ${roasCls}"></div>
+        <div style="flex:1;min-width:0">
+          <div class="cli-name" title="${c.name}">${c.name}</div>
+          <div class="cli-sub">${fmtBRL(c.spend)} gasto · ${budBadge} ${budVal}</div>
+        </div>
+        <div class="cli-roas ${roasCls}">${c.spend>0?fmtN(c.roas,1)+'x ROAS':'Sem dado'}</div>
+      </div>`;
+    }).join('');
+
+  } catch(e) {
+    document.getElementById('campListContent').innerHTML = `<div class="alert alert-error" style="margin:12px">${e.message}</div>`;
+  }
+}
+
+function selectCampaign(campId) {
+  _selectedCampId = campId;
+  _selectedSetId  = null;
+  // Highlight na lista
+  document.querySelectorAll('.camp-list-item').forEach(el => el.classList.remove('selected'));
+  const selEl = document.getElementById('cli-' + campId);
+  if (selEl) selEl.classList.add('selected');
+
+  const camp = _campData.find(c => c.id === campId);
+  if (!camp) return;
+
+  const adSets = camp.ad_sets || [];
+  const isActive = camp.status === 'ACTIVE';
+  const budLabel = camp.is_cbo ? '🔵 CBO — orçamento na campanha' : '🟣 ABO — orçamento por conjunto';
+  const budVal   = camp.daily_budget > 0 ? fmtBRL(camp.daily_budget) + '/dia' : (camp.lifetime_budget > 0 ? fmtBRL(camp.lifetime_budget) + ' vitalício' : 'Não definido');
+
+  let html = `<div class="camp-detail-hdr">
+    <div>
+      <div class="camp-detail-title">${camp.name}</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:3px">${budLabel} &nbsp;|&nbsp; Orçamento: <strong style="color:var(--orange)">${budVal}</strong></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      ${camp.is_cbo ? `<button class="btn btn-orange btn-xs" onclick="openBudgetModal('campaign','${camp.id}','${camp.name.replace(/'/g,"\\'")}',${camp.daily_budget||camp.lifetime_budget},true,${camp.spend},${camp.roas},${camp.cpa})">💰 Editar Orçamento</button>` : ''}
+      <div class="toggle-wrap">${toggleSwitch('campaign',camp.id,isActive)}</div>
+    </div>
+  </div>
+
+  <!-- Métricas da campanha -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border)">
+    ${[['Gasto',fmtBRL(camp.spend),''],['Receita',fmtBRL(camp.revenue),'green'],['ROAS',fmtN(camp.roas,2)+'x',camp.health],['CPA',camp.cpa>0?fmtBRL(camp.cpa):'—','']].map(([l,v,cls])=>`
+    <div style="padding:12px 14px;background:var(--bg2)">
+      <div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${l}</div>
+      <div style="font-size:15px;font-weight:800;font-family:'Sora',sans-serif" class="${cls?'ck-val '+cls:''}">${v}</div>
+    </div>`).join('')}
+  </div>`;
+
+  if (!adSets.length) {
+    html += `<div class="camp-detail-empty" style="height:180px"><div class="de-icon">🗂️</div><div style="font-size:12px">Nenhum conjunto encontrado</div></div>`;
+  } else {
+    html += `<div class="detail-hdr-row adsets"><span>Conjunto de Anúncios</span><span style="text-align:right">Gasto</span><span style="text-align:right">Receita</span><span style="text-align:right">ROAS</span><span style="text-align:right">Orçamento</span><span style="text-align:right">Status</span></div>`;
+    html += adSets.map(s => {
+      const isSetActive = s.status === 'ACTIVE';
+      const setBudget = s.daily_budget > 0 ? fmtBRL(s.daily_budget) : (s.lifetime_budget > 0 ? fmtBRL(s.lifetime_budget) : '—');
+      return `<div class="detail-row adsets" id="drs-${s.id}" onclick="selectAdSet('${campId}','${s.id}')">
+        <div><div class="dr-name">${s.name}</div><div class="dr-sub">${s.ads?.length||0} anúncios · ${!camp.is_cbo?`<span style="cursor:pointer;color:var(--blue)" onclick="event.stopPropagation();openBudgetModal('adset','${s.id}','${s.name.replace(/'/g,"\\'")}',${s.daily_budget||s.lifetime_budget},false,${s.spend},${s.roas},${s.cpa})">💰 editar</span>`:''}</div></div>
+        <div class="dr-val">${fmtBRL(s.spend)}</div>
+        <div class="dr-val green">${fmtBRL(s.revenue)}</div>
+        <div class="dr-val ${s.health==='green'?'green':s.health==='red'?'red':''}">${s.spend>0?fmtN(s.roas,1)+'x':'—'}</div>
+        <div class="dr-val">${setBudget}</div>
+        <div>${toggleSwitch('adset',s.id,isSetActive)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  html += `</div>`;
+  document.getElementById('campDetailPanel').innerHTML = html;
+}
+
+function selectAdSet(campId, adSetId) {
+  _selectedSetId = adSetId;
+  // Highlight conjuntos
+  document.querySelectorAll('.detail-row.adsets').forEach(el => el.classList.remove('selected'));
+  const selEl = document.getElementById('drs-' + adSetId);
+  if (selEl) selEl.classList.add('selected');
+
+  const camp  = _campData.find(c => c.id === campId);
+  const adSet = camp?.ad_sets?.find(s => s.id === adSetId);
+  if (!adSet) return;
+
+  const ads = adSet.ads || [];
+  // Adicionar painel de anúncios embaixo dos conjuntos (remover painel anterior se existir)
+  const existing = document.getElementById('adsSubPanel');
+  if (existing) existing.remove();
+
+  let adsHtml = `<div id="adsSubPanel" style="border-top:1px solid var(--border)">
+    <div style="padding:10px 16px;background:#091523;font-size:12px;font-weight:700;color:var(--text2);border-bottom:1px solid var(--border)">
+      📣 Anúncios em <strong style="color:var(--text)">${adSet.name}</strong>
+    </div>`;
+
+  if (!ads.length) {
+    adsHtml += `<div class="camp-detail-empty" style="height:120px"><div style="font-size:12px">Nenhum anúncio encontrado</div></div>`;
+  } else {
+    adsHtml += `<div class="detail-hdr-row ads"><span>Anúncio</span><span style="text-align:right">Gasto</span><span style="text-align:right">Receita</span><span style="text-align:right">CTR</span><span style="text-align:right">Conversões</span><span style="text-align:right">Status</span></div>`;
+    adsHtml += ads.map(a => `
+      <div class="detail-row ads">
+        <div><div class="dr-name">${a.name}</div><div class="dr-sub ${a.health}">${a.health==='green'?'✓ Saudável':a.health==='yellow'?'⚠ Atenção':a.health==='red'?'✕ Fraco':'Sem dados'}</div></div>
+        <div class="dr-val">${fmtBRL(a.spend)}</div>
+        <div class="dr-val green">${fmtBRL(a.revenue)}</div>
+        <div class="dr-val">${fmtN(a.ctr,1)}%</div>
+        <div class="dr-val">${a.conversions||0}</div>
+        <div>${toggleSwitch('ad',a.id,a.status==='ACTIVE')}</div>
+      </div>`).join('');
+  }
+  adsHtml += `</div>`;
+  document.getElementById('campDetailPanel').insertAdjacentHTML('beforeend', adsHtml);
+  selEl?.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
 
 function toggleSwitch(entityType, entityId, isActive) {
   const label = isActive ? '<span class="toggle-label on">ATIVO</span>' : '<span class="toggle-label off">PAUSADO</span>';
   return `<div class="toggle-wrap" onclick="event.stopPropagation()">
     ${label}
-    <label class="tog">
-      <input type="checkbox" ${isActive?'checked':''} onchange="toggleStatus(event,'${entityType}','${entityId}',this)">
-      <span class="tog-slider"></span>
-    </label>
+    <label class="tog"><input type="checkbox" ${isActive?'checked':''} onchange="toggleStatus(event,'${entityType}','${entityId}',this)">
+    <span class="tog-slider"></span></label>
   </div>`;
-}
-
-function renderRow(entity, type, extraClass, expandId) {
-  const isActive = entity.status === 'ACTIVE';
-  const profit   = entity.revenue - entity.spend;
-  const icons    = { campaign:'📢', adset:'📦', ad:'🎯' };
-  const hasKids  = (type==='campaign'&&(entity.ad_sets||[]).length>0)||(type==='adset'&&(entity.ads||[]).length>0);
-  const arrow    = hasKids ? `<span class="expand-icon" id="arrow-${expandId}">▶</span>` : `<span style="width:14px;display:inline-block"></span>`;
-  return `
-    <div class="tr-cols ${extraClass}" onclick="${hasKids?`toggleRows('${expandId}')`:''}" style="display:grid">
-      <div class="col-name">${arrow}<div class="hdot ${entity.health}"></div><span class="entity-label">${icons[type]}</span><span class="entity-name" title="${entity.name}">${entity.name}</span></div>
-      <div class="col-val spend">${fmtBRL(entity.spend)}</div>
-      <div class="col-val revenue">${fmtBRL(entity.revenue)}</div>
-      <div class="col-val profit ${profit>=0?'pos':'neg'}">${fmtBRL(profit)}</div>
-      <div class="${roasClass(entity.health)}">${fmtN(entity.roas)}x</div>
-      <div class="col-val">${entity.cpa>0?fmtBRL(entity.cpa):'—'}</div>
-      <div class="col-val">${fmtN(entity.ctr,1)}%</div>
-      <div>${toggleSwitch(type,entity.id,isActive)}</div>
-    </div>`;
-}
-
-async function loadCampaigns() {
-  const days = document.getElementById('campDays')?.value || 7;
-  document.getElementById('campaignsContent').innerHTML = '<div class="empty-state" style="padding:40px"><div class="spinner"></div></div>';
-  try {
-    const { data } = await api('GET', `/api/metrics/tree?days=${days}`);
-    if (!data.length) { document.getElementById('campaignsContent').innerHTML = '<div class="empty-state" style="padding:40px"><div class="cs-icon">📢</div><p>Nenhuma campanha encontrada. Sincronize o Meta Ads primeiro.</p></div>'; return; }
-
-    const totSpend = data.reduce((s,c)=>s+c.spend,0);
-    const totRev   = data.reduce((s,c)=>s+c.revenue,0);
-    const totProf  = totRev - totSpend;
-    const totRoas  = totSpend>0?totRev/totSpend:0;
-
-    let html = campHeader();
-    data.forEach(camp => {
-      const cgId = `g-camp-${camp.id}`;
-      html += renderRow(camp,'campaign','tr-camp',cgId);
-      html += `<div id="${cgId}" style="display:none">`;
-      (camp.ad_sets||[]).forEach(adSet => {
-        const asgId = `g-adset-${adSet.id}`;
-        html += renderRow(adSet,'adset','tr-adset',asgId);
-        html += `<div id="${asgId}" style="display:none">`;
-        (adSet.ads||[]).forEach(ad => { html += renderRow(ad,'ad','tr-ad',null); });
-        html += `</div>`;
-      });
-      html += `</div>`;
-    });
-
-    const pc = totProf>=0;
-    html += `<div class="camp-totals">
-      <div style="color:var(--text2)">TOTAL — ${data.length} campanhas</div>
-      <div class="tv w">${fmtBRL(totSpend)}</div>
-      <div class="tv g">${fmtBRL(totRev)}</div>
-      <div class="tv ${pc?'g':'r'}">${fmtBRL(totProf)}</div>
-      <div class="tv w">${fmtN(totRoas)}x</div>
-      <div class="tv">—</div><div class="tv">—</div><div class="tv"></div>
-    </div>`;
-
-    document.getElementById('campaignsContent').innerHTML = html;
-  } catch(e) {
-    document.getElementById('campaignsContent').innerHTML = `<div class="alert alert-error" style="margin:16px">${e.message}</div>`;
-  }
-}
-
-function toggleRows(groupId) {
-  const el = document.getElementById(groupId);
-  if (!el) return;
-  const isOpen = el.style.display !== 'none';
-  el.style.display = isOpen ? 'none' : 'block';
-  const arrow = document.getElementById(`arrow-${groupId}`);
-  if (arrow) arrow.classList.toggle('open', !isOpen);
 }
 
 async function toggleStatus(event, entityType, entityId, checkbox) {
@@ -2502,6 +2742,127 @@ async function toggleStatus(event, entityType, entityId, checkbox) {
     if (label) { label.textContent = wasActive?'ATIVO':'PAUSADO'; label.className = wasActive?'toggle-label on':'toggle-label off'; }
     alert('Erro ao alterar status: ' + e.message);
   } finally { checkbox.disabled = false; }
+}
+
+// ── MODAL DE ORÇAMENTO ────────────────────────────────────────────────────────
+function openBudgetModal(entityType, entityId, name, currentBudget, isCBO, spend, roas, cpa) {
+  _budgetCtx = { entityType, entityId, name, currentBudget: parseFloat(currentBudget)||0, isCBO, spend: parseFloat(spend)||0, roas: parseFloat(roas)||0, cpa: parseFloat(cpa)||0 };
+  document.getElementById('bmodalTitle').textContent    = `💰 ${isCBO ? 'CBO' : 'ABO'} — ${name.substring(0,40)}`;
+  document.getElementById('bmodalSub').textContent      = isCBO ? 'Orçamento diário da campanha (CBO)' : 'Orçamento diário do conjunto (ABO)';
+  document.getElementById('bmodalTypeInfo').innerHTML   = isCBO
+    ? '🔵 <strong>CBO</strong> (Campaign Budget Optimization) — o Meta distribui o orçamento entre os conjuntos automaticamente.'
+    : '🟣 <strong>ABO</strong> (Ad Set Budget Optimization) — cada conjunto tem seu próprio orçamento individual.';
+  document.getElementById('bmodalCurrentBudget').textContent = currentBudget > 0 ? fmtBRL(currentBudget) + '/dia' : 'Não definido';
+  document.getElementById('bmodalNewBudget').value = currentBudget > 0 ? currentBudget.toFixed(2) : '';
+  document.getElementById('bmodalMsg').innerHTML  = '';
+  document.getElementById('bmodalImpact').style.display = 'none';
+  document.getElementById('budgetModal').style.display  = 'flex';
+  updateBudgetImpact();
+}
+
+function updateBudgetImpact() {
+  const newBudget = parseFloat(document.getElementById('bmodalNewBudget').value);
+  const impact    = document.getElementById('bmodalImpact');
+  if (!newBudget || newBudget <= 0 || !_budgetCtx.spend) { impact.style.display='none'; return; }
+  impact.style.display = 'grid';
+  // Estimativa proporcional ao gasto atual
+  const ratio = newBudget / (_budgetCtx.currentBudget || newBudget);
+  const estRoas = _budgetCtx.roas;  // ROAS normalmente estável
+  const estCpa  = _budgetCtx.cpa;
+  document.getElementById('bimpSpend').textContent = fmtBRL(newBudget);
+  document.getElementById('bimpRoas').textContent  = estRoas > 0 ? fmtN(estRoas,2)+'x' : '—';
+  document.getElementById('bimpCpa').textContent   = estCpa  > 0 ? fmtBRL(estCpa)      : '—';
+}
+
+function closeBudgetModal() {
+  document.getElementById('budgetModal').style.display = 'none';
+}
+
+async function saveBudget() {
+  const newBudget = parseFloat(document.getElementById('bmodalNewBudget').value);
+  if (!newBudget || newBudget < 1) { showMsg('bmodalMsg','Informe um valor válido maior que R$ 1,00'); return; }
+  const btn = document.getElementById('bmodalSaveBtn');
+  btn.innerHTML = '<span class="spinner"></span> Aplicando...'; btn.disabled = true;
+  try {
+    const r = await api('POST', '/api/metrics/update-budget', {
+      entity_type: _budgetCtx.entityType,
+      entity_id:   _budgetCtx.entityId,
+      new_budget:  newBudget,
+    });
+    showMsg('bmodalMsg', `✅ ${r.message}`, 'success');
+    setTimeout(() => { closeBudgetModal(); loadCampaigns(); }, 1200);
+  } catch(e) {
+    showMsg('bmodalMsg', e.message);
+  } finally { btn.innerHTML = '💰 Aplicar Orçamento'; btn.disabled = false; }
+}
+
+// ── MODAL AJUSTE EM LOTE ──────────────────────────────────────────────────────
+function openBatchModal() {
+  const cboCamps = _campData.filter(c => c.is_cbo && c.daily_budget > 0);
+  if (!cboCamps.length) {
+    alert('Nenhuma campanha CBO com orçamento definido encontrada. Sincronize o Meta Ads primeiro.');
+    return;
+  }
+  document.getElementById('batchMsg').innerHTML = '';
+  document.getElementById('batchPercent').value = '20';
+  document.getElementById('batchCampList').innerHTML = cboCamps.map(c => `
+    <div class="batch-camp-item">
+      <input type="checkbox" id="bch-${c.id}" value="${c.id}" data-budget="${c.daily_budget}" data-name="${c.name}" checked style="width:16px;height:16px;cursor:pointer;accent-color:var(--blue)">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.name}</div>
+        <div style="font-size:11px;color:var(--text3)">Atual: ${fmtBRL(c.daily_budget)}/dia</div>
+      </div>
+      <div style="font-size:12px;color:var(--text2);text-align:right" id="bch-new-${c.id}">→ ${fmtBRL(c.daily_budget)}</div>
+    </div>`).join('');
+  document.getElementById('batchModal').style.display = 'flex';
+  updateBatchPreview();
+  document.getElementById('batchPercent').addEventListener('input', updateBatchPreview);
+}
+
+function updateBatchPreview() {
+  const pct = parseFloat(document.getElementById('batchPercent').value) || 0;
+  document.querySelectorAll('[id^="bch-"]:not([id^="bch-new-"])').forEach(cb => {
+    const newB = parseFloat(cb.dataset.budget) * (1 + pct/100);
+    const newEl = document.getElementById('bch-new-' + cb.value);
+    if (newEl) newEl.textContent = `→ ${fmtBRL(Math.max(1, newB))}/dia`;
+    newEl.style.color = pct > 0 ? 'var(--green)' : pct < 0 ? 'var(--red)' : 'var(--text2)';
+  });
+}
+
+function setBatchPct(pct) {
+  document.getElementById('batchPercent').value = pct;
+  updateBatchPreview();
+}
+
+function toggleSelectAll(checked) {
+  document.querySelectorAll('[id^="bch-"]:not([id^="bch-new-"])').forEach(cb => cb.checked = checked);
+}
+
+function closeBatchModal() {
+  document.getElementById('batchModal').style.display = 'none';
+}
+
+async function applyBatchBudget() {
+  const pct = parseFloat(document.getElementById('batchPercent').value);
+  if (isNaN(pct)) { showMsg('batchMsg','Informe a porcentagem'); return; }
+  const selected = Array.from(document.querySelectorAll('[id^="bch-"]:not([id^="bch-new-"])'))
+    .filter(cb => cb.checked)
+    .map(cb => ({ id: cb.value, currentBudget: parseFloat(cb.dataset.budget), name: cb.dataset.name }));
+  if (!selected.length) { showMsg('batchMsg','Selecione ao menos uma campanha'); return; }
+
+  const btn = document.getElementById('batchSaveBtn');
+  btn.innerHTML = '<span class="spinner"></span> Aplicando...'; btn.disabled = true;
+  let ok = 0, fail = 0;
+  for (const camp of selected) {
+    const newBudget = Math.max(1, camp.currentBudget * (1 + pct/100));
+    try {
+      await api('POST', '/api/metrics/update-budget', { entity_type:'campaign', entity_id:camp.id, new_budget: newBudget });
+      ok++;
+    } catch(e) { fail++; }
+  }
+  showMsg('batchMsg', `✅ ${ok} campanha(s) atualizada(s)${fail?' · ⚠️ '+fail+' erro(s)':''}`, ok > 0 ? 'success' : '');
+  btn.innerHTML = '⚡ Aplicar a Selecionadas'; btn.disabled = false;
+  if (ok > 0) setTimeout(() => { closeBatchModal(); loadCampaigns(); }, 1500);
 }
 
 // ─── WIZARD DE ONBOARDING ────────────────────────────────────────────────────
