@@ -1878,7 +1878,7 @@ async function loadCampAccountSelector() {
 }
 
 async function loadCampaigns() {
-  const campList   = document.getElementById('campList');
+  const campList   = document.getElementById('campListContent');
   const detailPanel = document.getElementById('campDetailPanel');
   if (!campList) return;
   campList.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text3)"><span class="spinner"></span></div>';
@@ -1919,10 +1919,10 @@ async function loadCampaigns() {
       const dotClass = roas >= 2 ? 'green' : roas >= 1 ? 'yellow' : c.spend > 0 ? 'red' : 'gray';
       const isCBO    = (c.daily_budget > 0 || c.lifetime_budget > 0);
       return `
-        <div class="camp-list-item" id="cli-${c.campaign_id}" onclick="selectCampaign('${c.campaign_id}')">
+        <div class="camp-list-item" id="cli-${c.id}" onclick="selectCampaign('${c.id}')">
           <span class="cli-dot ${dotClass}"></span>
           <div class="cli-info">
-            <div class="cli-name">${c.campaign_name || 'Campanha'}</div>
+            <div class="cli-name">${c.name || 'Campanha'}</div>
             <div class="cli-meta">
               <span class="camp-badge ${isCBO?'cbo':'abo'}">${isCBO?'CBO':'ABO'}</span>
               <span>Gasto: ${fmt(c.spend)}</span>
@@ -1945,7 +1945,7 @@ function selectCampaign(campId) {
   _selectedCampId = campId;
   _selectedSetId  = null;
 
-  const camp = _campData.find(c => c.campaign_id === campId);
+  const camp = _campData.find(c => c.id === campId);
   if (!camp) return;
 
   const isCBO = (camp.daily_budget > 0 || camp.lifetime_budget > 0);
@@ -1956,12 +1956,12 @@ function selectCampaign(campId) {
     const sRoas = s.spend > 0 ? (s.revenue||0)/s.spend : 0;
     const hasBudget = (s.daily_budget > 0 || s.lifetime_budget > 0);
     return `<tr>
-      <td style="padding:10px 8px;font-size:13px;color:var(--text);cursor:pointer" onclick="selectAdSet('${campId}','${s.ad_set_id}')">${s.ad_set_name || 'Conjunto'}</td>
+      <td style="padding:10px 8px;font-size:13px;color:var(--text);cursor:pointer" onclick="selectAdSet('${campId}','${s.id}')">${s.name || 'Conjunto'}</td>
       <td style="padding:10px 8px;font-size:13px;color:var(--text2);text-align:right">${fmt(s.spend)}</td>
       <td style="padding:10px 8px;font-size:13px;text-align:right;color:${sRoas>=2?'var(--green)':sRoas>=1?'var(--orange)':'var(--red)'}">${fmtN(sRoas)}x</td>
       <td style="padding:10px 8px;text-align:right">
         ${!isCBO && hasBudget
-          ? `<button class="btn btn-ghost btn-xs" onclick="openBudgetModal('adset','${s.ad_set_id}','${(s.ad_set_name||'').replace(/'/g,"\\'")}',${s.daily_budget||0},false,${s.spend||0},${sRoas},0)">💰 editar</button>`
+          ? `<button class="btn btn-ghost btn-xs" onclick="openBudgetModal('adset','${s.id}','${(s.name||'').replace(/'/g,"\\'")}',${s.daily_budget||0},false,${s.spend||0},${sRoas},0)">💰 editar</button>`
           : '<span style="font-size:11px;color:var(--text3)">—</span>'}
       </td>
     </tr>`;
@@ -1972,14 +1972,14 @@ function selectCampaign(campId) {
   dp.innerHTML = `
     <div class="detail-hdr-row">
       <div style="flex:1;min-width:0">
-        <div style="font-size:16px;font-weight:700;font-family:'Sora',sans-serif;color:var(--text);margin-bottom:4px">${camp.campaign_name}</div>
+        <div style="font-size:16px;font-weight:700;font-family:'Sora',sans-serif;color:var(--text);margin-bottom:4px">${camp.name}</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <span class="camp-badge ${isCBO?'cbo':'abo'}">${isCBO?'CBO':'ABO'}</span>
           ${isCBO && camp.daily_budget > 0 ? `<span style="font-size:12px;color:var(--text2)">Orçamento diário: <strong style="color:var(--text)">${fmt(camp.daily_budget/100)}</strong></span>` : ''}
         </div>
       </div>
       ${isCBO
-        ? `<button class="btn btn-blue btn-sm" onclick="openBudgetModal('campaign','${camp.campaign_id}','${(camp.campaign_name||'').replace(/'/g,"\\'")}',${camp.daily_budget||0},true,${camp.spend||0},${roas},${cpa})">💰 Editar Orçamento</button>`
+        ? `<button class="btn btn-blue btn-sm" onclick="openBudgetModal('campaign','${camp.id}','${(camp.name||'').replace(/'/g,"\\'")}',${camp.daily_budget||0},true,${camp.spend||0},${roas},${cpa})">💰 Editar Orçamento</button>`
         : ''}
     </div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
@@ -2006,8 +2006,8 @@ function selectCampaign(campId) {
 
 function selectAdSet(campId, adSetId) {
   _selectedSetId = adSetId;
-  const camp  = _campData.find(c => c.campaign_id === campId);
-  const adSet = camp?.ad_sets?.find(s => s.ad_set_id === adSetId);
+  const camp  = _campData.find(c => c.id === campId);
+  const adSet = camp?.ad_sets?.find(s => s.id === adSetId);
   if (!adSet) return;
 
   const panel = document.getElementById('adsSubPanel');
@@ -2016,7 +2016,7 @@ function selectAdSet(campId, adSetId) {
   const adsHtml = (adSet.ads || []).map(a => {
     const aRoas = a.spend > 0 ? (a.revenue||0)/a.spend : 0;
     return `<tr>
-      <td style="padding:9px 8px;font-size:12px;color:var(--text)">${a.ad_name || 'Anúncio'}</td>
+      <td style="padding:9px 8px;font-size:12px;color:var(--text)">${a.name || 'Anúncio'}</td>
       <td style="padding:9px 8px;font-size:12px;color:var(--text2);text-align:right">${fmt(a.spend)}</td>
       <td style="padding:9px 8px;font-size:12px;text-align:right;color:${aRoas>=2?'var(--green)':aRoas>=1?'var(--orange)':'var(--red)'}">${fmtN(aRoas)}x</td>
       <td style="padding:9px 8px;font-size:12px;color:var(--text2);text-align:right">${fmtN(a.ctr||0,2)}%</td>
@@ -2024,7 +2024,7 @@ function selectAdSet(campId, adSetId) {
   }).join('');
 
   panel.innerHTML = `
-    <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">📣 Anúncios — ${adSet.ad_set_name}</div>
+    <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">📣 Anúncios — ${adSet.name}</div>
     ${adsHtml ? `<div style="overflow-x:auto;border:1px solid var(--border);border-radius:10px">
       <table style="width:100%;border-collapse:collapse">
         <thead><tr style="border-bottom:1px solid var(--border)">
@@ -2121,13 +2121,13 @@ function switchBatchTab(mode) {
     }
     list.innerHTML = cboCamps.map(c => `
       <div class="batch-camp-item">
-        <input type="checkbox" id="bch-${c.campaign_id}" value="${c.campaign_id}" data-budget="${c.daily_budget||0}" data-type="campaign" data-name="${(c.campaign_name||'').replace(/"/g,'&quot;')}" onchange="updateBatchPreview()" checked style="width:16px;height:16px;accent-color:var(--blue);cursor:pointer;flex-shrink:0">
+        <input type="checkbox" id="bch-${c.id}" value="${c.id}" data-budget="${c.daily_budget||0}" data-type="campaign" data-name="${(c.name||'')".replace(/"/g,'&quot;')}" onchange="updateBatchPreview()" checked style="width:16px;height:16px;accent-color:var(--blue);cursor:pointer;flex-shrink:0">
         <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.campaign_name}</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.name}</div>
           <div style="font-size:11px;color:var(--text3)">Atual: ${fmt((c.daily_budget||0)/100)}/dia</div>
         </div>
         <div style="text-align:right;flex-shrink:0">
-          <div id="bch-new-${c.campaign_id}" style="font-size:13px;font-weight:700;color:var(--blue)">—</div>
+          <div id="bch-new-${c.id}" style="font-size:13px;font-weight:700;color:var(--blue)">—</div>
           <div style="font-size:10px;color:var(--text3)">novo</div>
         </div>
       </div>`).join('');
@@ -2136,7 +2136,7 @@ function switchBatchTab(mode) {
     const aboSets = [];
     _campData.filter(c => !((c.daily_budget||0) > 0 || (c.lifetime_budget||0) > 0)).forEach(c => {
       (c.ad_sets || []).filter(s => (s.daily_budget||0) > 0).forEach(s => {
-        aboSets.push({ ...s, _campName: c.campaign_name });
+        aboSets.push({ ...s, _campName: c.name });
       });
     });
     if (aboSets.length === 0) {
@@ -2145,13 +2145,13 @@ function switchBatchTab(mode) {
     }
     list.innerHTML = aboSets.map(s => `
       <div class="batch-camp-item">
-        <input type="checkbox" id="bch-${s.ad_set_id}" value="${s.ad_set_id}" data-budget="${s.daily_budget||0}" data-type="adset" data-name="${(s.ad_set_name||'').replace(/"/g,'&quot;')}" onchange="updateBatchPreview()" checked style="width:16px;height:16px;accent-color:var(--purple);cursor:pointer;flex-shrink:0">
+        <input type="checkbox" id="bch-${s.id}" value="${s.id}" data-budget="${s.daily_budget||0}" data-type="adset" data-name="${(s.name||'')".replace(/"/g,'&quot;')}" onchange="updateBatchPreview()" checked style="width:16px;height:16px;accent-color:var(--purple);cursor:pointer;flex-shrink:0">
         <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.ad_set_name}</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.name}</div>
           <div style="font-size:11px;color:var(--text3)">${s._campName} · Atual: ${fmt((s.daily_budget||0)/100)}/dia</div>
         </div>
         <div style="text-align:right;flex-shrink:0">
-          <div id="bch-new-${s.ad_set_id}" style="font-size:13px;font-weight:700;color:var(--purple)">—</div>
+          <div id="bch-new-${s.id}" style="font-size:13px;font-weight:700;color:var(--purple)">—</div>
           <div style="font-size:10px;color:var(--text3)">novo</div>
         </div>
       </div>`).join('');
@@ -2307,7 +2307,7 @@ async function loadTopCampaigns(days = 7) {
     chartDonut = new Chart(document.getElementById('chartDonut'), {
       type:'doughnut',
       data:{
-        labels: top.map(c=>(c.campaign_name||'').substring(0,20)),
+        labels: top.map(c=>(c.name||'').substring(0,20)),
         datasets:[{ data:top.map(c=>c.revenue), backgroundColor:colors, borderWidth:0 }],
       },
       options:{ responsive:true, cutout:'72%', plugins:{legend:{display:false}} }
@@ -2317,7 +2317,7 @@ async function loadTopCampaigns(days = 7) {
       <div class="dl-item">
         <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0">
           <div class="dl-dot" style="background:${colors[i]}"></div>
-          <span class="dl-name">${(c.campaign_name||'').substring(0,22)}</span>
+          <span class="dl-name">${(c.name||'').substring(0,22)}</span>
         </div>
         <span class="dl-pct">${totalRev>0?((c.revenue/totalRev)*100).toFixed(1):0}%</span>
       </div>`).join('');
@@ -2333,7 +2333,7 @@ async function loadTopCampaigns(days = 7) {
             const p = c.revenue - c.spend;
             const rc = c.roas>=2?'roas-high':c.roas>=1?'roas-mid':'roas-low';
             return `<tr>
-              <td>${(c.campaign_name||'').substring(0,28)}</td>
+              <td>${(c.name||'').substring(0,28)}</td>
               <td>${fmt(c.spend)}</td>
               <td style="color:var(--green)">${fmt(c.revenue)}</td>
               <td style="color:${p>=0?'var(--green)':'var(--red)'}">${p>=0?'+':''}${fmt(p)}</td>
