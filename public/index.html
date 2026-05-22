@@ -2121,7 +2121,7 @@ function switchBatchTab(mode) {
     }
     list.innerHTML = cboCamps.map(c => `
       <div class="batch-camp-item">
-        <input type="checkbox" id="bch-${c.id}" value="${c.id}" data-budget="${c.daily_budget||0}" data-type="campaign" data-name="${(c.name||'')".replace(/"/g,'&quot;')}" onchange="updateBatchPreview()" checked style="width:16px;height:16px;accent-color:var(--blue);cursor:pointer;flex-shrink:0">
+        <input type="checkbox" id="bch-${c.id}" value="${c.id}" data-budget="${c.daily_budget||0}" data-type="campaign" data-name="${(c.name||'').replace(/"/g,'&quot;')}" onchange="updateBatchPreview()" checked style="width:16px;height:16px;accent-color:var(--blue);cursor:pointer;flex-shrink:0">
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.name}</div>
           <div style="font-size:11px;color:var(--text3)">Atual: ${fmt((c.daily_budget||0)/100)}/dia</div>
@@ -2145,7 +2145,7 @@ function switchBatchTab(mode) {
     }
     list.innerHTML = aboSets.map(s => `
       <div class="batch-camp-item">
-        <input type="checkbox" id="bch-${s.id}" value="${s.id}" data-budget="${s.daily_budget||0}" data-type="adset" data-name="${(s.name||'')".replace(/"/g,'&quot;')}" onchange="updateBatchPreview()" checked style="width:16px;height:16px;accent-color:var(--purple);cursor:pointer;flex-shrink:0">
+        <input type="checkbox" id="bch-${s.id}" value="${s.id}" data-budget="${s.daily_budget||0}" data-type="adset" data-name="${(s.name||'').replace(/"/g,'&quot;')}" onchange="updateBatchPreview()" checked style="width:16px;height:16px;accent-color:var(--purple);cursor:pointer;flex-shrink:0">
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.name}</div>
           <div style="font-size:11px;color:var(--text3)">${s._campName} · Atual: ${fmt((s.daily_budget||0)/100)}/dia</div>
