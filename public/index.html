@@ -624,8 +624,8 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div class="page-subtitle">Meta Ads — BM, conta, período e orçamento em um só lugar</div>
         </div>
         <div class="page-actions" style="flex-wrap:wrap;gap:8px;">
-          <select id="campAccount" onchange="loadCampaigns()" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;font-family:'Montserrat',sans-serif;outline:none;max-width:180px;">
-            <option value="">Todas as contas</option>
+          <select id="campAccount" onchange="loadCampaigns()" style="background:var(--bg2);border:1px solid var(--blue);color:var(--text);padding:8px 14px;border-radius:8px;font-size:13px;font-family:'Montserrat',sans-serif;outline:none;min-width:200px;max-width:260px;cursor:pointer;">
+            <option value="">📊 Todas as contas</option>
           </select>
           <select id="campPeriod" onchange="loadCampaigns()" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;font-family:'Montserrat',sans-serif;outline:none;">
             <option value="today">Hoje</option>
@@ -2550,12 +2550,25 @@ let _budgetCtx      = {};   // contexto do modal de orçamento
 async function loadCampAccountSelector() {
   try {
     const { data } = await api('GET', '/api/integrations');
-    const metaAccts = (data || []).filter(i => i.platform === 'meta_ads' && i.is_active);
+    // Mostra todas as contas Meta Ads (ativas ou não) para o usuário poder escolher
+    const metaAccts = (data || []).filter(i => i.platform === 'meta_ads');
     const sel = document.getElementById('campAccount');
     if (!sel) return;
-    sel.innerHTML = '<option value="">Todas as contas</option>' +
-      metaAccts.map(i => `<option value="${i.id}">${i.account_name || 'Conta Meta'}</option>`).join('');
-  } catch(e) {}
+
+    if (!metaAccts.length) {
+      sel.innerHTML = '<option value="">Nenhuma conta conectada</option>';
+      return;
+    }
+
+    sel.innerHTML = '<option value="">📊 Todas as contas</option>' +
+      metaAccts.map(i => {
+        const label = i.account_name && i.account_name !== 'Meta Ads'
+          ? i.account_name
+          : (i.account_id ? `Conta ${i.account_id}` : 'Conta Meta');
+        const status = i.is_active ? '' : ' (inativa)';
+        return `<option value="${i.id}">${label}${status}</option>`;
+      }).join('');
+  } catch(e) { console.error('[AccountSelector]', e); }
 }
 
 async function loadCampaigns() {
