@@ -1964,6 +1964,12 @@ function selectCampaign(campId) {
           ? `<button class="btn btn-ghost btn-xs" onclick="openBudgetModal('adset','${s.id}','${(s.name||'').replace(/'/g,"\\'")}',${s.daily_budget||0},false,${s.spend||0},${sRoas},0)">💰 editar</button>`
           : '<span style="font-size:11px;color:var(--text3)">—</span>'}
       </td>
+      <td style="padding:10px 8px;text-align:center">
+        <button class="btn btn-xs" style="background:${s.status==='ACTIVE'?'var(--red)':'var(--green)'};color:#fff;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px"
+          onclick="event.stopPropagation();toggleAdSetStatus('${s.id}','${s.status}')">
+          ${s.status==='ACTIVE'?'⏸':'▶'}
+        </button>
+      </td>
     </tr>`;
   }).join('');
 
@@ -1978,9 +1984,15 @@ function selectCampaign(campId) {
           ${isCBO && camp.daily_budget > 0 ? `<span style="font-size:12px;color:var(--text2)">Orçamento diário: <strong style="color:var(--text)">${fmt(camp.daily_budget/100)}</strong></span>` : ''}
         </div>
       </div>
-      ${isCBO
-        ? `<button class="btn btn-blue btn-sm" onclick="openBudgetModal('campaign','${camp.id}','${(camp.name||'').replace(/'/g,"\\'")}',${camp.daily_budget||0},true,${camp.spend||0},${roas},${cpa})">💰 Editar Orçamento</button>`
-        : ''}
+      <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+        ${isCBO
+          ? `<button class="btn btn-blue btn-sm" onclick="openBudgetModal('campaign','${camp.id}','${(camp.name||'').replace(/'/g,"\\\'")}',${camp.daily_budget||0},true,${camp.spend||0},${roas},${cpa})">💰 Orçamento</button>`
+          : ''}
+        <button class="btn btn-sm" style="background:${camp.status==='ACTIVE'?'var(--red)':'var(--green)'};color:#fff;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px"
+          onclick="toggleCampaignStatus('${camp.id}','${camp.status}')">
+          ${camp.status==='ACTIVE'?'⏸ Pausar':'▶ Ativar'}
+        </button>
+      </div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
       <div class="detail-row"><div style="font-size:11px;color:var(--text3)">Gasto</div><div style="font-size:17px;font-weight:700;color:var(--blue)">${fmt(camp.spend)}</div></div>
@@ -1997,6 +2009,7 @@ function selectCampaign(campId) {
           <th style="padding:10px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:right">Gasto</th>
           <th style="padding:10px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:right">ROAS</th>
           <th style="padding:10px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:right">Orçamento</th>
+          <th style="padding:10px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:center">Status</th>
         </tr></thead>
         <tbody id="adSetsBody">${adSetsHtml}</tbody>
       </table>
@@ -2040,11 +2053,14 @@ function selectAdSet(campId, adSetId) {
 
 function openBudgetModal(entityType, entityId, name, currentBudget, isCBO, spend, roas, cpa) {
   _budgetCtx = { entityType, entityId, name, currentBudget, isCBO, spend, roas, cpa };
-  const bud = currentBudget / 100; // Meta stores in cents
+  const bud = currentBudget / 100;
   document.getElementById('bmodalTitle').textContent = isCBO ? `Orçamento CBO — ${name}` : `Orçamento ABO — ${name}`;
-  document.getElementById('bmodalCurrent').textContent = fmt(bud);
-  document.getElementById('bmodalNew').value = bud.toFixed(2);
-  document.getElementById('bmodalImpact').innerHTML = '';
+  document.getElementById('bmodalCurrentBudget').textContent = fmt(bud);
+  document.getElementById('bmodalNewBudget').value = bud.toFixed(2);
+  const impEl = document.getElementById('bmodalImpact');
+  if (impEl) impEl.style.display = 'none';
+  const msgEl = document.getElementById('bmodalMsg');
+  if (msgEl) msgEl.innerHTML = '';
   document.getElementById('budgetModal').style.display = 'flex';
   updateBudgetImpact();
 }
@@ -2054,21 +2070,28 @@ function closeBudgetModal() {
 }
 
 function updateBudgetImpact() {
-  const newBud  = parseFloat(document.getElementById('bmodalNew').value) || 0;
-  const curBud  = (_budgetCtx.currentBudget || 0) / 100;
-  const delta   = curBud > 0 ? ((newBud - curBud) / curBud) * 100 : 0;
-  const estRev  = _budgetCtx.roas > 0 ? newBud * _budgetCtx.roas : null;
-  const color   = delta >= 0 ? 'var(--green)' : 'var(--red)';
-  document.getElementById('bmodalImpact').innerHTML = `
-    <div class="bmodal-impact">
-      <span>Variação: <strong style="color:${color}">${delta >= 0 ? '+' : ''}${fmtN(delta,1)}%</strong></span>
-      ${estRev !== null ? `<span>Receita estimada: <strong style="color:var(--green)">${fmt(estRev)}</strong></span>` : ''}
-    </div>`;
+  const newBud = parseFloat(document.getElementById('bmodalNewBudget')?.value) || 0;
+  const curBud = (_budgetCtx.currentBudget || 0) / 100;
+  const delta  = curBud > 0 ? ((newBud - curBud) / curBud) * 100 : 0;
+  const impEl  = document.getElementById('bmodalImpact');
+  if (!impEl || newBud <= 0) return;
+  impEl.style.display = 'grid';
+  const color = delta >= 0 ? 'var(--green)' : 'var(--red)';
+  const spEl = document.getElementById('bimpSpend');
+  const roEl = document.getElementById('bimpRoas');
+  const cpEl = document.getElementById('bimpCpa');
+  if (spEl) spEl.innerHTML = `<span style="color:${color}">${delta >= 0 ? '+' : ''}${fmtN(delta,1)}%</span>`;
+  if (roEl) roEl.textContent = _budgetCtx.roas > 0 ? fmtN(_budgetCtx.roas) + 'x' : '—';
+  if (cpEl) cpEl.textContent = _budgetCtx.cpa > 0 ? fmt(_budgetCtx.cpa) : '—';
 }
 
 async function saveBudget() {
-  const newBud = parseFloat(document.getElementById('bmodalNew').value);
-  if (!newBud || newBud <= 0) { alert('Informe um valor válido.'); return; }
+  const newBud = parseFloat(document.getElementById('bmodalNewBudget')?.value);
+  if (!newBud || newBud <= 0) {
+    const m = document.getElementById('bmodalMsg');
+    if (m) m.innerHTML = '<div class="alert alert-error">Informe um valor válido (mínimo R$ 1,00).</div>';
+    return;
+  }
   const btn = document.getElementById('bmodalSaveBtn');
   btn.innerHTML = '<span class="spinner"></span> Aplicando...';
   btn.disabled = true;
@@ -2076,15 +2099,50 @@ async function saveBudget() {
     await api('POST', '/api/metrics/update-budget', {
       entity_type: _budgetCtx.entityType,
       entity_id:   _budgetCtx.entityId,
-      new_budget:  Math.round(newBud * 100), // send in cents
+      new_budget:  Math.round(newBud * 100),
     });
     closeBudgetModal();
     loadCampaigns();
   } catch(e) {
-    alert('Erro ao atualizar orçamento: ' + e.message);
+    const m = document.getElementById('bmodalMsg');
+    if (m) m.innerHTML = `<div class="alert alert-error">${e.message}</div>`;
   } finally {
     btn.innerHTML = '💰 Aplicar Orçamento';
     btn.disabled = false;
+  }
+}
+
+async function toggleCampaignStatus(campId, currentStatus) {
+  const action = currentStatus === 'ACTIVE' ? 'pause' : 'activate';
+  const label  = action === 'pause' ? 'Pausar' : 'Ativar';
+  if (!confirm(`${label} esta campanha?`)) return;
+  try {
+    const { message } = await api('POST', '/api/metrics/toggle', {
+      entity_type: 'campaign',
+      entity_id:   campId,
+      action,
+    });
+    alert(message);
+    loadCampaigns();
+  } catch(e) {
+    alert('Erro: ' + e.message);
+  }
+}
+
+async function toggleAdSetStatus(adSetId, currentStatus) {
+  const action = currentStatus === 'ACTIVE' ? 'pause' : 'activate';
+  const label  = action === 'pause' ? 'Pausar' : 'Ativar';
+  if (!confirm(`${label} este conjunto?`)) return;
+  try {
+    const { message } = await api('POST', '/api/metrics/toggle', {
+      entity_type: 'adset',
+      entity_id:   adSetId,
+      action,
+    });
+    alert(message);
+    loadCampaigns();
+  } catch(e) {
+    alert('Erro: ' + e.message);
   }
 }
 
