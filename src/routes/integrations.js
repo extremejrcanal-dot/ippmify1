@@ -12,7 +12,7 @@ const router = express.Router();
 // ─── LISTAR INTEGRACOES ────────────────────────────────────────────────────
 router.get('/', requireAuth, async (req, res) => {
   const result = await query(
-    `SELECT id, platform, account_name, is_active, last_synced_at, created_at
+    `SELECT id, platform, account_name, account_id, is_active, last_synced_at, created_at
      FROM integrations WHERE user_id = $1 ORDER BY created_at DESC`,
     [req.user.id]
   );
