@@ -2019,7 +2019,12 @@ function selectCampaign(campId) {
     const sRoas = s.spend > 0 ? (s.revenue||0)/s.spend : 0;
     const hasBudget = (s.daily_budget > 0 || s.lifetime_budget > 0);
     return `<tr>
-      <td style="padding:10px 8px;font-size:13px;color:var(--text);cursor:pointer" onclick="selectAdSet('${campId}','${s.id}')">${s.name || 'Conjunto'}</td>
+      <td style="padding:10px 8px;font-size:13px;color:var(--text);cursor:pointer" onclick="selectAdSet('${campId}','${s.id}')">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.name || 'Conjunto'}</span>
+          <span style="font-size:10px;color:var(--blue);opacity:.7;white-space:nowrap;flex-shrink:0">📋 ver anúncios ›</span>
+        </div>
+      </td>
       <td style="padding:10px 8px;font-size:13px;color:var(--text2);text-align:right">${fmt(s.spend)}</td>
       <td style="padding:10px 8px;font-size:13px;text-align:right;color:${sRoas>=2?'var(--green)':sRoas>=1?'var(--orange)':'var(--red)'}">${fmtN(sRoas)}x</td>
       <td style="padding:10px 8px;text-align:right">
@@ -2095,11 +2100,19 @@ function selectAdSet(campId, adSetId) {
 
   const adsHtml = (adSet.ads || []).map(a => {
     const aRoas = a.spend > 0 ? (a.revenue||0)/a.spend : 0;
-    return `<tr>
+    const isAdActive = a.status === 'ACTIVE';
+    return `<tr style="${isAdActive?'':'opacity:.65'}">
       <td style="padding:9px 8px;font-size:12px;color:var(--text)">${a.name || 'Anúncio'}</td>
       <td style="padding:9px 8px;font-size:12px;color:var(--text2);text-align:right">${fmt(a.spend)}</td>
       <td style="padding:9px 8px;font-size:12px;text-align:right;color:${aRoas>=2?'var(--green)':aRoas>=1?'var(--orange)':'var(--red)'}">${fmtN(aRoas)}x</td>
       <td style="padding:9px 8px;font-size:12px;color:var(--text2);text-align:right">${fmtN(a.ctr||0,2)}%</td>
+      <td style="padding:9px 8px;text-align:center">
+        <div class="ios-tog" style="justify-content:center" onclick="toggleAdStatus('${a.id}','${a.status}')">
+          <div class="ios-tog-track ${isAdActive?'on':'off'}" style="width:36px;height:22px;border-radius:11px">
+            <div class="ios-tog-knob" style="width:14px;height:14px;top:4px;left:4px"></div>
+          </div>
+        </div>
+      </td>
     </tr>`;
   }).join('');
 
@@ -2112,6 +2125,7 @@ function selectAdSet(campId, adSetId) {
           <th style="padding:9px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:right">Gasto</th>
           <th style="padding:9px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:right">ROAS</th>
           <th style="padding:9px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:right">CTR</th>
+          <th style="padding:9px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:center">Status</th>
         </tr></thead>
         <tbody>${adsHtml}</tbody>
       </table>
@@ -2202,6 +2216,25 @@ async function toggleAdSetStatus(adSetId, currentStatus) {
       action,
     });
     loadCampaigns();
+  } catch(e) {
+    alert('Erro: ' + e.message);
+  }
+}
+
+async function toggleAdStatus(adId, currentStatus) {
+  const action = currentStatus === 'ACTIVE' ? 'pause' : 'activate';
+  try {
+    await api('POST', '/api/metrics/toggle', {
+      entity_type: 'ad',
+      entity_id:   adId,
+      action,
+    });
+    // Recarregar painel sem resetar seleção
+    if (_selectedCampId && _selectedSetId) {
+      loadCampaigns().then?.(() => selectAdSet(_selectedCampId, _selectedSetId));
+    } else {
+      loadCampaigns();
+    }
   } catch(e) {
     alert('Erro: ' + e.message);
   }
