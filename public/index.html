@@ -650,11 +650,8 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       <div class="nav-item" id="nav-affiliates" onclick="showTab('affiliates')">
         <span class="nav-icon">🤝</span> Afiliados
       </div>
-      <div class="nav-item" id="nav-marketplace" onclick="showTab('marketplace')">
-        <span class="nav-icon">🛍️</span> Marketplace
-      </div>
-      <div class="nav-item" id="nav-products" onclick="showTab('products')">
-        <span class="nav-icon">💎</span> Produtos Premium
+      <div class="nav-item" id="nav-store" onclick="showTab('store')">
+        <span class="nav-icon">🛍️</span> Loja
         <span class="nav-badge" style="background:linear-gradient(135deg,#ffba00,#ff8c00);color:#000;font-size:9px;padding:1px 5px;border-radius:6px;font-weight:800;margin-left:auto">NOVO</span>
       </div>
 
@@ -1013,109 +1010,152 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
     <!-- ══════════════════════════════════════════════════════════════ -->
     <!-- TAB: MARKETPLACE                                               -->
     <!-- ══════════════════════════════════════════════════════════════ -->
-    <div id="tab-marketplace" class="tab-page">
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <!-- TAB: LOJA                                                       -->
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <div id="tab-store" class="tab-page">
       <div class="page-header">
         <div>
-          <div class="page-title">🛍️ Marketplace</div>
-          <div class="page-subtitle">Produtos, mentorias, comunidade e suporte</div>
+          <div class="page-title">🛍️ Loja</div>
+          <div class="page-subtitle">Produtos, ferramentas e suporte — tudo em um só lugar</div>
         </div>
       </div>
 
-      <!-- ── PRODUTOS ── -->
-      <div class="mkt-section-title">📦 Infoprodutos</div>
-      <div class="mkt-grid" id="mktInfoproducts">
-        <div class="mkt-card">
-          <div class="mkt-card-thumb blue">📘</div>
-          <div class="mkt-card-body">
-            <div class="mkt-card-tag">E-book</div>
-            <div class="mkt-card-title">Guia de Tráfego Pago 2025</div>
-            <div class="mkt-card-desc">Do zero ao avançado: estrutura de campanhas, copy, criativos e otimização.</div>
-            <div class="mkt-card-footer">
-              <span class="mkt-price">R$ 97</span>
-              <button class="btn btn-blue btn-xs" onclick="mktContact('Guia de Tráfego Pago 2025')">Quero comprar</button>
-            </div>
-          </div>
+      <!-- Hero coming soon -->
+      <div class="prod-hero" style="text-align:center;margin-bottom:28px">
+        <div class="prod-hero-tag" style="justify-content:center">🚀 Loja em construção</div>
+        <div class="prod-hero-title">Os produtos estão chegando</div>
+        <div class="prod-hero-sub" style="margin:0 auto">Em breve você terá acesso a packs de criativos, templates, agentes IA e muito mais — diretamente aqui dentro do IPPMIFY. Deixe seu e-mail para ser o primeiro a saber quando lançar.</div>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap">
+          <input id="storeEmailInput" type="email" placeholder="seu@email.com"
+            style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 16px;border-radius:10px;font-size:13px;outline:none;width:260px;font-family:'Montserrat',sans-serif">
+          <button class="btn btn-blue btn-sm" onclick="storeNotify()">🔔 Me avise no lançamento</button>
         </div>
-        <div class="mkt-card">
-          <div class="mkt-card-thumb purple">🎓</div>
-          <div class="mkt-card-body">
-            <div class="mkt-card-tag">Curso</div>
-            <div class="mkt-card-title">Método IPPMIFY</div>
-            <div class="mkt-card-desc">Aprenda a usar dados para escalar campanhas rentáveis com o sistema IPPMIFY.</div>
-            <div class="mkt-card-footer">
-              <span class="mkt-price">R$ 297</span>
-              <button class="btn btn-blue btn-xs" onclick="mktContact('Curso Método IPPMIFY')">Quero comprar</button>
-            </div>
-          </div>
-        </div>
-        <div class="mkt-card">
-          <div class="mkt-card-thumb green">📋</div>
-          <div class="mkt-card-body">
-            <div class="mkt-card-tag">Templates</div>
-            <div class="mkt-card-title">Pack de Copies Prontos</div>
-            <div class="mkt-card-desc">+50 templates de anúncios testados para os principais nichos do mercado.</div>
-            <div class="mkt-card-footer">
-              <span class="mkt-price">R$ 47</span>
-              <button class="btn btn-blue btn-xs" onclick="mktContact('Pack de Copies Prontos')">Quero comprar</button>
-            </div>
-          </div>
-        </div>
+        <div id="storeNotifyMsg" style="display:none;margin-top:10px;font-size:12px;color:var(--green)">✅ Anotado! Você será o primeiro a saber.</div>
       </div>
 
-      <div class="mkt-section-title">🛠️ Serviços</div>
-      <div class="mkt-grid" id="mktServices">
-        <div class="mkt-card">
-          <div class="mkt-card-thumb orange">📡</div>
-          <div class="mkt-card-body">
-            <div class="mkt-card-tag">Gestão de Tráfego</div>
-            <div class="mkt-card-title">Gestão Completa Meta Ads</div>
-            <div class="mkt-card-desc">Criação, otimização e acompanhamento diário das suas campanhas. Relatório semanal.</div>
-            <div class="mkt-card-footer">
-              <span class="mkt-price">Sob consulta</span>
-              <button class="btn btn-blue btn-xs" onclick="mktContact('Gestão Completa Meta Ads')">Solicitar</button>
+      <!-- ── INFOPRODUTOS ── -->
+      <div class="prod-section-title">📘 Infoprodutos</div>
+      <div class="prod-grid">
+
+        <div class="prod-card locked">
+          <div class="prod-card-banner banner-blue">
+            <span class="banner-icon">📘</span>
+            <span class="prod-card-badge soon">Em breve</span>
+          </div>
+          <div class="prod-card-body">
+            <div class="prod-card-cat" style="color:var(--blue)">E-book</div>
+            <div class="prod-card-title">Guia de Tráfego Pago 2025</div>
+            <div class="prod-card-desc">Do zero ao avançado: estrutura de campanhas, copy, criativos e otimização com dados reais.</div>
+            <div class="prod-card-footer">
+              <span class="prod-price paid">R$ 97</span>
+              <button class="btn btn-xs" style="background:#ffba00;color:#000;border:none;font-weight:700" onclick="storeEarlyAccess('Guia de Tráfego Pago 2025')">Acesso antecipado</button>
             </div>
           </div>
         </div>
-        <div class="mkt-card">
-          <div class="mkt-card-thumb purple">🎯</div>
-          <div class="mkt-card-body">
-            <div class="mkt-card-tag">Consultoria</div>
-            <div class="mkt-card-title">Diagnóstico de Campanhas</div>
-            <div class="mkt-card-desc">Sessão 1:1 de 1h para analisar suas campanhas e criar um plano de ação personalizado.</div>
-            <div class="mkt-card-footer">
-              <span class="mkt-price">R$ 197</span>
-              <button class="btn btn-blue btn-xs" onclick="mktContact('Diagnóstico de Campanhas')">Agendar</button>
+
+        <div class="prod-card locked">
+          <div class="prod-card-banner banner-purple">
+            <span class="banner-icon">🎓</span>
+            <span class="prod-card-badge soon">Em breve</span>
+          </div>
+          <div class="prod-card-body">
+            <div class="prod-card-cat" style="color:#a78bfa">Curso</div>
+            <div class="prod-card-title">Método IPPMIFY</div>
+            <div class="prod-card-desc">Aprenda a usar dados para escalar campanhas rentáveis. Do diagnóstico ao escalonamento.</div>
+            <div class="prod-card-footer">
+              <span class="prod-price paid">R$ 297</span>
+              <button class="btn btn-xs" style="background:#ffba00;color:#000;border:none;font-weight:700" onclick="storeEarlyAccess('Curso Método IPPMIFY')">Acesso antecipado</button>
             </div>
           </div>
         </div>
-        <div class="mkt-card">
-          <div class="mkt-card-thumb blue">🚀</div>
-          <div class="mkt-card-body">
-            <div class="mkt-card-tag">Mentoria</div>
-            <div class="mkt-card-title">Mentoria em Grupo</div>
-            <div class="mkt-card-desc">Encontros semanais ao vivo com análise de campanhas, tira-dúvidas e estratégias novas.</div>
-            <div class="mkt-card-footer">
-              <span class="mkt-price">R$ 497/mês</span>
-              <button class="btn btn-blue btn-xs" onclick="mktContact('Mentoria em Grupo')">Entrar</button>
+
+        <div class="prod-card locked">
+          <div class="prod-card-banner banner-green">
+            <span class="banner-icon">📋</span>
+            <span class="prod-card-badge soon">Em breve</span>
+          </div>
+          <div class="prod-card-body">
+            <div class="prod-card-cat" style="color:var(--green)">Templates</div>
+            <div class="prod-card-title">Pack de Copies Prontos</div>
+            <div class="prod-card-desc">+50 templates de anúncios testados para os principais nichos. Plug and play.</div>
+            <div class="prod-card-footer">
+              <span class="prod-price paid">R$ 47</span>
+              <button class="btn btn-xs" style="background:#ffba00;color:#000;border:none;font-weight:700" onclick="storeEarlyAccess('Pack de Copies Prontos')">Acesso antecipado</button>
             </div>
           </div>
         </div>
+
+      </div>
+
+      <!-- ── SERVIÇOS ── -->
+      <div class="prod-section-title">🛠️ Serviços</div>
+      <div class="prod-grid">
+
+        <div class="prod-card locked">
+          <div class="prod-card-banner banner-orange">
+            <span class="banner-icon">📡</span>
+            <span class="prod-card-badge soon">Em breve</span>
+          </div>
+          <div class="prod-card-body">
+            <div class="prod-card-cat" style="color:#ffba00">Gestão</div>
+            <div class="prod-card-title">Gestão Completa Meta Ads</div>
+            <div class="prod-card-desc">Criação, otimização e acompanhamento diário das suas campanhas com relatório semanal.</div>
+            <div class="prod-card-footer">
+              <span class="prod-price paid">Sob consulta</span>
+              <button class="btn btn-xs" style="background:#ffba00;color:#000;border:none;font-weight:700" onclick="storeEarlyAccess('Gestão Completa Meta Ads')">Solicitar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="prod-card locked">
+          <div class="prod-card-banner banner-teal">
+            <span class="banner-icon">🎯</span>
+            <span class="prod-card-badge soon">Em breve</span>
+          </div>
+          <div class="prod-card-body">
+            <div class="prod-card-cat" style="color:#5eead4">Consultoria</div>
+            <div class="prod-card-title">Diagnóstico de Campanhas</div>
+            <div class="prod-card-desc">Sessão 1:1 de 1h para analisar suas campanhas e criar um plano de ação personalizado.</div>
+            <div class="prod-card-footer">
+              <span class="prod-price paid">R$ 197</span>
+              <button class="btn btn-xs" style="background:#ffba00;color:#000;border:none;font-weight:700" onclick="storeEarlyAccess('Diagnóstico de Campanhas')">Agendar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="prod-card locked">
+          <div class="prod-card-banner banner-blue">
+            <span class="banner-icon">🚀</span>
+            <span class="prod-card-badge soon">Em breve</span>
+          </div>
+          <div class="prod-card-body">
+            <div class="prod-card-cat" style="color:var(--blue)">Mentoria</div>
+            <div class="prod-card-title">Mentoria em Grupo</div>
+            <div class="prod-card-desc">Encontros semanais ao vivo com análise de campanhas, tira-dúvidas e estratégias novas.</div>
+            <div class="prod-card-footer">
+              <span class="prod-price paid">R$ 497/mês</span>
+              <button class="btn btn-xs" style="background:#ffba00;color:#000;border:none;font-weight:700" onclick="storeEarlyAccess('Mentoria em Grupo')">Entrar na fila</button>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <!-- ── COMUNIDADE ── -->
-      <div class="mkt-section-title">👥 Comunidade</div>
+      <div class="prod-section-title">👥 Comunidade</div>
       <div class="community-box" style="margin-bottom:28px">
         <div class="community-icon">💬</div>
         <div style="flex:1">
           <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:4px">Grupo VIP no WhatsApp</div>
-          <div style="font-size:13px;color:var(--text3);margin-bottom:14px">Faça parte de uma comunidade de gestores e empreendedores que usam o IPPMIFY. Compartilhe resultados, tire dúvidas e aprenda com quem está na prática.</div>
+          <div style="font-size:13px;color:var(--text3);margin-bottom:14px">Faça parte de uma comunidade de gestores e empreendedores. Compartilhe resultados, tire dúvidas e aprenda com quem está na prática.</div>
           <a href="https://chat.whatsapp.com/SEUGRUPOAQUI" target="_blank" class="btn btn-green btn-sm">📲 Entrar no grupo gratuito</a>
         </div>
       </div>
 
       <!-- ── SUPORTE ── -->
-      <div class="mkt-section-title">📞 Suporte</div>
-      <div class="support-channels">
+      <div class="prod-section-title">📞 Suporte</div>
+      <div class="support-channels" style="margin-bottom:24px">
         <div class="support-ch" onclick="window.open('https://wa.me/55XXXXXXXXXXX?text=Oi%2C+preciso+de+suporte+com+o+IPPMIFY','_blank')">
           <div class="support-ch-icon">📱</div>
           <div class="support-ch-title">WhatsApp Direto</div>
@@ -1134,7 +1174,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
 
       <!-- ── FAQ ── -->
-      <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">❓ Perguntas Frequentes</div>
+      <div class="prod-section-title">❓ Perguntas Frequentes</div>
       <div id="faqList">
         <div class="faq-item" onclick="toggleFaq(this)">
           <div class="faq-q">Como conecto minha conta Meta Ads? <span class="faq-chevron">▼</span></div>
@@ -1142,312 +1182,33 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         </div>
         <div class="faq-item" onclick="toggleFaq(this)">
           <div class="faq-q">Meus dados são seguros? <span class="faq-chevron">▼</span></div>
-          <div class="faq-a">Sim. Todos os tokens são criptografados antes de serem salvos no banco de dados. Nunca compartilhamos seus dados com terceiros. A conexão com a Meta é somente de leitura e gestão — não temos acesso às suas finanças.</div>
+          <div class="faq-a">Sim. Todos os tokens são criptografados antes de serem salvos. Nunca compartilhamos seus dados com terceiros. A conexão com a Meta é somente de leitura e gestão.</div>
         </div>
         <div class="faq-item" onclick="toggleFaq(this)">
           <div class="faq-q">Posso conectar mais de uma conta de anúncios? <span class="faq-chevron">▼</span></div>
-          <div class="faq-a">Sim! Você pode conectar quantas contas Meta Ads quiser. Use o seletor de conta na aba Campanhas para filtrar por conta específica ou ver todas juntas.</div>
+          <div class="faq-a">Sim! Você pode conectar quantas contas Meta Ads quiser e filtrar por conta na aba Campanhas.</div>
         </div>
         <div class="faq-item" onclick="toggleFaq(this)">
           <div class="faq-q">Por que meu ROAS aparece como 0.00x? <span class="faq-chevron">▼</span></div>
-          <div class="faq-a">O ROAS é calculado com base na receita rastreada via <strong>UTM parameters</strong> (utm_campaign, utm_content). Certifique-se que seus anúncios têm UTMs configurados e que seu pixel/webhook de vendas está integrado corretamente.</div>
+          <div class="faq-a">O ROAS é calculado com base na receita rastreada via UTM parameters. Certifique-se que seus anúncios têm UTMs e que o webhook de vendas está integrado.</div>
+        </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-q">Quando os produtos da loja estarão disponíveis? <span class="faq-chevron">▼</span></div>
+          <div class="faq-a">Os produtos estão sendo finalizados e serão lançados em breve. Deixe seu e-mail no topo desta página ou entre em contato pelo WhatsApp para garantir acesso antecipado com condições especiais.</div>
         </div>
         <div class="faq-item" onclick="toggleFaq(this)">
           <div class="faq-q">Como funciona o programa de afiliados? <span class="faq-chevron">▼</span></div>
-          <div class="faq-a">Você ganha 30% de comissão recorrente por cada assinatura feita pelo seu link exclusivo. Acesse a aba <strong>Afiliados</strong> para copiar seu link e acessar os materiais de apoio.</div>
-        </div>
-        <div class="faq-item" onclick="toggleFaq(this)">
-          <div class="faq-q">Com que frequência os dados são atualizados? <span class="faq-chevron">▼</span></div>
-          <div class="faq-a">Os dados do Meta Ads são sincronizados automaticamente. Você também pode forçar uma atualização clicando em <strong>↻ Atualizar</strong> em qualquer aba. Os dados de vendas chegam via webhook em tempo real.</div>
+          <div class="faq-a">Você ganha 30% de comissão recorrente por cada assinatura feita pelo seu link. Acesse a aba <strong>Afiliados</strong> para copiar seu link exclusivo.</div>
         </div>
       </div>
 
     </div>
+
 
 
     <!-- ══════════════════════════════════════════════════════════════ -->
     <!-- TAB: PRODUTOS PREMIUM (LTV)                                    -->
     <!-- ══════════════════════════════════════════════════════════════ -->
-    <div id="tab-products" class="tab-page">
-      <div class="page-header">
-        <div>
-          <div class="page-title">💎 Produtos Premium</div>
-          <div class="page-subtitle">Ferramentas exclusivas para escalar seus resultados</div>
-        </div>
-      </div>
-
-      <!-- Hero -->
-      <div class="prod-hero">
-        <div class="prod-hero-tag">⚡ Exclusivo para assinantes IPPMIFY</div>
-        <div class="prod-hero-title">Potencialize cada real investido em anúncios</div>
-        <div class="prod-hero-sub">Packs de criativos, templates validados, agentes IA especializados e a maior biblioteca de anúncios vencedores do Brasil — tudo dentro da plataforma que você já usa.</div>
-      </div>
-
-      <!-- Banner de upgrade (mostrar para trial) -->
-      <div class="upgrade-banner" id="prodUpgradeBanner" style="display:none">
-        <div class="upgrade-icon">🔓</div>
-        <div style="flex:1">
-          <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:4px">Você está no trial gratuito</div>
-          <div style="font-size:12px;color:var(--text3);margin-bottom:12px">Assine o plano por R$&nbsp;97/mês e desbloqueie todos os produtos, criativos ilimitados e muito mais.</div>
-          <button class="btn btn-sm" style="background:linear-gradient(135deg,#ffba00,#ff8c00);color:#000;font-weight:800;border:none" onclick="window.open('https://SEULINK.cakto.com.br','_blank')">🚀 Assinar agora — R$ 97/mês</button>
-        </div>
-      </div>
-
-      <!-- ── PACKS DE CRIATIVOS IA ── -->
-      <div class="prod-section-title">🎨 Packs de Criativos IA</div>
-      <div class="prod-grid">
-
-        <div class="prod-card" onclick="openProduct('pack-ecom')">
-          <div class="prod-card-banner banner-blue">
-            <span class="banner-icon">🛒</span>
-            <span class="prod-card-badge included">Incluído</span>
-          </div>
-          <div class="prod-card-body">
-            <div class="prod-card-cat" style="color:var(--blue)">Pack IA</div>
-            <div class="prod-card-title">Pack E-commerce</div>
-            <div class="prod-card-desc">30 prompts validados para gerar criativos de produtos físicos: carrossel, vídeo UGC e estático. Todos com ganchos testados.</div>
-            <div class="prod-card-footer">
-              <span class="prod-price included">Incluído no plano</span>
-              <button class="btn btn-blue btn-xs">Usar agora →</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="prod-card" onclick="openProduct('pack-info')">
-          <div class="prod-card-banner banner-purple">
-            <span class="banner-icon">📚</span>
-            <span class="prod-card-badge included">Incluído</span>
-          </div>
-          <div class="prod-card-body">
-            <div class="prod-card-cat" style="color:#a78bfa">Pack IA</div>
-            <div class="prod-card-title">Pack Infoproduto</div>
-            <div class="prod-card-desc">25 prompts para lançamentos, perpétuos e mentoria. Criativos para topo, meio e fundo de funil já estruturados.</div>
-            <div class="prod-card-footer">
-              <span class="prod-price included">Incluído no plano</span>
-              <button class="btn btn-blue btn-xs">Usar agora →</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="prod-card" onclick="openProduct('pack-local')">
-          <div class="prod-card-banner banner-green">
-            <span class="banner-icon">📍</span>
-            <span class="prod-card-badge new">NOVO</span>
-          </div>
-          <div class="prod-card-body">
-            <div class="prod-card-cat" style="color:var(--green)">Pack IA</div>
-            <div class="prod-card-title">Pack Negócio Local</div>
-            <div class="prod-card-desc">20 prompts para clínicas, restaurantes, salões e serviços locais. Anúncios com urgência e geolocalização.</div>
-            <div class="prod-card-footer">
-              <span class="prod-price included">Incluído no plano</span>
-              <button class="btn btn-blue btn-xs">Usar agora →</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="prod-card locked" onclick="openProduct('pack-ugc')">
-          <div class="prod-card-banner banner-red">
-            <span class="banner-icon">🎥</span>
-            <div class="prod-lock">🔒</div>
-            <span class="prod-card-badge premium">PREMIUM</span>
-          </div>
-          <div class="prod-card-body">
-            <div class="prod-card-cat" style="color:#fca5a5">Pack IA</div>
-            <div class="prod-card-title">Pack UGC / Vídeo Script</div>
-            <div class="prod-card-desc">Scripts prontos para vídeos estilo UGC. Ganchos, desenvolvimento e CTA validados com +R$200k em anúncios.</div>
-            <div class="prod-card-footer">
-              <span class="prod-price paid">R$ 47 avulso</span>
-              <button class="btn btn-xs" style="background:#ffba00;color:#000;border:none;font-weight:700" onclick="event.stopPropagation();prodBuy('Pack UGC / Vídeo Script')">Desbloquear</button>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- ── TEMPLATES PREMIUM ── -->
-      <div class="prod-section-title">📋 Templates Premium</div>
-      <div class="prod-grid">
-
-        <div class="prod-card" onclick="openProduct('tpl-copies')">
-          <div class="prod-card-banner banner-orange">
-            <span class="banner-icon">✍️</span>
-            <span class="prod-card-badge included">Incluído</span>
-          </div>
-          <div class="prod-card-body">
-            <div class="prod-card-cat" style="color:#ffba00">Templates</div>
-            <div class="prod-card-title">Biblioteca de Copies</div>
-            <div class="prod-card-desc">+80 copies de anúncios organizados por objetivo: consciência, consideração e conversão. Filtre por nicho.</div>
-            <div class="prod-card-footer">
-              <span class="prod-price included">Incluído no plano</span>
-              <button class="btn btn-blue btn-xs">Ver biblioteca →</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="prod-card" onclick="openProduct('tpl-relatorio')">
-          <div class="prod-card-banner banner-teal">
-            <span class="banner-icon">📊</span>
-            <span class="prod-card-badge included">Incluído</span>
-          </div>
-          <div class="prod-card-body">
-            <div class="prod-card-cat" style="color:#5eead4">Templates</div>
-            <div class="prod-card-title">Relatório para Clientes</div>
-            <div class="prod-card-desc">Template PDF brandado para gestores enviarem resultados semanais/mensais para seus clientes com visual profissional.</div>
-            <div class="prod-card-footer">
-              <span class="prod-price included">Incluído no plano</span>
-              <button class="btn btn-blue btn-xs" onclick="event.stopPropagation();showTab('reports')">Gerar PDF →</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="prod-card locked" onclick="openProduct('tpl-funil')">
-          <div class="prod-card-banner banner-purple">
-            <span class="banner-icon">🗺️</span>
-            <div class="prod-lock">🔒</div>
-            <span class="prod-card-badge premium">PREMIUM</span>
-          </div>
-          <div class="prod-card-body">
-            <div class="prod-card-cat" style="color:#a78bfa">Templates</div>
-            <div class="prod-card-title">Mapa de Funil Completo</div>
-            <div class="prod-card-desc">Planilha estratégica de funil: topo, meio e fundo com criativos, audiences e métricas de corte para cada fase.</div>
-            <div class="prod-card-footer">
-              <span class="prod-price paid">R$ 37 avulso</span>
-              <button class="btn btn-xs" style="background:#ffba00;color:#000;border:none;font-weight:700" onclick="event.stopPropagation();prodBuy('Mapa de Funil Completo')">Desbloquear</button>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- ── AGENTES IA ── -->
-      <div class="prod-section-title">🤖 Agentes IA Especializados</div>
-      <div class="prod-grid">
-
-        <div class="prod-card" onclick="openProduct('agent-copy')">
-          <div class="prod-card-banner banner-blue">
-            <span class="banner-icon">🧠</span>
-            <span class="prod-card-badge included">Incluído</span>
-          </div>
-          <div class="prod-card-body">
-            <div class="prod-card-cat" style="color:var(--blue)">Agente IA</div>
-            <div class="prod-card-title">Agente Copywriter</div>
-            <div class="prod-card-desc">Especialista em escrever copies de alto impacto. Analisa seu produto e gera variações de headline, gancho e CTA.</div>
-            <div class="prod-card-footer">
-              <span class="prod-price included">Incluído no plano</span>
-              <button class="btn btn-blue btn-xs" onclick="event.stopPropagation();showTab('creatives')">Usar →</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="prod-card locked" onclick="openProduct('agent-analysis')">
-          <div class="prod-card-banner banner-teal">
-            <span class="banner-icon">🔍</span>
-            <div class="prod-lock">🔒</div>
-            <span class="prod-card-badge soon">Em breve</span>
-          </div>
-          <div class="prod-card-body">
-            <div class="prod-card-cat" style="color:#5eead4">Agente IA</div>
-            <div class="prod-card-title">Agente Analista de Métricas</div>
-            <div class="prod-card-desc">Lê seus dados, identifica padrões e explica em linguagem simples o que está funcionando e o que precisa mudar.</div>
-            <div class="prod-card-footer">
-              <span class="prod-price paid">Em breve</span>
-              <button class="btn btn-ghost btn-xs" disabled>Notificar →</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="prod-card locked" onclick="openProduct('agent-creative')">
-          <div class="prod-card-banner banner-purple">
-            <span class="banner-icon">🎭</span>
-            <div class="prod-lock">🔒</div>
-            <span class="prod-card-badge soon">Em breve</span>
-          </div>
-          <div class="prod-card-body">
-            <div class="prod-card-cat" style="color:#a78bfa">Agente IA</div>
-            <div class="prod-card-title">Agente Criativo Visual</div>
-            <div class="prod-card-desc">Gera prompts otimizados para Midjourney, DALL-E e Stable Diffusion com foco em criativos para anúncios que convertem.</div>
-            <div class="prod-card-footer">
-              <span class="prod-price paid">Em breve</span>
-              <button class="btn btn-ghost btn-xs" disabled>Notificar →</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="prod-card locked" onclick="openProduct('agent-whatsapp')">
-          <div class="prod-card-banner banner-green">
-            <span class="banner-icon">📲</span>
-            <div class="prod-lock">🔒</div>
-            <span class="prod-card-badge premium">PREMIUM</span>
-          </div>
-          <div class="prod-card-body">
-            <div class="prod-card-cat" style="color:var(--green)">Agente IA</div>
-            <div class="prod-card-title">Agente Alertas WhatsApp</div>
-            <div class="prod-card-desc">Monitora suas campanhas 24h e te avisa no WhatsApp quando ROAS cai, CPA sobe ou uma campanha para de gastar.</div>
-            <div class="prod-card-footer">
-              <span class="prod-price paid">R$ 27/mês</span>
-              <button class="btn btn-xs" style="background:#25D366;color:#fff;border:none;font-weight:700" onclick="event.stopPropagation();prodBuy('Agente Alertas WhatsApp')">Ativar →</button>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- ── BIBLIOTECA DE ANÚNCIOS ── -->
-      <div class="prod-section-title">🏆 Biblioteca de Anúncios Vencedores</div>
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:28px;">
-        <div style="display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;">
-          <div style="flex:1;min-width:200px">
-            <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:8px">📺 Anúncios que realmente funcionaram</div>
-            <div style="font-size:12px;color:var(--text3);line-height:1.7;margin-bottom:16px">Uma curadoria de criativos (imagem, vídeo e copy) que geraram resultados reais. Filtrados por nicho, objetivo e verba investida. Aprenda com quem já testou.</div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap">
-              <div style="background:var(--bg3);border-radius:8px;padding:8px 12px;text-align:center">
-                <div style="font-size:18px;font-weight:800;color:var(--blue)">+500</div>
-                <div style="font-size:10px;color:var(--text3)">criativos</div>
-              </div>
-              <div style="background:var(--bg3);border-radius:8px;padding:8px 12px;text-align:center">
-                <div style="font-size:18px;font-weight:800;color:var(--green)">+20</div>
-                <div style="font-size:10px;color:var(--text3)">nichos</div>
-              </div>
-              <div style="background:var(--bg3);border-radius:8px;padding:8px 12px;text-align:center">
-                <div style="font-size:18px;font-weight:800;color:var(--orange)">Semanal</div>
-                <div style="font-size:10px;color:var(--text3)">atualização</div>
-              </div>
-            </div>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:10px;min-width:200px">
-            <div style="background:var(--bg3);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px">
-              <span style="font-size:20px">🛒</span>
-              <div>
-                <div style="font-size:12px;font-weight:700;color:var(--text)">E-commerce</div>
-                <div style="font-size:10px;color:var(--text3)">120+ criativos</div>
-              </div>
-              <span style="margin-left:auto;font-size:10px;color:var(--blue)">ver →</span>
-            </div>
-            <div style="background:var(--bg3);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px">
-              <span style="font-size:20px">📚</span>
-              <div>
-                <div style="font-size:12px;font-weight:700;color:var(--text)">Infoproduto</div>
-                <div style="font-size:10px;color:var(--text3)">180+ criativos</div>
-              </div>
-              <span style="margin-left:auto;font-size:10px;color:var(--blue)">ver →</span>
-            </div>
-            <div style="background:var(--bg3);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px">
-              <span style="font-size:20px">🏪</span>
-              <div>
-                <div style="font-size:12px;font-weight:700;color:var(--text)">Negócio Local</div>
-                <div style="font-size:10px;color:var(--text3)">90+ criativos</div>
-              </div>
-              <span style="margin-left:auto;font-size:10px;color:var(--blue)">ver →</span>
-            </div>
-          </div>
-        </div>
-        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-          <div style="font-size:12px;color:var(--text3)">🔒 Disponível no plano Professional (em breve) ou como add-on</div>
-          <button class="btn btn-sm" style="background:linear-gradient(135deg,#ffba00,#ff8c00);color:#000;font-weight:800;border:none" onclick="prodBuy('Biblioteca de Anúncios Vencedores')">⚡ Quero acesso antecipado</button>
-        </div>
-      </div>
-
-    </div>
 
     <!-- ── MODAL ORÇAMENTO ── -->
     <div id="budgetModal" class="bmodal-overlay" style="display:none" onclick="if(event.target===this)closeBudgetModal()">
@@ -2387,33 +2148,24 @@ function uploadAvatar(event) {
 }
 
 // ─── TAB NAVIGATION ──────────────────────────────────────────────────────────
-// ── PRODUTOS PREMIUM ───────────────────────────────────────────────
 
-const _prodDetails = {
-  'pack-ecom':    { title:'Pack E-commerce', tab:'creatives', msg:'Acesse a aba IA Criativa e selecione o Pack E-commerce nos prompts disponíveis.' },
-  'pack-info':    { title:'Pack Infoproduto', tab:'creatives', msg:'Acesse a aba IA Criativa e selecione o Pack Infoproduto.' },
-  'pack-local':   { title:'Pack Negócio Local', tab:'creatives', msg:'Acesse a aba IA Criativa e selecione o Pack Negócio Local.' },
-  'pack-ugc':     { title:'Pack UGC / Vídeo Script', locked:true },
-  'tpl-copies':   { title:'Biblioteca de Copies', tab:'creatives', msg:'Disponível na aba IA Criativa — seção Templates.' },
-  'tpl-relatorio':{ title:'Relatório para Clientes', tab:'reports', msg:'Gere seu relatório em PDF na aba Relatórios.' },
-  'tpl-funil':    { title:'Mapa de Funil Completo', locked:true },
-  'agent-copy':   { title:'Agente Copywriter', tab:'creatives', msg:'Disponível na aba IA Criativa.' },
-  'agent-analysis':{ title:'Agente Analista', soon:true },
-  'agent-creative':{ title:'Agente Criativo Visual', soon:true },
-  'agent-whatsapp':{ title:'Agente Alertas WhatsApp', locked:true },
-};
+// ── LOJA ────────────────────────────────────────────────────────────
 
-function openProduct(id) {
-  const p = _prodDetails[id];
-  if (!p) return;
-  if (p.soon) { alert('⏳ Em breve! Este agente está sendo desenvolvido.'); return; }
-  if (p.locked) { prodBuy(p.title); return; }
-  if (p.tab)   { showTab(p.tab); }
-  if (p.msg)   { setTimeout(()=>alert('✅ ' + p.msg), 300); }
+function storeNotify() {
+  const email = document.getElementById('storeEmailInput')?.value?.trim();
+  if (!email || !email.includes('@')) { alert('Informe um e-mail válido.'); return; }
+  // Aqui você pode integrar com sua plataforma de e-mail (Mailchimp, Brevo, etc.)
+  // Por enquanto salva localmente e mostra confirmação
+  const msg = document.getElementById('storeNotifyMsg');
+  if (msg) msg.style.display = 'block';
+  const inp = document.getElementById('storeEmailInput');
+  if (inp) inp.disabled = true;
+  // Opcional: enviar para backend
+  api('POST', '/api/store/notify', { email }).catch(() => {});
 }
 
-function prodBuy(name) {
-  const msg = encodeURIComponent(`Olá! Tenho interesse em: ${name}. Pode me passar mais informações?`);
+function storeEarlyAccess(product) {
+  const msg = encodeURIComponent(`Olá! Quero acesso antecipado a: ${product}. Pode me passar mais informações?`);
   window.open(`https://wa.me/55XXXXXXXXXXX?text=${msg}`, '_blank');
 }
 
@@ -2480,10 +2232,6 @@ function copyAffCopy(type) {
   navigator.clipboard.writeText(text).then(() => alert('✅ Copiado! Cole onde quiser.'));
 }
 
-function mktContact(product) {
-  const msg = encodeURIComponent(`Olá! Tenho interesse em: ${product}. Pode me passar mais informações?`);
-  window.open(`https://wa.me/55XXXXXXXXXXX?text=${msg}`, '_blank');
-}
 
 function showTab(name) {
   document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
