@@ -247,6 +247,48 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .camp-list-item.camp-paused .cli-name{color:var(--text3);}
 .paused-badge{font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--bg4);color:var(--text3);letter-spacing:.3px;}
 
+/* ── PRODUTOS PREMIUM ── */
+.prod-hero{background:linear-gradient(135deg,#1a0a00,#2d1500,#091523);border:1px solid #4a2d00;border-radius:16px;padding:32px;margin-bottom:28px;position:relative;overflow:hidden;}
+.prod-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,#ffba0020,transparent 70%);pointer-events:none;}
+.prod-hero-tag{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#ffba0022,#ff8c0011);border:1px solid #ffba0044;color:#ffba00;border-radius:20px;padding:5px 14px;font-size:11px;font-weight:700;margin-bottom:14px;letter-spacing:.5px;}
+.prod-hero-title{font-size:26px;font-weight:800;font-family:'Sora',sans-serif;color:var(--text);margin-bottom:8px;}
+.prod-hero-sub{font-size:13px;color:var(--text2);max-width:560px;line-height:1.6;}
+.prod-section-title{font-size:14px;font-weight:800;font-family:'Sora',sans-serif;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.prod-section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;margin-bottom:32px;}
+.prod-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;position:relative;transition:.25s;cursor:pointer;}
+.prod-card:hover{border-color:var(--blue);transform:translateY(-3px);box-shadow:0 8px 24px rgba(20,110,245,.15);}
+.prod-card.locked{opacity:.75;}
+.prod-card.locked:hover{border-color:var(--orange);}
+.prod-card-banner{height:120px;display:flex;align-items:center;justify-content:center;position:relative;}
+.prod-card-banner .banner-icon{font-size:42px;z-index:1;}
+.prod-card-badge{position:absolute;top:10px;right:10px;font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;letter-spacing:.3px;}
+.prod-card-badge.included{background:#052e16;color:var(--green);border:1px solid #22c55e44;}
+.prod-card-badge.premium{background:linear-gradient(135deg,#ffba00,#ff8c00);color:#000;}
+.prod-card-badge.new{background:linear-gradient(135deg,#146EF5,#0ea5e9);color:#fff;}
+.prod-card-badge.soon{background:var(--bg4);color:var(--text3);}
+.prod-lock{position:absolute;top:10px;left:10px;width:26px;height:26px;background:#000a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;}
+.prod-card-body{padding:16px 18px 18px;}
+.prod-card-cat{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;}
+.prod-card-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;line-height:1.3;}
+.prod-card-desc{font-size:11px;color:var(--text3);line-height:1.6;margin-bottom:14px;}
+.prod-card-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.prod-price{font-family:'Sora',sans-serif;font-size:16px;font-weight:800;}
+.prod-price.free{color:var(--green);}
+.prod-price.paid{color:#ffba00;}
+.prod-price.included{color:var(--blue);}
+/* Banner gradient presets */
+.banner-blue{background:linear-gradient(135deg,#0d2137 0%,#1e3a5f 100%);}
+.banner-green{background:linear-gradient(135deg,#0a2818 0%,#1a4a2a 100%);}
+.banner-purple{background:linear-gradient(135deg,#1a0f2e 0%,#2d1a4e 100%);}
+.banner-orange{background:linear-gradient(135deg,#2d1a00 0%,#4a2d00 100%);}
+.banner-red{background:linear-gradient(135deg,#2d0a0a 0%,#4a1a1a 100%);}
+.banner-teal{background:linear-gradient(135deg,#0a2828 0%,#0d4040 100%);}
+/* Plan banner (upgrade) */
+.upgrade-banner{background:linear-gradient(135deg,#1a0a00,#2d1500);border:1px solid #ffba0033;border-radius:14px;padding:24px;display:flex;align-items:center;gap:20px;margin-bottom:28px;}
+.upgrade-icon{font-size:36px;flex-shrink:0;}
+
+/* Health dot */
 /* ── TUTORIAL ── */
 .tut-hero{background:linear-gradient(135deg,#0d2137,#091523);border:1px solid var(--border);border-radius:16px;padding:32px;margin-bottom:24px;text-align:center;}
 .tut-hero-title{font-size:28px;font-weight:800;font-family:'Sora',sans-serif;color:var(--text);margin-bottom:8px;}
@@ -610,6 +652,10 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
       <div class="nav-item" id="nav-marketplace" onclick="showTab('marketplace')">
         <span class="nav-icon">🛍️</span> Marketplace
+      </div>
+      <div class="nav-item" id="nav-products" onclick="showTab('products')">
+        <span class="nav-icon">💎</span> Produtos Premium
+        <span class="nav-badge" style="background:linear-gradient(135deg,#ffba00,#ff8c00);color:#000;font-size:9px;padding:1px 5px;border-radius:6px;font-weight:800;margin-left:auto">NOVO</span>
       </div>
 
       <div class="nav-section">Configurar</div>
@@ -1113,6 +1159,291 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         <div class="faq-item" onclick="toggleFaq(this)">
           <div class="faq-q">Com que frequência os dados são atualizados? <span class="faq-chevron">▼</span></div>
           <div class="faq-a">Os dados do Meta Ads são sincronizados automaticamente. Você também pode forçar uma atualização clicando em <strong>↻ Atualizar</strong> em qualquer aba. Os dados de vendas chegam via webhook em tempo real.</div>
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <!-- TAB: PRODUTOS PREMIUM (LTV)                                    -->
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <div id="tab-products" class="tab-page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">💎 Produtos Premium</div>
+          <div class="page-subtitle">Ferramentas exclusivas para escalar seus resultados</div>
+        </div>
+      </div>
+
+      <!-- Hero -->
+      <div class="prod-hero">
+        <div class="prod-hero-tag">⚡ Exclusivo para assinantes IPPMIFY</div>
+        <div class="prod-hero-title">Potencialize cada real investido em anúncios</div>
+        <div class="prod-hero-sub">Packs de criativos, templates validados, agentes IA especializados e a maior biblioteca de anúncios vencedores do Brasil — tudo dentro da plataforma que você já usa.</div>
+      </div>
+
+      <!-- Banner de upgrade (mostrar para trial) -->
+      <div class="upgrade-banner" id="prodUpgradeBanner" style="display:none">
+        <div class="upgrade-icon">🔓</div>
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:4px">Você está no trial gratuito</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:12px">Assine o plano por R$&nbsp;97/mês e desbloqueie todos os produtos, criativos ilimitados e muito mais.</div>
+          <button class="btn btn-sm" style="background:linear-gradient(135deg,#ffba00,#ff8c00);color:#000;font-weight:800;border:none" onclick="window.open('https://SEULINK.cakto.com.br','_blank')">🚀 Assinar agora — R$ 97/mês</button>
+        </div>
+      </div>
+
+      <!-- ── PACKS DE CRIATIVOS IA ── -->
+      <div class="prod-section-title">🎨 Packs de Criativos IA</div>
+      <div class="prod-grid">
+
+        <div class="prod-card" onclick="openProduct('pack-ecom')">
+          <div class="prod-card-banner banner-blue">
+            <span class="banner-icon">🛒</span>
+            <span class="prod-card-badge included">Incluído</span>
+          </div>
+          <div class="prod-card-body">
+            <div class="prod-card-cat" style="color:var(--blue)">Pack IA</div>
+            <div class="prod-card-title">Pack E-commerce</div>
+            <div class="prod-card-desc">30 prompts validados para gerar criativos de produtos físicos: carrossel, vídeo UGC e estático. Todos com ganchos testados.</div>
+            <div class="prod-card-footer">
+              <span class="prod-price included">Incluído no plano</span>
+              <button class="btn btn-blue btn-xs">Usar agora →</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="prod-card" onclick="openProduct('pack-info')">
+          <div class="prod-card-banner banner-purple">
+            <span class="banner-icon">📚</span>
+            <span class="prod-card-badge included">Incluído</span>
+          </div>
+          <div class="prod-card-body">
+            <div class="prod-card-cat" style="color:#a78bfa">Pack IA</div>
+            <div class="prod-card-title">Pack Infoproduto</div>
+            <div class="prod-card-desc">25 prompts para lançamentos, perpétuos e mentoria. Criativos para topo, meio e fundo de funil já estruturados.</div>
+            <div class="prod-card-footer">
+              <span class="prod-price included">Incluído no plano</span>
+              <button class="btn btn-blue btn-xs">Usar agora →</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="prod-card" onclick="openProduct('pack-local')">
+          <div class="prod-card-banner banner-green">
+            <span class="banner-icon">📍</span>
+            <span class="prod-card-badge new">NOVO</span>
+          </div>
+          <div class="prod-card-body">
+            <div class="prod-card-cat" style="color:var(--green)">Pack IA</div>
+            <div class="prod-card-title">Pack Negócio Local</div>
+            <div class="prod-card-desc">20 prompts para clínicas, restaurantes, salões e serviços locais. Anúncios com urgência e geolocalização.</div>
+            <div class="prod-card-footer">
+              <span class="prod-price included">Incluído no plano</span>
+              <button class="btn btn-blue btn-xs">Usar agora →</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="prod-card locked" onclick="openProduct('pack-ugc')">
+          <div class="prod-card-banner banner-red">
+            <span class="banner-icon">🎥</span>
+            <div class="prod-lock">🔒</div>
+            <span class="prod-card-badge premium">PREMIUM</span>
+          </div>
+          <div class="prod-card-body">
+            <div class="prod-card-cat" style="color:#fca5a5">Pack IA</div>
+            <div class="prod-card-title">Pack UGC / Vídeo Script</div>
+            <div class="prod-card-desc">Scripts prontos para vídeos estilo UGC. Ganchos, desenvolvimento e CTA validados com +R$200k em anúncios.</div>
+            <div class="prod-card-footer">
+              <span class="prod-price paid">R$ 47 avulso</span>
+              <button class="btn btn-xs" style="background:#ffba00;color:#000;border:none;font-weight:700" onclick="event.stopPropagation();prodBuy('Pack UGC / Vídeo Script')">Desbloquear</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── TEMPLATES PREMIUM ── -->
+      <div class="prod-section-title">📋 Templates Premium</div>
+      <div class="prod-grid">
+
+        <div class="prod-card" onclick="openProduct('tpl-copies')">
+          <div class="prod-card-banner banner-orange">
+            <span class="banner-icon">✍️</span>
+            <span class="prod-card-badge included">Incluído</span>
+          </div>
+          <div class="prod-card-body">
+            <div class="prod-card-cat" style="color:#ffba00">Templates</div>
+            <div class="prod-card-title">Biblioteca de Copies</div>
+            <div class="prod-card-desc">+80 copies de anúncios organizados por objetivo: consciência, consideração e conversão. Filtre por nicho.</div>
+            <div class="prod-card-footer">
+              <span class="prod-price included">Incluído no plano</span>
+              <button class="btn btn-blue btn-xs">Ver biblioteca →</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="prod-card" onclick="openProduct('tpl-relatorio')">
+          <div class="prod-card-banner banner-teal">
+            <span class="banner-icon">📊</span>
+            <span class="prod-card-badge included">Incluído</span>
+          </div>
+          <div class="prod-card-body">
+            <div class="prod-card-cat" style="color:#5eead4">Templates</div>
+            <div class="prod-card-title">Relatório para Clientes</div>
+            <div class="prod-card-desc">Template PDF brandado para gestores enviarem resultados semanais/mensais para seus clientes com visual profissional.</div>
+            <div class="prod-card-footer">
+              <span class="prod-price included">Incluído no plano</span>
+              <button class="btn btn-blue btn-xs" onclick="event.stopPropagation();showTab('reports')">Gerar PDF →</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="prod-card locked" onclick="openProduct('tpl-funil')">
+          <div class="prod-card-banner banner-purple">
+            <span class="banner-icon">🗺️</span>
+            <div class="prod-lock">🔒</div>
+            <span class="prod-card-badge premium">PREMIUM</span>
+          </div>
+          <div class="prod-card-body">
+            <div class="prod-card-cat" style="color:#a78bfa">Templates</div>
+            <div class="prod-card-title">Mapa de Funil Completo</div>
+            <div class="prod-card-desc">Planilha estratégica de funil: topo, meio e fundo com criativos, audiences e métricas de corte para cada fase.</div>
+            <div class="prod-card-footer">
+              <span class="prod-price paid">R$ 37 avulso</span>
+              <button class="btn btn-xs" style="background:#ffba00;color:#000;border:none;font-weight:700" onclick="event.stopPropagation();prodBuy('Mapa de Funil Completo')">Desbloquear</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── AGENTES IA ── -->
+      <div class="prod-section-title">🤖 Agentes IA Especializados</div>
+      <div class="prod-grid">
+
+        <div class="prod-card" onclick="openProduct('agent-copy')">
+          <div class="prod-card-banner banner-blue">
+            <span class="banner-icon">🧠</span>
+            <span class="prod-card-badge included">Incluído</span>
+          </div>
+          <div class="prod-card-body">
+            <div class="prod-card-cat" style="color:var(--blue)">Agente IA</div>
+            <div class="prod-card-title">Agente Copywriter</div>
+            <div class="prod-card-desc">Especialista em escrever copies de alto impacto. Analisa seu produto e gera variações de headline, gancho e CTA.</div>
+            <div class="prod-card-footer">
+              <span class="prod-price included">Incluído no plano</span>
+              <button class="btn btn-blue btn-xs" onclick="event.stopPropagation();showTab('creatives')">Usar →</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="prod-card locked" onclick="openProduct('agent-analysis')">
+          <div class="prod-card-banner banner-teal">
+            <span class="banner-icon">🔍</span>
+            <div class="prod-lock">🔒</div>
+            <span class="prod-card-badge soon">Em breve</span>
+          </div>
+          <div class="prod-card-body">
+            <div class="prod-card-cat" style="color:#5eead4">Agente IA</div>
+            <div class="prod-card-title">Agente Analista de Métricas</div>
+            <div class="prod-card-desc">Lê seus dados, identifica padrões e explica em linguagem simples o que está funcionando e o que precisa mudar.</div>
+            <div class="prod-card-footer">
+              <span class="prod-price paid">Em breve</span>
+              <button class="btn btn-ghost btn-xs" disabled>Notificar →</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="prod-card locked" onclick="openProduct('agent-creative')">
+          <div class="prod-card-banner banner-purple">
+            <span class="banner-icon">🎭</span>
+            <div class="prod-lock">🔒</div>
+            <span class="prod-card-badge soon">Em breve</span>
+          </div>
+          <div class="prod-card-body">
+            <div class="prod-card-cat" style="color:#a78bfa">Agente IA</div>
+            <div class="prod-card-title">Agente Criativo Visual</div>
+            <div class="prod-card-desc">Gera prompts otimizados para Midjourney, DALL-E e Stable Diffusion com foco em criativos para anúncios que convertem.</div>
+            <div class="prod-card-footer">
+              <span class="prod-price paid">Em breve</span>
+              <button class="btn btn-ghost btn-xs" disabled>Notificar →</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="prod-card locked" onclick="openProduct('agent-whatsapp')">
+          <div class="prod-card-banner banner-green">
+            <span class="banner-icon">📲</span>
+            <div class="prod-lock">🔒</div>
+            <span class="prod-card-badge premium">PREMIUM</span>
+          </div>
+          <div class="prod-card-body">
+            <div class="prod-card-cat" style="color:var(--green)">Agente IA</div>
+            <div class="prod-card-title">Agente Alertas WhatsApp</div>
+            <div class="prod-card-desc">Monitora suas campanhas 24h e te avisa no WhatsApp quando ROAS cai, CPA sobe ou uma campanha para de gastar.</div>
+            <div class="prod-card-footer">
+              <span class="prod-price paid">R$ 27/mês</span>
+              <button class="btn btn-xs" style="background:#25D366;color:#fff;border:none;font-weight:700" onclick="event.stopPropagation();prodBuy('Agente Alertas WhatsApp')">Ativar →</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── BIBLIOTECA DE ANÚNCIOS ── -->
+      <div class="prod-section-title">🏆 Biblioteca de Anúncios Vencedores</div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:28px;">
+        <div style="display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:200px">
+            <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:8px">📺 Anúncios que realmente funcionaram</div>
+            <div style="font-size:12px;color:var(--text3);line-height:1.7;margin-bottom:16px">Uma curadoria de criativos (imagem, vídeo e copy) que geraram resultados reais. Filtrados por nicho, objetivo e verba investida. Aprenda com quem já testou.</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <div style="background:var(--bg3);border-radius:8px;padding:8px 12px;text-align:center">
+                <div style="font-size:18px;font-weight:800;color:var(--blue)">+500</div>
+                <div style="font-size:10px;color:var(--text3)">criativos</div>
+              </div>
+              <div style="background:var(--bg3);border-radius:8px;padding:8px 12px;text-align:center">
+                <div style="font-size:18px;font-weight:800;color:var(--green)">+20</div>
+                <div style="font-size:10px;color:var(--text3)">nichos</div>
+              </div>
+              <div style="background:var(--bg3);border-radius:8px;padding:8px 12px;text-align:center">
+                <div style="font-size:18px;font-weight:800;color:var(--orange)">Semanal</div>
+                <div style="font-size:10px;color:var(--text3)">atualização</div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;min-width:200px">
+            <div style="background:var(--bg3);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px">
+              <span style="font-size:20px">🛒</span>
+              <div>
+                <div style="font-size:12px;font-weight:700;color:var(--text)">E-commerce</div>
+                <div style="font-size:10px;color:var(--text3)">120+ criativos</div>
+              </div>
+              <span style="margin-left:auto;font-size:10px;color:var(--blue)">ver →</span>
+            </div>
+            <div style="background:var(--bg3);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px">
+              <span style="font-size:20px">📚</span>
+              <div>
+                <div style="font-size:12px;font-weight:700;color:var(--text)">Infoproduto</div>
+                <div style="font-size:10px;color:var(--text3)">180+ criativos</div>
+              </div>
+              <span style="margin-left:auto;font-size:10px;color:var(--blue)">ver →</span>
+            </div>
+            <div style="background:var(--bg3);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px">
+              <span style="font-size:20px">🏪</span>
+              <div>
+                <div style="font-size:12px;font-weight:700;color:var(--text)">Negócio Local</div>
+                <div style="font-size:10px;color:var(--text3)">90+ criativos</div>
+              </div>
+              <span style="margin-left:auto;font-size:10px;color:var(--blue)">ver →</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div style="font-size:12px;color:var(--text3)">🔒 Disponível no plano Professional (em breve) ou como add-on</div>
+          <button class="btn btn-sm" style="background:linear-gradient(135deg,#ffba00,#ff8c00);color:#000;font-weight:800;border:none" onclick="prodBuy('Biblioteca de Anúncios Vencedores')">⚡ Quero acesso antecipado</button>
         </div>
       </div>
 
@@ -2056,6 +2387,36 @@ function uploadAvatar(event) {
 }
 
 // ─── TAB NAVIGATION ──────────────────────────────────────────────────────────
+// ── PRODUTOS PREMIUM ───────────────────────────────────────────────
+
+const _prodDetails = {
+  'pack-ecom':    { title:'Pack E-commerce', tab:'creatives', msg:'Acesse a aba IA Criativa e selecione o Pack E-commerce nos prompts disponíveis.' },
+  'pack-info':    { title:'Pack Infoproduto', tab:'creatives', msg:'Acesse a aba IA Criativa e selecione o Pack Infoproduto.' },
+  'pack-local':   { title:'Pack Negócio Local', tab:'creatives', msg:'Acesse a aba IA Criativa e selecione o Pack Negócio Local.' },
+  'pack-ugc':     { title:'Pack UGC / Vídeo Script', locked:true },
+  'tpl-copies':   { title:'Biblioteca de Copies', tab:'creatives', msg:'Disponível na aba IA Criativa — seção Templates.' },
+  'tpl-relatorio':{ title:'Relatório para Clientes', tab:'reports', msg:'Gere seu relatório em PDF na aba Relatórios.' },
+  'tpl-funil':    { title:'Mapa de Funil Completo', locked:true },
+  'agent-copy':   { title:'Agente Copywriter', tab:'creatives', msg:'Disponível na aba IA Criativa.' },
+  'agent-analysis':{ title:'Agente Analista', soon:true },
+  'agent-creative':{ title:'Agente Criativo Visual', soon:true },
+  'agent-whatsapp':{ title:'Agente Alertas WhatsApp', locked:true },
+};
+
+function openProduct(id) {
+  const p = _prodDetails[id];
+  if (!p) return;
+  if (p.soon) { alert('⏳ Em breve! Este agente está sendo desenvolvido.'); return; }
+  if (p.locked) { prodBuy(p.title); return; }
+  if (p.tab)   { showTab(p.tab); }
+  if (p.msg)   { setTimeout(()=>alert('✅ ' + p.msg), 300); }
+}
+
+function prodBuy(name) {
+  const msg = encodeURIComponent(`Olá! Tenho interesse em: ${name}. Pode me passar mais informações?`);
+  window.open(`https://wa.me/55XXXXXXXXXXX?text=${msg}`, '_blank');
+}
+
 // ── TUTORIAL / AFILIADOS / MARKETPLACE ────────────────────────────
 
 function toggleFaq(el) {
