@@ -13,7 +13,6 @@ router.post('/register', async (req, res) => {
   try {
     const { email, name, password } = req.body;
 
-    // Validacoes basicas
     if (!email || !name || !password) {
       return res.status(400).json({ error: 'Email, nome e senha sao obrigatorios' });
     }
@@ -24,16 +23,13 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Email invalido' });
     }
 
-    // Verificar se email ja existe
     const existing = await query('SELECT id FROM users WHERE email = $1', [email.toLowerCase()]);
     if (existing.rows.length > 0) {
       return res.status(409).json({ error: 'Este email ja esta cadastrado' });
     }
 
-    // Criptografar senha (nunca salvar senha em texto puro)
     const passwordHash = await bcrypt.hash(password, 12);
 
-    // Criar usuario
     const result = await query(
       `INSERT INTO users (email, name, password_hash)
        VALUES ($1, $2, $3)
@@ -44,7 +40,6 @@ router.post('/register', async (req, res) => {
     const user = result.rows[0];
     const { accessToken, refreshToken } = generateTokens(user.id);
 
-    // Salvar refresh token no Redis (expira em 30 dias)
     await setEx(`refresh:${user.id}`, refreshToken, 30 * 24 * 60 * 60);
 
     console.log(`[Auth] Novo usuario registrado: ${email}`);
@@ -72,7 +67,6 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Email e senha sao obrigatorios' });
     }
 
-    // Buscar usuario
     const result = await query(
       'SELECT id, email, name, plan, password_hash, is_active FROM users WHERE email = $1',
       [email.toLowerCase()]
@@ -88,7 +82,6 @@ router.post('/login', async (req, res) => {
       return res.status(403).json({ error: 'Conta desativada. Entre em contato com o suporte.' });
     }
 
-    // Verificar senha
     const passwordMatch = await bcrypt.compare(password, user.password_hash);
     if (!passwordMatch) {
       return res.status(401).json({ error: 'Email ou senha incorretos' });
@@ -96,7 +89,6 @@ router.post('/login', async (req, res) => {
 
     const { accessToken, refreshToken } = generateTokens(user.id);
 
-    // Salvar novo refresh token
     await setEx(`refresh:${user.id}`, refreshToken, 30 * 24 * 60 * 60);
 
     console.log(`[Auth] Login: ${email}`);
@@ -123,19 +115,16 @@ router.post('/refresh', async (req, res) => {
       return res.status(400).json({ error: 'Refresh token nao fornecido' });
     }
 
-    // Verificar token
     const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
     if (decoded.type !== 'refresh') {
       return res.status(401).json({ error: 'Token invalido' });
     }
 
-    // Verificar se token ainda esta no Redis (nao foi revogado)
     const storedToken = await get(`refresh:${decoded.userId}`);
     if (!storedToken || storedToken !== refreshToken) {
       return res.status(401).json({ error: 'Sessao expirada. Faca login novamente.' });
     }
 
-    // Gerar novos tokens
     const tokens = generateTokens(decoded.userId);
     await setEx(`refresh:${decoded.userId}`, tokens.refreshToken, 30 * 24 * 60 * 60);
 
@@ -160,7 +149,10 @@ router.post('/logout', requireAuth, async (req, res) => {
 // ─── PERFIL ────────────────────────────────────────────────────────────────
 // GET /api/auth/me
 router.get('/me', requireAuth, async (req, res) => {
-  res.json({ user: req.user });
+  const { id, email, name, plan, plan_status, trial_expires_at, plan_expires_at } = req.user;
+  res.json({
+    data: { id, email, name, plan, plan_status, trial_expires_at, plan_expires_at }
+  });
 });
 
 // ─── ATUALIZAR CONFIGURACOES ───────────────────────────────────────────────
