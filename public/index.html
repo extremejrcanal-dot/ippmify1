@@ -302,6 +302,32 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .tb-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:2px 6px;border-radius:4px;}
 .tb-close:hover{color:var(--text);}
 /* Health dot */
+/* ── MEU PLANO ── */
+.plan-hero{border-radius:16px;padding:32px;margin-bottom:24px;display:flex;align-items:center;gap:24px;}
+.plan-hero.ph-trial{background:linear-gradient(135deg,#1a2e00,#0d1a00);border:1px solid #4caf5033;}
+.plan-hero.ph-active{background:linear-gradient(135deg,#0a2d1a,#061a10);border:1px solid #22c55e33;}
+.plan-hero.ph-expired{background:linear-gradient(135deg,#2d0f00,#1a0700);border:1px solid #ef444433;}
+.plan-hero-icon{font-size:52px;flex-shrink:0;}
+.plan-hero-info{flex:1;}
+.plan-hero-badge{display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:5px 14px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;}
+.plan-hero-badge.badge-trial{background:#1a3d00;border:1px solid #4caf5044;color:#86efac;}
+.plan-hero-badge.badge-active{background:#052e16;border:1px solid #22c55e44;color:#4ade80;}
+.plan-hero-badge.badge-expired{background:#450a0a;border:1px solid #ef444444;color:#fca5a5;}
+.plan-hero-title{font-size:26px;font-weight:800;font-family:'Sora',sans-serif;color:var(--text);margin-bottom:6px;}
+.plan-hero-sub{font-size:13px;color:var(--text2);line-height:1.5;}
+.plan-hero-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+.plan-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:24px;}
+.plan-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;}
+.plan-card-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-bottom:8px;}
+.plan-card-value{font-size:20px;font-weight:800;font-family:'Sora',sans-serif;color:var(--text);}
+.plan-card-sub{font-size:11px;color:var(--text3);margin-top:4px;}
+.plan-section{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:16px;}
+.plan-section-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.plan-history-empty{text-align:center;padding:32px;color:var(--text3);font-size:13px;}
+.plan-action-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border);}
+.plan-action-row:last-child{border-bottom:none;}
+.plan-action-label{font-size:13px;color:var(--text2);}
+.plan-action-desc{font-size:11px;color:var(--text3);margin-top:2px;}
 /* ── TUTORIAL ── */
 .tut-hero{background:linear-gradient(135deg,#0d2137,#091523);border:1px solid var(--border);border-radius:16px;padding:32px;margin-bottom:24px;text-align:center;}
 .tut-hero-title{font-size:28px;font-weight:800;font-family:'Sora',sans-serif;color:var(--text);margin-bottom:8px;}
@@ -682,6 +708,9 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
 
       <div class="nav-section">Configurar</div>
+      <div class="nav-item" id="nav-plan" onclick="showTab('plan')">
+        <span class="nav-icon">💳</span> Meu Plano
+      </div>
       <div class="nav-item" id="nav-integrations" onclick="showTab('integrations')">
         <span class="nav-icon">🔗</span> Integrações
       </div>
@@ -1186,7 +1215,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       <!-- ── SUPORTE ── -->
       <div class="prod-section-title">📞 Suporte</div>
       <div class="support-channels" style="margin-bottom:24px">
-        <div class="support-ch" onclick="window.open('https://wa.me/55XXXXXXXXXXX?text=Oi%2C+preciso+de+suporte+com+o+IPPMIFY','_blank')">
+        <div class="support-ch" onclick="window.open('https://wa.me/5543996267951?text=Oi%2C+preciso+de+suporte+com+o+IPPMIFY','_blank')">
           <div class="support-ch-icon">📱</div>
           <div class="support-ch-title">WhatsApp Direto</div>
           <div class="support-ch-sub">Resposta em até 24h úteis</div>
@@ -2051,6 +2080,134 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
     </div>
 
+
+    <!-- ── MEU PLANO ── -->
+    <div id="tab-plan" class="tab-page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Meu Plano</div>
+          <div class="page-subtitle">Assinatura, pagamentos e gerenciamento</div>
+        </div>
+      </div>
+
+      <!-- Hero do plano -->
+      <div id="planHero" class="plan-hero ph-trial">
+        <div class="plan-hero-icon" id="planHeroIcon">⏱️</div>
+        <div class="plan-hero-info">
+          <div class="plan-hero-badge badge-trial" id="planHeroBadge">Trial gratuito</div>
+          <div class="plan-hero-title" id="planHeroTitle">Período de teste</div>
+          <div class="plan-hero-sub" id="planHeroSub">Carregando informações do plano...</div>
+          <div class="plan-hero-actions" id="planHeroActions"></div>
+        </div>
+      </div>
+
+      <!-- Cards de info -->
+      <div class="plan-cards">
+        <div class="plan-card">
+          <div class="plan-card-label">Status</div>
+          <div class="plan-card-value" id="planCardStatus">—</div>
+          <div class="plan-card-sub" id="planCardStatusSub"></div>
+        </div>
+        <div class="plan-card">
+          <div class="plan-card-label">Vencimento</div>
+          <div class="plan-card-value" id="planCardExpiry">—</div>
+          <div class="plan-card-sub" id="planCardExpirySub"></div>
+        </div>
+        <div class="plan-card">
+          <div class="plan-card-label">Valor</div>
+          <div class="plan-card-value">R$ 97</div>
+          <div class="plan-card-sub">por mês</div>
+        </div>
+        <div class="plan-card">
+          <div class="plan-card-label">Forma de pagamento</div>
+          <div class="plan-card-value" style="font-size:14px;">Pix ou Cartão</div>
+          <div class="plan-card-sub">via Cakto</div>
+        </div>
+      </div>
+
+      <!-- Gerenciar assinatura -->
+      <div class="plan-section">
+        <div class="plan-section-title">⚙️ Gerenciar assinatura</div>
+        <div class="plan-action-row">
+          <div>
+            <div class="plan-action-label">Assinar / Fazer upgrade</div>
+            <div class="plan-action-desc">Acesso completo por R$ 97/mês via Pix ou cartão</div>
+          </div>
+          <button class="btn btn-blue" onclick="openUpgrade()" style="padding:9px 20px;font-size:13px;">Assinar agora →</button>
+        </div>
+        <div class="plan-action-row">
+          <div>
+            <div class="plan-action-label">Cancelar assinatura</div>
+            <div class="plan-action-desc">Acesse o portal do cliente Cakto para gerenciar ou cancelar</div>
+          </div>
+          <button class="btn btn-ghost" onclick="openCaktoPortal()" style="padding:9px 20px;font-size:13px;">Portal do cliente →</button>
+        </div>
+        <div class="plan-action-row">
+          <div>
+            <div class="plan-action-label">Histórico de pagamentos</div>
+            <div class="plan-action-desc">Veja seus comprovantes e faturas no portal Cakto</div>
+          </div>
+          <button class="btn btn-ghost" onclick="openCaktoPortal()" style="padding:9px 20px;font-size:13px;">Ver histórico →</button>
+        </div>
+        <div class="plan-action-row">
+          <div>
+            <div class="plan-action-label">Precisa de ajuda?</div>
+            <div class="plan-action-desc">Fale com o suporte pelo WhatsApp</div>
+          </div>
+          <button class="btn btn-ghost" onclick="openPlanSupport()" style="padding:9px 20px;font-size:13px;">💬 Suporte →</button>
+        </div>
+      </div>
+
+      <!-- O que está incluso -->
+      <div class="plan-section">
+        <div class="plan-section-title">✅ O que está incluso no plano</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;">
+          <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg3);border-radius:10px;">
+            <span style="color:var(--green);font-size:16px;">✓</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);">Dashboard completo</div>
+              <div style="font-size:11px;color:var(--text3);">ROAS, lucro, gasto em tempo real</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg3);border-radius:10px;">
+            <span style="color:var(--green);font-size:16px;">✓</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);">Contas ilimitadas</div>
+              <div style="font-size:11px;color:var(--text3);">Conecte quantas contas Meta quiser</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg3);border-radius:10px;">
+            <span style="color:var(--green);font-size:16px;">✓</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);">IA de insights</div>
+              <div style="font-size:11px;color:var(--text3);">Análise automática de campanhas</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg3);border-radius:10px;">
+            <span style="color:var(--green);font-size:16px;">✓</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);">Alertas no WhatsApp</div>
+              <div style="font-size:11px;color:var(--text3);">Notificações automáticas de performance</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg3);border-radius:10px;">
+            <span style="color:var(--green);font-size:16px;">✓</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);">Controle de campanhas</div>
+              <div style="font-size:11px;color:var(--text3);">Pause, ative e ajuste orçamentos</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg3);border-radius:10px;">
+            <span style="color:var(--green);font-size:16px;">✓</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);">Relatórios PDF</div>
+              <div style="font-size:11px;color:var(--text3);">Exporte relatórios profissionais</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -2273,7 +2430,7 @@ function storeNotify() {
 
 function storeEarlyAccess(product) {
   const msg = encodeURIComponent(`Olá! Quero acesso antecipado a: ${product}. Pode me passar mais informações?`);
-  window.open(`https://wa.me/55XXXXXXXXXXX?text=${msg}`, '_blank');
+  window.open(`https://wa.me/5543996267951?text=${msg}`, '_blank');
 }
 
 // ── TUTORIAL / AFILIADOS / MARKETPLACE ────────────────────────────
@@ -2286,7 +2443,7 @@ async function initAffiliateTab() {
   try {
     const { data } = await api('GET', '/api/auth/me');
     const userId = data?.id || 'user';
-    const link = `${window.location.origin}/?ref=${userId}`;
+    const link = `https://app.cakto.com.br/affiliate/invite/387e9627-0012-4ae7-ab1e-b6d63ea407ef`;
     const el = document.getElementById('affLinkUrl');
     if (el) el.textContent = link;
     // Stats placeholder (substituir por endpoint real quando disponível)
@@ -2298,7 +2455,7 @@ async function initAffiliateTab() {
     if (earn) earn.textContent = 'R$ 0,00';
   } catch(e) {
     const el = document.getElementById('affLinkUrl');
-    if (el) el.textContent = `${window.location.origin}/?ref=meulink`;
+    if (el) el.textContent = 'https://app.cakto.com.br/affiliate/invite/387e9627-0012-4ae7-ab1e-b6d63ea407ef';
   }
 }
 
@@ -2312,25 +2469,70 @@ function copyAffLink() {
 }
 
 const _affCopies = {
-  whatsapp: `Oi! Você roda anúncios no Meta Ads? Tô usando uma plataforma chamada IPPMIFY que centraliza todas as minhas campanhas — dá pra ver ROAS, gasto, receita e ainda pausar/ativar tudo direto por lá, sem entrar no Gerenciador. Tem IA de insights e alertas automáticos quando algo sai do normal. Vale muito dar uma olhada: {LINK}`,
-  pitch: `O IPPMIFY resolve 3 dores principais de quem roda anúncios:
-1. Visão unificada — Dashboard com gasto, receita, ROAS e lucro real em tempo real
-2. Controle — Pause, ative e edite orçamentos de campanhas sem abrir o Gerenciador
-3. Inteligência — IA que analisa seus dados e diz o que escalar e o que pausar
-Plataforma: {LINK}`,
-  objections: `"Já uso o Gerenciador da Meta" → O IPPMIFY não substitui, complementa. Você tem o dashboard financeiro real (receita - gasto = lucro) que o Gerenciador não mostra.
+  whatsapp: `🚀 IPPMIFY — O Sistema que Transforma Tráfego em Lucro Real
 
-"É caro" → O quanto você perde por não saber qual campanha está dando prejuízo? O IPPMIFY paga sozinho na primeira otimização.
+A IPPMIFY não é apenas mais uma ferramenta… é um verdadeiro centro de inteligência de performance criado para afiliados, infoprodutores e media buyers que querem parar de operar no escuro e começar a escalar com dados reais.
 
-"Não tenho tempo" → Leva 5 minutos pra conectar. Depois é só abrir o dashboard.`,
-  audience: `Perfil ideal para indicar:
+Enquanto a maioria ainda toma decisões baseadas em achismo, a IPPMIFY entrega:
+✔️ Monitoramento de lucro em tempo real
+✔️ Alertas automáticos de campanhas que estão queimando dinheiro
+✔️ Insights inteligentes com base em dados reais
+✔️ Recomendações práticas para aumentar ROI
+✔️ Integração entre tráfego + vendas em um só lugar
+
+💡 O grande diferencial: A IPPMIFY não mostra só métricas… ela te diz exatamente o que fazer para lucrar mais e cria ofertas novas como copy/imagens, criativos etc.
+
+👉 Acesse agora: {LINK}`,
+
+  pitch: `🚀 IPPMIFY — O Sistema que Transforma Tráfego em Lucro Real
+
+🔥 Por que vender a IPPMIFY é fácil?
+• Produto com alta dor (perder dinheiro no tráfego)
+• Mercado gigante (afiliados, dropshippers, gestores de tráfego, infoprodutores)
+• Ticket recorrente (ganhos mensais previsíveis)
+• Perfeito para criativos UGC, provas sociais e conteúdos de autoridade
+
+💰 Comissões e Potencial de Ganho
+Ao promover a IPPMIFY, você entra em um modelo de recorrência:
+👉 Você ganha todos os meses por cada cliente ativo
+Isso permite construir uma renda previsível e escalável.
+
+🎯 Para quem a IPPMIFY é perfeita?
+• Afiliados que já rodam tráfego pago
+• Iniciantes que querem evitar prejuízo
+• Infoprodutores que precisam escalar campanhas
+• Gestores que querem otimizar múltiplos clientes
+
+🔥 Resumo: Você não está vendendo um software… Você está vendendo clareza, controle e lucro no tráfego pago.
+
+Link: {LINK}`,
+
+  objections: `⚠️ Objeções mais comuns e como rebater:
+
+"Já uso o Gerenciador da Meta"
+→ O Gerenciador não te mostra lucro real. A IPPMIFY integra tráfego + vendas e te mostra exatamente quanto você está ganhando (ou perdendo) em cada campanha.
+
+"É caro"
+→ O quanto você perde por não saber qual campanha está queimando dinheiro? A IPPMIFY paga sozinha na primeira otimização.
+
+"Não tenho tempo para aprender"
+→ Leva 5 minutos para conectar. O dashboard é visual e direto — sem configuração complexa.
+
+"Já tenho outras ferramentas"
+→ Nenhuma delas integra tráfego + vendas + IA em um só lugar. A IPPMIFY é a camada de inteligência que faltava.`,
+
+  audience: `🎯 Perfil ideal para indicar a IPPMIFY:
+
 ✅ Gestores de tráfego com múltiplos clientes
-✅ Empreendedores que investem R$1k+/mês em anúncios
+✅ Afiliados que rodam tráfego pago
 ✅ Infoprodutores e lançadores
-✅ E-commerces com campanhas ativas
+✅ Empreendedores que investem R$1k+/mês em anúncios
+✅ Dropshippers e e-commerces com campanhas ativas
 ✅ Agências de marketing digital
 
-Evite: quem ainda não tem anúncios rodando.`,
+⚠️ Importante: A IPPMIFY é um produto premium, voltado para quem quer resultado de verdade. Foque em comunicar lucro, controle e escala — não apenas "ferramenta".
+
+Evite: quem ainda não tem anúncios rodando ou não tem budget de mídia.`,
 };
 
 function copyAffCopy(type) {
@@ -3860,6 +4062,90 @@ async function wizConnectPlatform() {
     else if (wizSelectedPlatform==='kiwify') r = await api('POST','/api/integrations/kiwify/connect',{api_key:document.getElementById('wiz-kwKey').value});
     showMsg('wizPlatformMsg',`✅ ${r.message}`,'success');
   } catch(e) { showMsg('wizPlatformMsg',e.message); }
+}
+
+
+// ─── MEU PLANO ───────────────────────────────────────────────────────────────
+async function loadPlanTab() {
+  try {
+    const { data } = await api('GET', '/api/auth/me');
+    if (!data) return;
+    const { plan_status, trial_expires_at, plan_expires_at } = data;
+    const now = new Date();
+
+    const hero     = document.getElementById('planHero');
+    const icon     = document.getElementById('planHeroIcon');
+    const badge    = document.getElementById('planHeroBadge');
+    const title    = document.getElementById('planHeroTitle');
+    const sub      = document.getElementById('planHeroSub');
+    const actions  = document.getElementById('planHeroActions');
+    const cStatus  = document.getElementById('planCardStatus');
+    const cStatusS = document.getElementById('planCardStatusSub');
+    const cExpiry  = document.getElementById('planCardExpiry');
+    const cExpiryS = document.getElementById('planCardExpirySub');
+
+    const fmtDate = (d) => d ? new Date(d).toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' }) : '—';
+    const daysLeft = (d) => d ? Math.max(0, Math.ceil((new Date(d) - now) / 864e5)) : 0;
+
+    if (plan_status === 'trial_active') {
+      const days = daysLeft(trial_expires_at);
+      hero.className = 'plan-hero ph-trial';
+      icon.textContent = '⏱️';
+      badge.className = 'plan-hero-badge badge-trial';
+      badge.textContent = 'Trial gratuito';
+      title.textContent = 'Você está no período de teste';
+      sub.textContent = `Seu trial gratuito expira em ${days} dia${days!==1?'s':''} (${fmtDate(trial_expires_at)}). Assine para continuar com acesso completo.`;
+      actions.innerHTML = `<button class="btn btn-blue" onclick="openUpgrade()" style="padding:11px 24px;">🚀 Assinar agora — R$ 97/mês</button>`;
+      cStatus.textContent = 'Trial ativo';
+      cStatus.style.color = 'var(--green)';
+      cStatusS.textContent = `${days} dias restantes`;
+      cExpiry.textContent = fmtDate(trial_expires_at);
+      cExpiryS.textContent = 'vencimento do trial';
+
+    } else if (plan_status === 'active') {
+      hero.className = 'plan-hero ph-active';
+      icon.textContent = '✅';
+      badge.className = 'plan-hero-badge badge-active';
+      badge.textContent = 'Plano ativo';
+      title.textContent = 'Assinatura ativa';
+      const days = daysLeft(plan_expires_at);
+      sub.textContent = `Seu plano renova automaticamente. Próxima cobrança em ${days} dia${days!==1?'s':''} (${fmtDate(plan_expires_at)}).`;
+      actions.innerHTML = `<button class="btn btn-ghost" onclick="openCaktoPortal()" style="padding:11px 24px;">Gerenciar assinatura →</button>`;
+      cStatus.textContent = 'Ativo';
+      cStatus.style.color = 'var(--green)';
+      cStatusS.textContent = 'renovação automática';
+      cExpiry.textContent = fmtDate(plan_expires_at);
+      cExpiryS.textContent = 'próxima renovação';
+
+    } else {
+      // trial_expired ou expired
+      hero.className = 'plan-hero ph-expired';
+      icon.textContent = '🔒';
+      badge.className = 'plan-hero-badge badge-expired';
+      badge.textContent = plan_status === 'trial_expired' ? 'Trial expirado' : 'Plano expirado';
+      title.textContent = plan_status === 'trial_expired' ? 'Seu trial expirou' : 'Sua assinatura expirou';
+      sub.textContent = 'Assine o IPPMIFY para voltar a ter acesso completo à plataforma por apenas R$ 97/mês.';
+      actions.innerHTML = `<button class="btn btn-blue" onclick="openUpgrade()" style="padding:11px 24px;">🚀 Reativar acesso — R$ 97/mês</button>`;
+      cStatus.textContent = 'Expirado';
+      cStatus.style.color = 'var(--red)';
+      cStatusS.textContent = 'acesso suspenso';
+      cExpiry.textContent = '—';
+      cExpiryS.textContent = 'reative para acessar';
+    }
+  } catch(e) {
+    console.error('[Plan] Erro ao carregar plano:', e.message);
+  }
+}
+
+function openCaktoPortal() {
+  // URL do portal do cliente Cakto — substitua pelo link real quando tiver
+  const portalUrl = 'https://app.cakto.com.br/affiliate/invite/387e9627-0012-4ae7-ab1e-b6d63ea407ef';
+  window.open(portalUrl, '_blank');
+}
+
+function openPlanSupport() {
+  const msg = encodeURIComponent('Olá! Preciso de ajuda com minha assinatura do IPPMIFY.');
+  window.open('https://wa.me/5543996267951?text=' + msg, '_blank');
 }
 
 // ─── INICIALIZAR ─────────────────────────────────────────────────────────────
