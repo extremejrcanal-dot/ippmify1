@@ -16,6 +16,7 @@ const reportsRoutes      = require('./routes/reports');
 const benchmarksRoutes   = require('./routes/benchmarks');
 const offersRoutes       = require('./routes/offers');
 const creativesRoutes    = require('./routes/creatives');
+const webhookRoutes      = require('./routes/webhook');
 
 // Workers
 const { startSyncScheduler } = require('./workers/syncWorker');
@@ -27,6 +28,14 @@ const { query } = require('./config/database');
 const runMigrations = async () => {
   try {
     await query("ALTER TABLE users ADD COLUMN IF NOT EXISTS whatsapp_key VARCHAR(50) DEFAULT NULL;");
+
+    await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS trial_expires_at TIMESTAMPTZ
+                 DEFAULT (NOW() + INTERVAL '2 days');`);
+    await query("ALTER TABLE users ADD COLUMN IF NOT EXISTS plan_expires_at TIMESTAMPTZ DEFAULT NULL;");
+    await query("ALTER TABLE users ADD COLUMN IF NOT EXISTS cakto_subscriber_id VARCHAR(120) DEFAULT NULL;");
+    await query(`UPDATE users SET trial_expires_at = created_at + INTERVAL '2 days'
+                 WHERE trial_expires_at IS NULL;`);
+    await query("ALTER TABLE users ALTER COLUMN plan SET DEFAULT 'trial';");
 
     await query(`DO $$ BEGIN
       IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'uq_integrations_user_platform') THEN
@@ -109,6 +118,7 @@ app.use('/api/reports',      reportsRoutes);
 app.use('/api/benchmarks',   benchmarksRoutes);
 app.use('/api/offers',       offersRoutes);
 app.use('/api/creatives',    creativesRoutes);
+app.use('/api/webhook',      webhookRoutes);
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
