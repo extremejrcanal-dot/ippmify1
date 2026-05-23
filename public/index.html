@@ -983,14 +983,15 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         <div class="aff-sub">Cada pessoa que assinar pelo seu link te garante 30% do valor mensalmente. Sem limite de indicações.</div>
       </div>
 
-      <!-- Link do Afiliado -->
+      <!-- Link para SE AFILIAR -->
       <div class="aff-link-box">
-        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">🔗 Seu link exclusivo de afiliado</div>
-        <div style="font-size:12px;color:var(--text3);margin-bottom:10px">Compartilhe este link. Toda assinatura feita por ele é sua comissão.</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">🤝 Entre para o programa de afiliados</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:10px">Clique no link abaixo para se cadastrar como afiliado no Cakto. Após o cadastro, você receberá seu link único de afiliado para compartilhar e ganhar comissão recorrente.</div>
         <div class="aff-link-field">
-          <span class="aff-link-url" id="affLinkUrl">Carregando...</span>
+          <span class="aff-link-url" id="affLinkUrl">https://app.cakto.com.br/affiliate/invite/387e9627-0012-4ae7-ab1e-b6d63ea407ef</span>
           <button class="btn btn-blue btn-xs" onclick="copyAffLink()">📋 Copiar</button>
         </div>
+        <a href="https://app.cakto.com.br/affiliate/invite/387e9627-0012-4ae7-ab1e-b6d63ea407ef" target="_blank" class="btn btn-blue btn-sm" style="margin-top:10px;display:inline-block;text-decoration:none">🚀 Quero ser afiliado →</a>
         <div id="affLinkMsg" style="font-size:11px;color:var(--green);margin-top:6px;display:none">✅ Link copiado!</div>
       </div>
 
@@ -1016,6 +1017,18 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
 
       <!-- Materiais de apoio -->
       <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">📦 Materiais de Apoio</div>
+
+      <!-- Card da pasta do Drive -->
+      <div style="background:linear-gradient(135deg,#0d2137,#091523);border:1px solid #1e3a5f;border-radius:14px;padding:20px;margin-bottom:16px;display:flex;align-items:center;gap:16px;">
+        <div style="font-size:36px;flex-shrink:0;">📁</div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px">Pasta de materiais — Google Drive</div>
+          <div style="font-size:12px;color:var(--text3);line-height:1.5;margin-bottom:12px">Criativos prontos, vídeos de vendas (VSL), banners, prints e mais. Novos materiais são adicionados regularmente.</div>
+          <a href="https://drive.google.com/drive/folders/SEU_ID_AQUI" target="_blank" class="btn btn-blue btn-sm" style="text-decoration:none;display:inline-block">📂 Acessar materiais →</a>
+          <div style="font-size:10px;color:var(--text3);margin-top:8px;">⚠️ Link em breve — materiais sendo preparados</div>
+        </div>
+      </div>
+
       <div class="aff-mat" style="margin-bottom:24px">
         <div class="aff-mat-card">
           <div style="font-size:20px">📝</div>
@@ -2536,8 +2549,7 @@ Evite: quem ainda não tem anúncios rodando ou não tem budget de mídia.`,
 };
 
 function copyAffCopy(type) {
-  const link = document.getElementById('affLinkUrl')?.textContent || 'seu-link-aqui';
-  const text = (_affCopies[type] || '').replace('{LINK}', link);
+  const text = (_affCopies[type] || '').replace('{LINK}', '[COLOQUE SEU LINK DE AFILIADO AQUI]');
   navigator.clipboard.writeText(text).then(() => alert('✅ Copiado! Cole onde quiser.'));
 }
 
