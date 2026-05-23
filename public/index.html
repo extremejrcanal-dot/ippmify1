@@ -2450,8 +2450,13 @@ async function loadTopCampaigns(days = 7) {
     const { data: camps } = await api('GET', `/api/metrics/campaigns?days=${days}`);
     if (!camps || !camps.length) { document.getElementById('topCampsContent').innerHTML = '<div class="empty-state" style="padding:20px"><p>Sem dados de campanhas.</p></div>'; return; }
 
-    const top = camps.slice(0, 5);
-    const totalRev = camps.reduce((s,c)=>s+c.revenue,0);
+    // Normalizar campos: backend retorna campaign_name/campaign_id
+    const top = camps.slice(0, 5).map(c => ({
+      ...c,
+      name: c.campaign_name || c.name || 'Campanha',
+      id:   c.campaign_id   || c.id,
+    }));
+    const totalRev = camps.reduce((s,c)=>s+(c.revenue||0),0);
 
     // Donut
     if (chartDonut) chartDonut.destroy();
@@ -2459,8 +2464,8 @@ async function loadTopCampaigns(days = 7) {
     chartDonut = new Chart(document.getElementById('chartDonut'), {
       type:'doughnut',
       data:{
-        labels: top.map(c=>(c.name||'').substring(0,20)),
-        datasets:[{ data:top.map(c=>c.revenue), backgroundColor:colors, borderWidth:0 }],
+        labels: top.map(c=>c.name.substring(0,20)),
+        datasets:[{ data:top.map(c=>c.revenue||0), backgroundColor:colors, borderWidth:0 }],
       },
       options:{ responsive:true, cutout:'72%', plugins:{legend:{display:false}} }
     });
@@ -2469,9 +2474,9 @@ async function loadTopCampaigns(days = 7) {
       <div class="dl-item">
         <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0">
           <div class="dl-dot" style="background:${colors[i]}"></div>
-          <span class="dl-name">${(c.name||'').substring(0,22)}</span>
+          <span class="dl-name">${c.name.substring(0,22)}</span>
         </div>
-        <span class="dl-pct">${totalRev>0?((c.revenue/totalRev)*100).toFixed(1):0}%</span>
+        <span class="dl-pct">${totalRev>0?(((c.revenue||0)/totalRev)*100).toFixed(1):0}%</span>
       </div>`).join('');
 
     // Top Camps Table
@@ -2482,10 +2487,10 @@ async function loadTopCampaigns(days = 7) {
         </tr></thead>
         <tbody>
           ${top.map(c => {
-            const p = c.revenue - c.spend;
+            const p = (c.revenue||0) - (c.spend||0);
             const rc = c.roas>=2?'roas-high':c.roas>=1?'roas-mid':'roas-low';
             return `<tr>
-              <td>${(c.name||'').substring(0,28)}</td>
+              <td title="${c.name}">${c.name.substring(0,32)}</td>
               <td>${fmt(c.spend)}</td>
               <td style="color:var(--green)">${fmt(c.revenue)}</td>
               <td style="color:${p>=0?'var(--green)':'var(--red)'}">${p>=0?'+':''}${fmt(p)}</td>
