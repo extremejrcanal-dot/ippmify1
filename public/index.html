@@ -702,10 +702,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
 
       <div class="nav-section">Inteligência</div>
-      <div class="nav-item" id="nav-alerts" onclick="showTab('alerts')">
-        <span class="nav-icon">🔔</span> Alertas
-        <span class="nav-badge" id="alertsBadge" style="display:none">0</span>
-      </div>
+      
       <div class="nav-item" id="nav-insights" onclick="showTab('insights')">
         <span class="nav-icon">🤖</span> IA Insights
       </div>
@@ -770,6 +767,12 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
     </div>
 
+
+    <!-- Aviso fixo para assinantes -->
+    <div id="dataNotice" style="display:none;background:#0d1f35;border-bottom:1px solid #1e3a5f;padding:9px 20px;font-size:12px;color:#8b9ab0;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:199;">
+      <span style="font-size:15px;">💡</span>
+      <span><strong style="color:#93c5fd;">Dica:</strong> Para que os dados sejam atualizados corretamente, salve as configurações e atualize o login <strong style="color:var(--text);">deslogando e logando novamente.</strong></span>
+    </div>
     <!-- ── DASHBOARD ── -->
     <div id="tab-dashboard" class="tab-page active">
       <div class="page-header">
@@ -779,6 +782,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         </div>
         <div class="page-actions">
           <select id="dashDays" onchange="loadDashboard()" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;font-family:'Montserrat',sans-serif;outline:none;">
+            <option value="1">Hoje</option>
             <option value="7">7 dias</option>
             <option value="14">14 dias</option>
             <option value="30">30 dias</option>
@@ -1614,20 +1618,32 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
     </div>
 
-    <!-- ── ALERTAS ── -->
-    <div id="tab-alerts" class="tab-page">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Alertas</div>
-          <div class="page-subtitle">Decisões automáticas geradas pelo motor de análise</div>
-        </div>
-        <div class="page-actions">
-          <button class="btn btn-red btn-sm" onclick="runDecisions()">▶ Executar Motor</button>
+      <!-- Agendamento de Relatório Automático WhatsApp -->
+      <div style="max-width:640px;margin-top:24px;">
+        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px;">📅 Relatório Automático via WhatsApp</div>
+        <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:20px;">
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Configure quantas vezes por dia você quer receber o relatório automático no WhatsApp.</div>
+          
+          <div style="margin-bottom:16px;">
+            <label style="font-size:12px;color:var(--text-muted);font-weight:600;display:block;margin-bottom:8px;">Frequência diária</label>
+            <select id="reportFreqSelect" onchange="updateReportTimeSlots()" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;width:100%;font-family:'Montserrat',sans-serif;">
+              <option value="0">Desativado</option>
+              <option value="1">1x por dia</option>
+              <option value="2">2x por dia</option>
+              <option value="3">3x por dia</option>
+            </select>
+          </div>
+
+          <div id="reportTimeSlots" style="display:none;margin-bottom:16px;">
+            <label style="font-size:12px;color:var(--text-muted);font-weight:600;display:block;margin-bottom:8px;">Horários de envio</label>
+            <div id="reportTimeSlotsInputs" style="display:flex;flex-direction:column;gap:8px;"></div>
+          </div>
+
+          <button class="btn btn-blue btn-sm" onclick="saveReportSchedule()" style="width:100%;padding:11px;">💾 Salvar agendamento</button>
+          <div id="reportScheduleMsg" style="margin-top:8px;font-size:12px;text-align:center;"></div>
         </div>
       </div>
-      <div id="alertsContent"><div class="empty-state"><div class="spinner"></div></div></div>
-    </div>
-
+    
     <!-- ── IA INSIGHTS ── -->
     <div id="tab-insights" class="tab-page">
       <div class="page-header">
@@ -2370,6 +2386,10 @@ async function initApp(user) {
   loadDashboard();
   loadDecisions();
   loadIntegrations();
+
+  // Mostrar aviso de atualização de dados para assinantes ativos
+  const notice = document.getElementById('dataNotice');
+  if (notice && _planStatus === 'active') notice.style.display = 'flex';
 
   // Wizard para novos usuários
   const onboarded = localStorage.getItem('ippmify_onboarded');
@@ -4211,6 +4231,37 @@ async function loadPlanTab() {
     }
   } catch(e) {
     console.error('[Plan] Erro ao carregar plano:', e.message);
+  }
+}
+
+function updateReportTimeSlots() {
+  const freq = parseInt(document.getElementById('reportFreqSelect').value);
+  const container = document.getElementById('reportTimeSlots');
+  const inputs = document.getElementById('reportTimeSlotsInputs');
+  if (freq === 0) { container.style.display = 'none'; return; }
+  container.style.display = 'block';
+  const defaults = ['08:00', '14:00', '20:00'];
+  inputs.innerHTML = Array.from({length: freq}, (_, i) => `
+    <input type="time" id="reportTime${i}" value="${defaults[i]}"
+      style="background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;width:100%;font-family:'Montserrat',sans-serif;">
+  `).join('');
+}
+
+async function saveReportSchedule() {
+  const freq = parseInt(document.getElementById('reportFreqSelect').value);
+  const times = [];
+  for (let i = 0; i < freq; i++) {
+    const t = document.getElementById(`reportTime${i}`)?.value;
+    if (t) times.push(t);
+  }
+  const msg = document.getElementById('reportScheduleMsg');
+  try {
+    await api('PUT', '/api/auth/settings', { report_freq: freq, report_times: times.join(',') });
+    msg.style.color = 'var(--green)';
+    msg.textContent = freq === 0 ? '✅ Relatório automático desativado' : `✅ Relatório agendado ${freq}x por dia: ${times.join(', ')}`;
+  } catch(e) {
+    msg.style.color = 'var(--red)';
+    msg.textContent = '❌ Erro ao salvar. Tente novamente.';
   }
 }
 
