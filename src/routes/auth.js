@@ -152,13 +152,15 @@ router.get('/me', requireAuth, async (req, res) => {
   const {
     id, email, name, plan, plan_status,
     trial_expires_at, plan_expires_at,
-    whatsapp, whatsapp_key, cpa_target, roas_target, timezone
+    whatsapp, whatsapp_key, cpa_target, roas_target, timezone,
+    report_freq, report_times
   } = req.user;
   res.json({
     data: {
       id, email, name, plan, plan_status,
       trial_expires_at, plan_expires_at,
-      whatsapp, whatsapp_key, cpa_target, roas_target, timezone
+      whatsapp, whatsapp_key, cpa_target, roas_target, timezone,
+      report_freq, report_times
     }
   });
 });
