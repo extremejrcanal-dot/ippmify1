@@ -39,12 +39,12 @@ const requireAuth = async (req, res, next) => {
       await query("UPDATE users SET plan='expired' WHERE id=$1", [user.id]);
     }
 
-    // Calcular plan_status legível
-    if (user.plan === 'trial' || user.plan == null) {
-      const trialOk = user.trial_expires_at && new Date(user.trial_expires_at) > now;
-      user.plan_status = trialOk ? 'trial_active' : 'trial_expired';
+    // Calcular plan_status — sem trial, so active ou pending
+    if (user.plan === 'active') {
+      user.plan_status = 'active';
     } else {
-      user.plan_status = user.plan; // 'active' | 'expired'
+      // trial, null, pending, expired — tudo vira 'pending' (precisa pagar)
+      user.plan_status = 'pending';
     }
 
     req.user = user;
@@ -69,18 +69,14 @@ const requireAuth = async (req, res, next) => {
 };
 
 // ─── VERIFICACAO DE PLANO ATIVO ──────────────────────────────────────────────
-/**
- * Use APOS requireAuth nas rotas que exigem assinatura paga.
- * Retorna 402 com link de upgrade se trial/plano expirado.
- */
 const requireActivePlan = (req, res, next) => {
   const { plan_status } = req.user;
-  if (plan_status === 'trial_expired' || plan_status === 'expired') {
+  if (plan_status !== 'active') {
     return res.status(402).json({
-      error: 'Plano expirado',
-      message: 'Seu periodo de acesso encerrou. Assine o IPPMIFY para continuar.',
+      error: 'Assinatura necessaria',
+      message: 'Assine o IPPMIFY para acessar este recurso.',
       plan_status,
-      upgrade_url: process.env.CAKTO_CHECKOUT_URL || 'https://ippmify.com/assinar',
+      upgrade_url: process.env.KIRVANO_CHECKOUT_URL || 'https://pay.kirvano.com/38e05652-22f6-494e-a97f-bd2e3f0aa034',
     });
   }
   next();
