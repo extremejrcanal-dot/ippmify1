@@ -74,6 +74,8 @@ const runMigrations = async () => {
     await query("CREATE INDEX IF NOT EXISTS idx_offer_campaigns_offer ON offer_campaigns(offer_id);");
     await query("CREATE INDEX IF NOT EXISTS idx_offer_campaigns_campaign ON offer_campaigns(campaign_id);");
 
+    await query("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;");
+
     console.log('[Migrations] OK');
   } catch (err) {
     console.error('[Migrations] Erro:', err.message);
