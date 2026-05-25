@@ -4061,7 +4061,8 @@ function renderSettingsView(u) {
 
 async function loadSettings() {
   try {
-    const { user } = await api('GET', '/api/auth/me');
+    const resp = await api('GET', '/api/auth/me');
+    const user = resp.data || resp.user || resp;
     document.getElementById('settingCpa').value          = user.cpa_target   || '';
     document.getElementById('settingRoas').value         = user.roas_target  || '';
     document.getElementById('settingWhatsapp').value     = user.whatsapp     || '';
@@ -4082,7 +4083,8 @@ async function saveSettings() {
       whatsapp_key: document.getElementById('settingWhatsappKey').value             || null,
     });
     showMsg('settingsMsg', '✅ Configurações salvas!', 'success');
-    const { user } = await api('GET', '/api/auth/me');
+    const resp2 = await api('GET', '/api/auth/me');
+    const user = resp2.data || resp2.user || resp2;
     renderSettingsView(user);
     setTimeout(() => { toggleSettingsEdit(); }, 1200);
   } catch(e) {
