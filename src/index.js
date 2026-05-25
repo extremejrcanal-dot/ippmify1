@@ -18,6 +18,9 @@ const offersRoutes       = require('./routes/offers');
 const creativesRoutes    = require('./routes/creatives');
 const webhookRoutes      = require('./routes/webhook');
 
+// Middleware de autenticacao e plano
+const { requireAuth, requireActivePlan } = require('./middleware/auth');
+
 // Workers
 const { startSyncScheduler } = require('./workers/syncWorker');
 
@@ -28,7 +31,6 @@ const { query } = require('./config/database');
 const runMigrations = async () => {
   try {
     await query("ALTER TABLE users ADD COLUMN IF NOT EXISTS whatsapp_key VARCHAR(50) DEFAULT NULL;");
-
     await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS trial_expires_at TIMESTAMPTZ
                  DEFAULT (NOW() + INTERVAL '2 days');`);
     await query("ALTER TABLE users ADD COLUMN IF NOT EXISTS plan_expires_at TIMESTAMPTZ DEFAULT NULL;");
@@ -109,16 +111,20 @@ app.get('/health', (req, res) => {
 
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
-app.use('/api/auth',         authLimiter, authRoutes);
-app.use('/api/metrics',      metricsRoutes);
-app.use('/api/decisions',    decisionsRoutes);
-app.use('/api/insights',     insightsRoutes);
-app.use('/api/integrations', integrationsRoutes);
-app.use('/api/reports',      reportsRoutes);
-app.use('/api/benchmarks',   benchmarksRoutes);
-app.use('/api/offers',       offersRoutes);
-app.use('/api/creatives',    creativesRoutes);
-app.use('/api/webhook',      webhookRoutes);
+// ─── ROTAS PUBLICAS (sem verificacao de plano) ────────────────────────────────
+app.use('/api/auth',    authLimiter, authRoutes);   // login, registro, /me, /settings
+app.use('/api/webhook', webhookRoutes);             // Kirvano / Cakto
+
+// ─── ROTAS PROTEGIDAS (exigem login + plano ativo) ───────────────────────────
+// requireAuth seta req.user; requireActivePlan bloqueia se plan_status !== 'active'
+app.use('/api/metrics',      requireAuth, requireActivePlan, metricsRoutes);
+app.use('/api/decisions',    requireAuth, requireActivePlan, decisionsRoutes);
+app.use('/api/insights',     requireAuth, requireActivePlan, insightsRoutes);
+app.use('/api/integrations', requireAuth, requireActivePlan, integrationsRoutes);
+app.use('/api/reports',      requireAuth, requireActivePlan, reportsRoutes);
+app.use('/api/benchmarks',   requireAuth, requireActivePlan, benchmarksRoutes);
+app.use('/api/offers',       requireAuth, requireActivePlan, offersRoutes);
+app.use('/api/creatives',    requireAuth, requireActivePlan, creativesRoutes);
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
