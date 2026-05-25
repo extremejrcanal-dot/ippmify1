@@ -616,6 +616,36 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       <div id="registerMsg"></div>
       <button class="btn btn-primary" onclick="register()">Criar Conta</button>
     </div>
+
+    <!-- Tela pós-cadastro: direciona para o checkout -->
+    <div id="registerSuccess" style="display:none;text-align:center;">
+      <div style="font-size:44px;margin-bottom:12px;">✅</div>
+      <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px;">Conta criada com sucesso!</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6;">
+        Agora finalize sua assinatura para liberar<br>o acesso completo à plataforma.
+      </div>
+
+      <!-- Aviso do email -->
+      <div style="background:#1a2e1a;border:1px solid #22C55E55;border-radius:12px;padding:14px 16px;margin-bottom:20px;text-align:left;">
+        <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">⚠️ Atenção — passo importante</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.6;">
+          No checkout, use <strong style="color:var(--text);">obrigatoriamente</strong> o mesmo email que você cadastrou aqui:
+        </div>
+        <div style="margin-top:8px;background:#0D1B2A;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-weight:700;color:var(--green);word-break:break-all;" id="regSuccessEmail">—</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:6px;">Emails diferentes = acesso não liberado automaticamente.</div>
+      </div>
+
+      <button class="btn btn-primary" onclick="window.open(_checkoutUrl,'_blank')" style="margin-bottom:14px;font-size:15px;padding:13px;">
+        🚀 Finalizar assinatura — R$ 97/mês
+      </button>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:16px;">Pagamento seguro via Kirvano · Pix ou cartão</div>
+      <div
+        onclick="enterAppAfterRegister()"
+        style="font-size:12px;color:var(--text3);cursor:pointer;text-decoration:underline;text-underline-offset:3px;">
+        Já assinei, entrar no app →
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -2349,9 +2379,20 @@ async function register() {
     token = data.accessToken;
     localStorage.setItem('ippmify_token', token);
     localStorage.setItem('ippmify_user', JSON.stringify(data.user));
-    showMsg('registerMsg', 'Conta criada! Entrando...', 'success');
-    setTimeout(() => initApp(data.user), 800);
+    // Guarda o user para uso posterior no enterAppAfterRegister
+    window._pendingUser = data.user;
+    // Preenche o email no aviso
+    const emailEl = document.getElementById('regSuccessEmail');
+    if (emailEl) emailEl.textContent = data.user.email || document.getElementById('regEmail').value;
+    // Mostra tela de sucesso → direciona para o checkout
+    document.getElementById('registerForm').style.display    = 'none';
+    document.getElementById('registerSuccess').style.display = 'block';
   } catch (e) { showMsg('registerMsg', e.message); }
+}
+
+function enterAppAfterRegister() {
+  const user = window._pendingUser || JSON.parse(localStorage.getItem('ippmify_user') || '{}');
+  initApp(user);
 }
 
 function logout() {
