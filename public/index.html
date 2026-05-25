@@ -1613,25 +1613,44 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       <div style="max-width:640px;margin-top:24px;">
         <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px;">📅 Relatório Automático via WhatsApp</div>
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;">
-          <div style="font-size:13px;color:var(--text2);margin-bottom:16px;">Configure quantas vezes por dia você quer receber o relatório automático no WhatsApp.</div>
 
-          <div style="margin-bottom:16px;">
-            <label style="font-size:12px;color:var(--text2);font-weight:600;display:block;margin-bottom:8px;">Frequência diária</label>
-            <select id="reportFreqSelect" onchange="updateReportTimeSlots()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;width:100%;font-family:'Montserrat',sans-serif;outline:none;">
-              <option value="0">Desativado</option>
-              <option value="1">1x por dia</option>
-              <option value="2">2x por dia</option>
-              <option value="3">3x por dia</option>
-            </select>
+          <!-- MODO VISUALIZAÇÃO -->
+          <div id="reportScheduleView">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <div style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;">Agendamento atual</div>
+              <button class="btn btn-ghost btn-sm" onclick="editReportSchedule()">✏️ Editar</button>
+            </div>
+            <div id="reportScheduleDisplay" style="font-size:14px;color:var(--text);line-height:1.7;">
+              <span style="color:var(--text3);">Carregando...</span>
+            </div>
           </div>
 
-          <div id="reportTimeSlots" style="display:none;margin-bottom:16px;">
-            <label style="font-size:12px;color:var(--text2);font-weight:600;display:block;margin-bottom:8px;">Horários de envio</label>
-            <div id="reportTimeSlotsInputs" style="display:flex;flex-direction:column;gap:8px;"></div>
+          <!-- MODO EDIÇÃO (oculto por padrão) -->
+          <div id="reportScheduleForm" style="display:none;">
+            <div style="font-size:13px;color:var(--text2);margin-bottom:16px;">Configure quantas vezes por dia você quer receber o relatório automático no WhatsApp.</div>
+
+            <div style="margin-bottom:16px;">
+              <label style="font-size:12px;color:var(--text2);font-weight:600;display:block;margin-bottom:8px;">Frequência diária</label>
+              <select id="reportFreqSelect" onchange="updateReportTimeSlots()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;width:100%;font-family:'Montserrat',sans-serif;outline:none;">
+                <option value="0">Desativado</option>
+                <option value="1">1x por dia</option>
+                <option value="2">2x por dia</option>
+                <option value="3">3x por dia</option>
+              </select>
+            </div>
+
+            <div id="reportTimeSlots" style="display:none;margin-bottom:16px;">
+              <label style="font-size:12px;color:var(--text2);font-weight:600;display:block;margin-bottom:8px;">Horários de envio</label>
+              <div id="reportTimeSlotsInputs" style="display:flex;flex-direction:column;gap:8px;"></div>
+            </div>
+
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-blue" onclick="saveReportSchedule()" style="flex:1;padding:11px;">💾 Salvar agendamento</button>
+              <button class="btn btn-ghost" onclick="cancelReportScheduleEdit()" style="padding:11px 16px;">✕</button>
+            </div>
+            <div id="reportScheduleMsg" style="margin-top:8px;font-size:12px;text-align:center;"></div>
           </div>
 
-          <button class="btn btn-blue" onclick="saveReportSchedule()" style="width:100%;padding:11px;">💾 Salvar agendamento</button>
-          <div id="reportScheduleMsg" style="margin-top:8px;font-size:12px;text-align:center;"></div>
         </div>
       </div>
     </div>
@@ -2627,6 +2646,7 @@ function showTab(name) {
   if (name === 'benchmarks')  loadBenchmarks();
   if (name === 'settings')    loadSettings();
   if (name === 'plan')        loadPlanTab();
+  if (name === 'reports')     loadReportSchedule();
   // creatives tab has no auto-load (it's a generator)
 }
 
@@ -4241,6 +4261,41 @@ function updateReportTimeSlots() {
   `).join('');
 }
 
+// ─── AGENDAMENTO WHATSAPP — VIEW / EDIT ──────────────────────────────────────
+
+async function loadReportSchedule() {
+  try {
+    const resp = await api('GET', '/api/auth/me');
+    const user = resp.data || resp.user || resp;
+    const freq  = parseInt(user.report_freq  || 0);
+    const times = (user.report_times || '').split(',').map(t => t.trim()).filter(Boolean);
+    renderReportScheduleView(freq, times);
+  } catch(e) { console.error('loadReportSchedule:', e.message); }
+}
+
+function renderReportScheduleView(freq, times) {
+  const display = document.getElementById('reportScheduleDisplay');
+  if (!display) return;
+  if (freq === 0 || !times.length) {
+    display.innerHTML = `<span style="color:var(--text3);">⏸ Desativado</span>`;
+  } else {
+    const freqLabel = freq === 1 ? '1x por dia' : `${freq}x por dia`;
+    const timeTags  = times.map(t => `<span style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:3px 10px;font-size:13px;font-family:'Montserrat',sans-serif;">${t}</span>`).join(' ');
+    display.innerHTML = `<div style="margin-bottom:8px;">🔔 <strong>${freqLabel}</strong></div><div style="display:flex;flex-wrap:wrap;gap:6px;">${timeTags}</div>`;
+  }
+}
+
+function editReportSchedule() {
+  document.getElementById('reportScheduleView').style.display = 'none';
+  document.getElementById('reportScheduleForm').style.display = 'block';
+  document.getElementById('reportScheduleMsg').textContent    = '';
+}
+
+function cancelReportScheduleEdit() {
+  document.getElementById('reportScheduleForm').style.display = 'none';
+  document.getElementById('reportScheduleView').style.display = 'block';
+}
+
 async function saveReportSchedule() {
   const freq = parseInt(document.getElementById('reportFreqSelect').value);
   const times = [];
@@ -4251,8 +4306,8 @@ async function saveReportSchedule() {
   const msg = document.getElementById('reportScheduleMsg');
   try {
     await api('PUT', '/api/auth/settings', { report_freq: freq, report_times: times.join(',') });
-    msg.style.color = 'var(--green)';
-    msg.textContent = freq === 0 ? '✅ Relatório automático desativado' : `✅ Relatório agendado ${freq}x por dia: ${times.join(', ')}`;
+    renderReportScheduleView(freq, times);
+    cancelReportScheduleEdit();
   } catch(e) {
     msg.style.color = 'var(--red)';
     msg.textContent = '❌ Erro ao salvar. Tente novamente.';
