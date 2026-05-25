@@ -290,8 +290,7 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 
 /* Trial banner */
 .trial-banner{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:10px 20px;font-size:13px;gap:12px;}
-.trial-banner.tb-active{background:#1a2e00;border-bottom:1px solid #4caf5044;}
-.trial-banner.tb-expired{background:#2d0f00;border-bottom:1px solid #ff6b0044;}
+.trial-banner.tb-renew{background:#1a1500;border-bottom:1px solid #f5c84244;}
 .tb-left{display:flex;align-items:center;gap:10px;}
 .tb-icon{font-size:18px;flex-shrink:0;}
 .tb-text{color:var(--text2);line-height:1.4;}
@@ -299,8 +298,17 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .tb-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
 .tb-btn{background:#ffba00;color:#000;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Montserrat',sans-serif;white-space:nowrap;}
 .tb-btn:hover{background:#ffd23f;}
-.tb-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:2px 6px;border-radius:4px;}
-.tb-close:hover{color:var(--text);}
+/* Plan lock overlay */
+.plan-lock-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;background:rgba(5,8,12,0.93);align-items:center;justify-content:center;flex-direction:column;padding:24px;}
+.plan-lock-overlay.visible{display:flex;}
+.plan-lock-box{background:#0d1117;border:1px solid #1e2a3a;border-radius:20px;padding:40px 32px;max-width:420px;width:100%;text-align:center;}
+.plan-lock-icon{font-size:56px;margin-bottom:12px;}
+.plan-lock-title{font-size:22px;font-weight:700;color:#fff;margin-bottom:8px;}
+.plan-lock-sub{font-size:14px;color:#8b9ab0;margin-bottom:24px;line-height:1.6;}
+.plan-lock-btn{background:var(--accent);color:#fff;border:none;padding:14px 32px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;width:100%;margin-bottom:12px;}
+.plan-lock-btn:hover{opacity:.85;}
+.plan-lock-plan{font-size:12px;color:#8b9ab0;}
+.plan-lock-plan a{color:var(--accent);text-decoration:none;cursor:pointer;}
 /* Health dot */
 /* ── MEU PLANO ── */
 .plan-hero{border-radius:16px;padding:32px;margin-bottom:24px;display:flex;align-items:center;gap:24px;}
@@ -390,8 +398,7 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 
 /* Trial banner */
 .trial-banner{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:10px 20px;font-size:13px;gap:12px;}
-.trial-banner.tb-active{background:#1a2e00;border-bottom:1px solid #4caf5044;}
-.trial-banner.tb-expired{background:#2d0f00;border-bottom:1px solid #ff6b0044;}
+.trial-banner.tb-renew{background:#1a1500;border-bottom:1px solid #f5c84244;}
 .tb-left{display:flex;align-items:center;gap:10px;}
 .tb-icon{font-size:18px;flex-shrink:0;}
 .tb-text{color:var(--text2);line-height:1.4;}
@@ -399,8 +406,17 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .tb-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
 .tb-btn{background:#ffba00;color:#000;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Montserrat',sans-serif;white-space:nowrap;}
 .tb-btn:hover{background:#ffd23f;}
-.tb-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:2px 6px;border-radius:4px;}
-.tb-close:hover{color:var(--text);}
+/* Plan lock overlay */
+.plan-lock-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;background:rgba(5,8,12,0.93);align-items:center;justify-content:center;flex-direction:column;padding:24px;}
+.plan-lock-overlay.visible{display:flex;}
+.plan-lock-box{background:#0d1117;border:1px solid #1e2a3a;border-radius:20px;padding:40px 32px;max-width:420px;width:100%;text-align:center;}
+.plan-lock-icon{font-size:56px;margin-bottom:12px;}
+.plan-lock-title{font-size:22px;font-weight:700;color:#fff;margin-bottom:8px;}
+.plan-lock-sub{font-size:14px;color:#8b9ab0;margin-bottom:24px;line-height:1.6;}
+.plan-lock-btn{background:var(--accent);color:#fff;border:none;padding:14px 32px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;width:100%;margin-bottom:12px;}
+.plan-lock-btn:hover{opacity:.85;}
+.plan-lock-plan{font-size:12px;color:#8b9ab0;}
+.plan-lock-plan a{color:var(--accent);text-decoration:none;cursor:pointer;}
 /* Health dot */
 .hdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .hdot.green{background:var(--green);box-shadow:0 0 5px #22c55e88;}
@@ -672,6 +688,9 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       <div class="nav-item active" id="nav-dashboard" onclick="showTab('dashboard')">
         <span class="nav-icon">📊</span> Dashboard
       </div>
+      <div class="nav-item" id="nav-decisions" onclick="showTab('decisions')">
+        <span class="nav-icon">🧠</span> Decisões <span id="decisionsBadge" style="display:none;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;margin-left:4px;"></span>
+      </div>
       <div class="nav-item" id="nav-campaigns" onclick="showTab('campaigns')">
         <span class="nav-icon">📢</span> Campanhas
       </div>
@@ -816,6 +835,20 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div id="dashAlertsList"></div>
         </div>
       </div>
+    </div>
+
+    <!-- ── TOMADAS DE DECISÃO ── -->
+    <div id="tab-decisions" class="tab-page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Tomadas de Decisão</div>
+          <div class="page-subtitle">Recomendações automáticas geradas pelo motor de análise de lucro</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-red btn-sm" onclick="runDecisions()">▶ Executar Motor</button>
+        </div>
+      </div>
+      <div id="decisionsContent"><div class="empty-state"><div class="spinner"></div></div></div>
     </div>
 
     <!-- ── CAMPANHAS ── -->
@@ -2571,6 +2604,7 @@ function showTab(name) {
   if (name === 'affiliates') initAffiliateTab();
   document.getElementById(`tab-${name}`)?.classList.add('active');
   document.getElementById(`nav-${name}`)?.classList.add('active');
+  if (name === 'decisions')   loadDecisionsTab();
   if (name === 'campaigns')   { loadCampAccountSelector().then(loadCampaigns); }
   if (name === 'alerts')      loadAlerts();
   if (name === 'benchmarks')  loadBenchmarks();
@@ -3483,7 +3517,36 @@ async function loadAlerts() {
   }
 }
 
-async function loadDecisions() {
+async async function loadDecisionsTab() {
+  try {
+    const { data } = await api('GET', '/api/decisions?limit=30');
+    const el = document.getElementById('decisionsContent');
+    if (!data || !data.length) {
+      el.innerHTML = '<div class="empty-state"><div class="cs-icon">🧠</div><p>Nenhuma decisão gerada ainda.<br>Clique em <strong>Executar Motor</strong> para analisar suas campanhas.</p></div>';
+      return;
+    }
+    const sevClass = s => s>=8?'high':s>=5?'mid':'low';
+    const badgeClass = s => s>=8?'red':s>=5?'orange':'green';
+    const sevLabel = s => s>=9?'CRÍTICO':s>=7?'ALTO':s>=5?'MODERADO':'OPORTUNIDADE';
+    el.innerHTML = data.map(d => `
+      <div class="decision-card sev-${sevClass(d.severity)}">
+        <span class="dc-badge ${badgeClass(d.severity)}">${sevLabel(d.severity)} — ${d.severity}/10</span>
+        ${d.campaign_name?`<div class="dc-camp">📢 ${d.campaign_name}</div>`:''}
+        <div class="dc-title">${d.title}</div>
+        <div class="dc-desc">${d.description}</div>
+        <div class="dc-rec">✅ ${d.recommendation}</div>
+        <div class="dc-time">${new Date(d.triggered_at).toLocaleString('pt-BR')}</div>
+      </div>`).join('');
+    // Atualizar badge
+    const critical = data.filter(d=>d.severity>=7);
+    const badge = document.getElementById('decisionsBadge');
+    if (badge && critical.length) { badge.textContent = critical.length; badge.style.display = 'inline-flex'; }
+  } catch(e) {
+    document.getElementById('decisionsContent').innerHTML = '<div class="alert alert-info">Conecte suas plataformas para ativar o motor de decisões.</div>';
+  }
+}
+
+function loadDecisions() {
   // Carrega silenciosamente para o badge
   try {
     const { data } = await api('GET', '/api/decisions?limit=5');
@@ -3500,7 +3563,7 @@ async function runDecisions() {
   try {
     const data = await api('POST', '/api/decisions/run');
     showMsg('alertsContent', `✅ ${data.message}`, 'success');
-    setTimeout(loadAlerts, 1500);
+    setTimeout(() => { loadAlerts(); loadDecisionsTab(); }, 1500);
   } catch (e) { showMsg('alertsContent', e.message); }
   finally { btn.innerHTML = '▶ Executar Motor'; btn.disabled = false; }
 }
