@@ -740,6 +740,16 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
 
     <!-- TRIAL BANNER -->
     <div id="trialBanner" style="display:none;"></div>
+    <!-- Plan lock overlay (aparece para usuarios sem plano ativo) -->
+    <div class="plan-lock-overlay" id="planLockOverlay">
+      <div class="plan-lock-box">
+        <div class="plan-lock-icon">🔒</div>
+        <div class="plan-lock-title">Assinatura necessária</div>
+        <div class="plan-lock-sub">Para acessar o IPPMIFY, você precisa ter uma assinatura ativa.<br>Assine agora e comece a transformar tráfego em lucro real.</div>
+        <button class="plan-lock-btn" onclick="openUpgrade()">🚀 Assinar agora — R$97/mês</button>
+        <div class="plan-lock-plan">Já assinou? Acesse <a onclick="showTab('plan');hidePlanLock()" href="#">Meu Plano</a> para verificar o status.</div>
+      </div>
+    </div>
 
     <!-- ── DASHBOARD ── -->
     <div id="tab-dashboard" class="tab-page active">
@@ -2348,9 +2358,8 @@ function updateSidebarPlan(status) {
   const el = document.getElementById('sidebarUserPlan');
   if (!el) return;
   const labels = {
-    trial_active: '🟡 Trial ativo',
-    trial_expired: '🔴 Trial expirado',
-    active: '✅ Plano ativo',
+    active:  '✅ Plano ativo',
+    pending: '🔴 Sem assinatura',
     expired: '🔴 Plano expirado',
   };
   el.textContent = labels[status] || 'Trial';
@@ -2361,41 +2370,41 @@ function showTrialBanner(data) {
   if (!banner) return;
 
   const status = data.plan_status;
-  const dismissed = sessionStorage.getItem('trial_banner_dismissed');
 
-  if (status === 'trial_active') {
-    if (dismissed) return;
-    const exp = data.trial_expires_at ? new Date(data.trial_expires_at) : null;
+  // Mostrar banner de renovação apenas quando faltam <= 7 dias e plano está ativo
+  if (status === 'active' && data.plan_expires_at) {
+    const exp = new Date(data.plan_expires_at);
     const now = new Date();
-    const hoursLeft = exp ? Math.ceil((exp - now) / 36e5) : 0;
-    const daysLeft = Math.ceil(hoursLeft / 24);
-    const timeLabel = hoursLeft <= 24 ? `${hoursLeft}h` : `${daysLeft} dias`;
-    banner.style.display = 'flex';
-    banner.className = 'trial-banner tb-active';
-    banner.innerHTML = `
-      <div class="tb-left">
-        <span class="tb-icon">⏱️</span>
-        <div class="tb-text"><strong>Trial gratuito</strong> — ${timeLabel} restantes. Assine para não perder o acesso.</div>
-      </div>
-      <div class="tb-actions">
-        <button class="tb-btn" onclick="openUpgrade()">Assinar agora →</button>
-        <button class="tb-close" onclick="dismissTrialBanner()" title="Fechar">✕</button>
-      </div>`;
+    const daysLeft = Math.ceil((exp - now) / (1000 * 60 * 60 * 24));
+    if (daysLeft <= 7 && daysLeft > 0) {
+      banner.style.display = 'flex';
+      banner.className = 'trial-banner tb-renew';
+      banner.innerHTML = `
+        <div class="tb-left">
+          <span class="tb-icon">⚠️</span>
+          <div class="tb-text"><strong>Seu plano renova em ${daysLeft} dia${daysLeft > 1 ? 's' : ''}.</strong> A renovação é automática via Pix ou cartão cadastrado.</div>
+        </div>`;
+    } else {
+      banner.style.display = 'none';
+    }
+  } else {
+    banner.style.display = 'none';
+  }
 
-  } else if (status === 'trial_expired' || status === 'expired') {
-    banner.style.display = 'flex';
-    banner.className = 'trial-banner tb-expired';
-    const label = status === 'trial_expired' ? 'Seu trial expirou.' : 'Seu plano expirou.';
-    banner.innerHTML = `
-      <div class="tb-left">
-        <span class="tb-icon">🔒</span>
-        <div class="tb-text"><strong>${label}</strong> Assine o IPPMIFY para continuar usando a plataforma.</div>
-      </div>
-      <div class="tb-actions">
-        <button class="tb-btn" onclick="openUpgrade()">Ver planos →</button>
-      </div>`;
+  // Bloquear acesso se não tiver plano ativo
+  if (status !== 'active') {
+    showPlanLock();
   }
 }
+
+function showPlanLock() {
+  document.getElementById('planLockOverlay')?.classList.add('visible');
+}
+
+function hidePlanLock() {
+  document.getElementById('planLockOverlay')?.classList.remove('visible');
+}
+
 
 function dismissTrialBanner() {
   sessionStorage.setItem('trial_banner_dismissed', '1');
@@ -2557,6 +2566,8 @@ function copyAffCopy(type) {
 function showTab(name) {
   document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  // Se for para aba de plano, esconde o overlay para o usuario conseguir pagar
+  if (name === 'plan') hidePlanLock();
   if (name === 'affiliates') initAffiliateTab();
   document.getElementById(`tab-${name}`)?.classList.add('active');
   document.getElementById(`nav-${name}`)?.classList.add('active');
@@ -4082,7 +4093,7 @@ async function loadPlanTab() {
   try {
     const { data } = await api('GET', '/api/auth/me');
     if (!data) return;
-    const { plan_status, trial_expires_at, plan_expires_at } = data;
+    const { plan_status, plan_expires_at } = data;
     const now = new Date();
 
     const hero     = document.getElementById('planHero');
@@ -4099,29 +4110,14 @@ async function loadPlanTab() {
     const fmtDate = (d) => d ? new Date(d).toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' }) : '—';
     const daysLeft = (d) => d ? Math.max(0, Math.ceil((new Date(d) - now) / 864e5)) : 0;
 
-    if (plan_status === 'trial_active') {
-      const days = daysLeft(trial_expires_at);
-      hero.className = 'plan-hero ph-trial';
-      icon.textContent = '⏱️';
-      badge.className = 'plan-hero-badge badge-trial';
-      badge.textContent = 'Trial gratuito';
-      title.textContent = 'Você está no período de teste';
-      sub.textContent = `Seu trial gratuito expira em ${days} dia${days!==1?'s':''} (${fmtDate(trial_expires_at)}). Assine para continuar com acesso completo.`;
-      actions.innerHTML = `<button class="btn btn-blue" onclick="openUpgrade()" style="padding:11px 24px;">🚀 Assinar agora — R$ 97/mês</button>`;
-      cStatus.textContent = 'Trial ativo';
-      cStatus.style.color = 'var(--green)';
-      cStatusS.textContent = `${days} dias restantes`;
-      cExpiry.textContent = fmtDate(trial_expires_at);
-      cExpiryS.textContent = 'vencimento do trial';
-
-    } else if (plan_status === 'active') {
+    if (plan_status === 'active') {
       hero.className = 'plan-hero ph-active';
       icon.textContent = '✅';
       badge.className = 'plan-hero-badge badge-active';
       badge.textContent = 'Plano ativo';
       title.textContent = 'Assinatura ativa';
       const days = daysLeft(plan_expires_at);
-      sub.textContent = `Seu plano renova automaticamente. Próxima cobrança em ${days} dia${days!==1?'s':''} (${fmtDate(plan_expires_at)}).`;
+      sub.textContent = `Seu plano renova automaticamente via Pix ou cartão. Próxima cobrança em ${days} dia${days!==1?'s':''} (${fmtDate(plan_expires_at)}).`;
       actions.innerHTML = `<button class="btn btn-ghost" onclick="openCaktoPortal()" style="padding:11px 24px;">Gerenciar assinatura →</button>`;
       cStatus.textContent = 'Ativo';
       cStatus.style.color = 'var(--green)';
@@ -4130,19 +4126,19 @@ async function loadPlanTab() {
       cExpiryS.textContent = 'próxima renovação';
 
     } else {
-      // trial_expired ou expired
+      // pending ou expired — sem plano ativo
       hero.className = 'plan-hero ph-expired';
       icon.textContent = '🔒';
       badge.className = 'plan-hero-badge badge-expired';
-      badge.textContent = plan_status === 'trial_expired' ? 'Trial expirado' : 'Plano expirado';
-      title.textContent = plan_status === 'trial_expired' ? 'Seu trial expirou' : 'Sua assinatura expirou';
-      sub.textContent = 'Assine o IPPMIFY para voltar a ter acesso completo à plataforma por apenas R$ 97/mês.';
-      actions.innerHTML = `<button class="btn btn-blue" onclick="openUpgrade()" style="padding:11px 24px;">🚀 Reativar acesso — R$ 97/mês</button>`;
-      cStatus.textContent = 'Expirado';
+      badge.textContent = 'Sem assinatura';
+      title.textContent = 'Você não tem uma assinatura ativa';
+      sub.textContent = 'Assine o IPPMIFY para ter acesso completo à plataforma por apenas R$ 97/mês.';
+      actions.innerHTML = `<button class="btn btn-blue" onclick="openUpgrade()" style="padding:11px 24px;">🚀 Assinar agora — R$ 97/mês</button>`;
+      cStatus.textContent = 'Inativo';
       cStatus.style.color = 'var(--red)';
-      cStatusS.textContent = 'acesso suspenso';
+      cStatusS.textContent = 'sem assinatura';
       cExpiry.textContent = '—';
-      cExpiryS.textContent = 'reative para acessar';
+      cExpiryS.textContent = 'assine para acessar';
     }
   } catch(e) {
     console.error('[Plan] Erro ao carregar plano:', e.message);
