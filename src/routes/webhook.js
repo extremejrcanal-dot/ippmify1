@@ -3,113 +3,100 @@ const { query } = require('../config/database');
 
 const router = express.Router();
 
-// ─── HELPERS ────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// KIRVANO WEBHOOK
+// POST /api/webhook/kirvano
+// ═══════════════════════════════════════════════════════════════════════════════
 
-/**
- * Verifica o token de segurança enviado pelo Cakto.
- * Configure CAKTO_WEBHOOK_TOKEN no Railway com o mesmo valor
- * que você cadastrou no painel do Cakto em Webhooks → Token.
- */
-function verifyToken(req) {
-  const secret = process.env.CAKTO_WEBHOOK_TOKEN;
-  if (!secret) return true; // sem token configurado = aceitar tudo (apenas em dev)
+function verifyKirvanoToken(req) {
+  const secret = process.env.KIRVANO_WEBHOOK_TOKEN;
+  if (!secret) return true; // dev: aceitar sem token
 
-  // Cakto envia o token no header Authorization ou no body como "token"
-  const headerToken = req.headers['authorization']?.replace('Bearer ', '');
-  const bodyToken   = req.body?.token;
+  // Kirvano envia o token no header x-kirvano-token ou authorization
+  const h1 = req.headers['x-kirvano-token'];
+  const h2 = req.headers['authorization']?.replace('Bearer ', '');
+  const bodyToken = req.body?.token;
 
-  return headerToken === secret || bodyToken === secret;
+  return h1 === secret || h2 === secret || bodyToken === secret;
 }
 
-/**
- * Extrai o e-mail do cliente do payload do Cakto.
- * O Cakto pode variar o formato — cobrimos as principais variações.
- */
-function extractEmail(body) {
+function extractKirvanoEmail(body) {
   return (
-    body?.data?.customer?.email ||
-    body?.customer?.email        ||
-    body?.email                  ||
-    body?.data?.email            ||
+    body?.data?.buyer?.email       ||
+    body?.data?.customer?.email    ||
+    body?.buyer?.email             ||
+    body?.customer?.email          ||
+    body?.data?.email              ||
+    body?.email                    ||
     null
   );
 }
 
-/**
- * Extrai o ID da assinatura do payload.
- */
-function extractSubscriberId(body) {
+function extractKirvanoSubscriberId(body) {
   return (
-    body?.data?.subscription?.id ||
-    body?.subscription?.id       ||
-    body?.data?.id               ||
-    body?.id                     ||
+    body?.data?.subscription?.id   ||
+    body?.data?.id                 ||
+    body?.subscription?.id         ||
+    body?.id                       ||
     null
   );
 }
 
-// ─── EVENTOS SUPORTADOS ──────────────────────────────────────────────────────
-
-// Eventos que ativam o plano
-const ACTIVATE_EVENTS = new Set([
+// Eventos Kirvano que ATIVAM o plano
+const KIRVANO_ACTIVATE = new Set([
+  'purchase_approved',
+  'purchase_complete',
   'sale_approved',
-  'payment_approved',
   'subscription_activated',
   'subscription_renewed',
-  'purchase_approved',
+  'subscription_reactivated',
 ]);
 
-// Eventos que cancelam o plano
-const CANCEL_EVENTS = new Set([
+// Eventos Kirvano que CANCELAM o plano
+const KIRVANO_CANCEL = new Set([
+  'purchase_refunded',
+  'purchase_chargeback',
+  'purchase_refused',
   'sale_refunded',
   'sale_chargeback',
   'subscription_canceled',
   'subscription_cancelled',
   'subscription_expired',
-  'payment_refunded',
-  'purchase_refunded',
+  'subscription_overdue',
 ]);
 
-// ─── ENDPOINT PRINCIPAL ──────────────────────────────────────────────────────
-// POST /api/webhook/cakto
-router.post('/cakto', async (req, res) => {
+router.post('/kirvano', async (req, res) => {
   const body  = req.body;
-  const event = body?.event || body?.type || 'unknown';
+  const event = body?.event || body?.type || body?.status || 'unknown';
 
-  console.log(`[Webhook/Cakto] Evento recebido: ${event}`);
-  console.log('[Webhook/Cakto] Payload:', JSON.stringify(body, null, 2));
+  console.log(`[Webhook/Kirvano] Evento: ${event}`);
+  console.log('[Webhook/Kirvano] Payload:', JSON.stringify(body, null, 2));
 
-  // 1. Verificar autenticidade
-  if (!verifyToken(req)) {
-    console.warn('[Webhook/Cakto] Token inválido — ignorando.');
-    return res.status(401).json({ error: 'Token inválido' });
+  if (!verifyKirvanoToken(req)) {
+    console.warn('[Webhook/Kirvano] Token invalido.');
+    return res.status(401).json({ error: 'Token invalido' });
   }
 
-  // 2. Extrair e-mail
-  const email = extractEmail(body);
+  const email = extractKirvanoEmail(body);
   if (!email) {
-    console.warn('[Webhook/Cakto] E-mail não encontrado no payload.');
-    return res.status(200).json({ ok: true, msg: 'email_not_found' }); // 200 para Cakto não retentar
+    console.warn('[Webhook/Kirvano] Email nao encontrado no payload.');
+    return res.status(200).json({ ok: true, msg: 'email_not_found' });
   }
 
-  // 3. Buscar usuário no banco
   const userResult = await query(
     'SELECT id, email, plan FROM users WHERE email = $1',
     [email.toLowerCase()]
   );
 
   if (userResult.rows.length === 0) {
-    // Usuário ainda não cadastrado — vai se cadastrar depois, guardamos para referência
-    console.log(`[Webhook/Cakto] Usuário ${email} não encontrado — nenhuma ação.`);
+    console.log(`[Webhook/Kirvano] Usuario ${email} nao encontrado.`);
     return res.status(200).json({ ok: true, msg: 'user_not_found' });
   }
 
   const user = userResult.rows[0];
-  const subscriberId = extractSubscriberId(body);
+  const subscriberId = extractKirvanoSubscriberId(body);
 
-  // 4. Aplicar ação conforme evento
-  if (ACTIVATE_EVENTS.has(event)) {
-    // Ativar plano — expira em 35 dias (margem para renovação mensal)
+  if (KIRVANO_ACTIVATE.has(event)) {
     await query(
       `UPDATE users
        SET plan = 'active',
@@ -119,12 +106,11 @@ router.post('/cakto', async (req, res) => {
        WHERE id = $2`,
       [subscriberId, user.id]
     );
-    console.log(`[Webhook/Cakto] ✅ Plano ATIVADO para ${email}`);
+    console.log(`[Webhook/Kirvano] Plano ATIVADO para ${email}`);
     return res.json({ ok: true, action: 'activated', email });
   }
 
-  if (CANCEL_EVENTS.has(event)) {
-    // Cancelar — rebaixar para trial (acesso limitado) ou expired
+  if (KIRVANO_CANCEL.has(event)) {
     await query(
       `UPDATE users
        SET plan = 'expired',
@@ -133,24 +119,26 @@ router.post('/cakto', async (req, res) => {
        WHERE id = $1`,
       [user.id]
     );
-    console.log(`[Webhook/Cakto] ⏹ Plano CANCELADO para ${email}`);
+    console.log(`[Webhook/Kirvano] Plano CANCELADO para ${email}`);
     return res.json({ ok: true, action: 'cancelled', email });
   }
 
-  // Evento desconhecido — logar e responder OK
-  console.log(`[Webhook/Cakto] Evento ignorado: ${event}`);
+  console.log(`[Webhook/Kirvano] Evento ignorado: ${event}`);
   return res.json({ ok: true, action: 'ignored', event });
 });
 
-// ─── ENDPOINT DE TESTE (apenas desenvolvimento) ──────────────────────────────
-// POST /api/webhook/cakto/test?action=activate|cancel&email=xxx
-router.post('/cakto/test', async (req, res) => {
+// ═══════════════════════════════════════════════════════════════════════════════
+// ENDPOINT DE TESTE
+// POST /api/webhook/kirvano/test?action=activate|cancel&email=xxx
+// ═══════════════════════════════════════════════════════════════════════════════
+
+router.post('/kirvano/test', async (req, res) => {
   if (process.env.NODE_ENV === 'production') {
     return res.status(404).json({ error: 'Not found' });
   }
 
   const { action, email } = req.query;
-  if (!email) return res.status(400).json({ error: 'email obrigatório' });
+  if (!email) return res.status(400).json({ error: 'email obrigatorio' });
 
   if (action === 'activate') {
     await query(
@@ -168,6 +156,113 @@ router.post('/cakto/test', async (req, res) => {
     return res.json({ ok: true, msg: `Plano cancelado para ${email}` });
   }
 
+  return res.status(400).json({ error: 'action deve ser activate ou cancel' });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CAKTO WEBHOOK (mantido para compatibilidade durante migração)
+// POST /api/webhook/cakto
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function verifyCaktoToken(req) {
+  const secret = process.env.CAKTO_WEBHOOK_TOKEN;
+  if (!secret) return true;
+  const headerToken = req.headers['authorization']?.replace('Bearer ', '');
+  const bodyToken   = req.body?.token;
+  return headerToken === secret || bodyToken === secret;
+}
+
+function extractCaktoEmail(body) {
+  return (
+    body?.data?.customer?.email ||
+    body?.customer?.email        ||
+    body?.email                  ||
+    body?.data?.email            ||
+    null
+  );
+}
+
+function extractCaktoSubscriberId(body) {
+  return (
+    body?.data?.subscription?.id ||
+    body?.subscription?.id       ||
+    body?.data?.id               ||
+    body?.id                     ||
+    null
+  );
+}
+
+const CAKTO_ACTIVATE = new Set([
+  'sale_approved', 'payment_approved', 'subscription_activated',
+  'subscription_renewed', 'purchase_approved',
+]);
+
+const CAKTO_CANCEL = new Set([
+  'sale_refunded', 'sale_chargeback', 'subscription_canceled',
+  'subscription_cancelled', 'subscription_expired',
+  'payment_refunded', 'purchase_refunded',
+]);
+
+router.post('/cakto', async (req, res) => {
+  const body  = req.body;
+  const event = body?.event || body?.type || 'unknown';
+
+  console.log(`[Webhook/Cakto] Evento: ${event}`);
+
+  if (!verifyCaktoToken(req)) {
+    return res.status(401).json({ error: 'Token invalido' });
+  }
+
+  const email = extractCaktoEmail(body);
+  if (!email) return res.status(200).json({ ok: true, msg: 'email_not_found' });
+
+  const userResult = await query(
+    'SELECT id, email, plan FROM users WHERE email = $1',
+    [email.toLowerCase()]
+  );
+
+  if (userResult.rows.length === 0) {
+    return res.status(200).json({ ok: true, msg: 'user_not_found' });
+  }
+
+  const user = userResult.rows[0];
+  const subscriberId = extractCaktoSubscriberId(body);
+
+  if (CAKTO_ACTIVATE.has(event)) {
+    await query(
+      `UPDATE users SET plan='active', plan_expires_at=NOW()+INTERVAL '35 days',
+       cakto_subscriber_id=COALESCE($1,cakto_subscriber_id), updated_at=NOW() WHERE id=$2`,
+      [subscriberId, user.id]
+    );
+    console.log(`[Webhook/Cakto] Plano ATIVADO para ${email}`);
+    return res.json({ ok: true, action: 'activated', email });
+  }
+
+  if (CAKTO_CANCEL.has(event)) {
+    await query(
+      `UPDATE users SET plan='expired', plan_expires_at=NOW(), updated_at=NOW() WHERE id=$1`,
+      [user.id]
+    );
+    console.log(`[Webhook/Cakto] Plano CANCELADO para ${email}`);
+    return res.json({ ok: true, action: 'cancelled', email });
+  }
+
+  return res.json({ ok: true, action: 'ignored', event });
+});
+
+// Teste Cakto (compatibilidade)
+router.post('/cakto/test', async (req, res) => {
+  if (process.env.NODE_ENV === 'production') return res.status(404).json({ error: 'Not found' });
+  const { action, email } = req.query;
+  if (!email) return res.status(400).json({ error: 'email obrigatorio' });
+  if (action === 'activate') {
+    await query(`UPDATE users SET plan='active', plan_expires_at=NOW()+INTERVAL '35 days' WHERE email=$1`, [email.toLowerCase()]);
+    return res.json({ ok: true, msg: `Plano ativado para ${email}` });
+  }
+  if (action === 'cancel') {
+    await query(`UPDATE users SET plan='expired', plan_expires_at=NOW() WHERE email=$1`, [email.toLowerCase()]);
+    return res.json({ ok: true, msg: `Plano cancelado para ${email}` });
+  }
   return res.status(400).json({ error: 'action deve ser activate ou cancel' });
 });
 
