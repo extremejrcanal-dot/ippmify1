@@ -3517,7 +3517,7 @@ async function loadAlerts() {
   }
 }
 
-async async function loadDecisionsTab() {
+async function loadDecisionsTab() {
   try {
     const { data } = await api('GET', '/api/decisions?limit=30');
     const el = document.getElementById('decisionsContent');
@@ -3546,7 +3546,7 @@ async async function loadDecisionsTab() {
   }
 }
 
-function loadDecisions() {
+async function loadDecisions() {
   // Carrega silenciosamente para o badge
   try {
     const { data } = await api('GET', '/api/decisions?limit=5');
