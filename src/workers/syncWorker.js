@@ -6,13 +6,12 @@ const { sendAlert, sendDailyReport } = require('../services/alertService');
 const { calculateOverview } = require('../services/metricsEngine');
 const { sendDailyWhatsAppReport } = require('../services/reportService');
 
-// ─── WORKER DE SINCRONIZACAO E AUTOMACAO ──────────────────────────────────
-// Roda em background automaticamente
+// ─── WORKER DE SINCRONIZACAO E AUTOMACAO ─────────────────────────────────────
 
-// Buscar todos os usuarios ativos
+// Buscar todos os usuarios ativos com plano ativo
 const getActiveUsers = async () => {
   const result = await query(
-    "SELECT id, email, timezone FROM users WHERE is_active = true",
+    "SELECT id, email, timezone, report_freq, report_times FROM users WHERE is_active = true AND plan = 'active'",
     []
   );
   return result.rows;
@@ -22,26 +21,31 @@ const getActiveUsers = async () => {
 const runFullCycleForUser = async (userId) => {
   try {
     console.log(`[Worker] Iniciando ciclo para usuario ${userId}`);
-
-    // 1. Rodar motor de decisao
     const result = await runDecisionEngine(userId);
-
-    // 2. Enviar alertas para decisoes criticas
     for (const decision of result.critical) {
       await sendAlert(userId, decision);
     }
-
     console.log(`[Worker] Ciclo concluido para ${userId}: ${result.all.length} decisoes, ${result.critical.length} alertas`);
   } catch (error) {
     console.error(`[Worker] Erro no ciclo do usuario ${userId}:`, error.message);
   }
 };
 
-// Ciclo de analise automatica (a cada 15 minutos)
+// Verificar se o horario atual bate com algum horario agendado do usuario
+const shouldSendReportNow = (reportTimes, currentHour, currentMinute) => {
+  if (!reportTimes) return false;
+  const times = reportTimes.split(',').map(t => t.trim());
+  return times.some(t => {
+    const [h, m] = t.split(':').map(Number);
+    return h === currentHour && (m === currentMinute || (!m && currentMinute === 0));
+  });
+};
+
 const startSyncScheduler = () => {
-  // A cada 15 minutos: rodar motor de decisao para todos os usuarios
+
+  // ── A cada 15 minutos: motor de decisao ──────────────────────────────────
   cron.schedule('*/15 * * * *', async () => {
-    console.log('[Worker] Iniciando ciclo de analise automatica (15min)');
+    console.log('[Worker] Ciclo de analise automatica (15min)');
     const users = await getActiveUsers();
     for (const user of users) {
       await runFullCycleForUser(user.id);
@@ -49,41 +53,56 @@ const startSyncScheduler = () => {
     console.log(`[Worker] Ciclo concluido para ${users.length} usuarios`);
   });
 
-  // Todos os dias as 06:00 BRT (09:00 UTC): relatorio diario com IA
+  // ── A cada hora exata: relatorio IA (06:00 BRT = 09:00 UTC) ─────────────
   cron.schedule('0 9 * * *', async () => {
-    console.log('[Worker] Gerando relatorios diarios com IA (06:00 BRT)');
+    console.log('[Worker] Relatorio diario com IA (06:00 BRT)');
     const users = await getActiveUsers();
-
     for (const user of users) {
       try {
         const insights = await generateInsights(user.id, 7);
         const metrics  = await calculateOverview(user.id, 7);
         await sendDailyReport(user.id, metrics, insights);
-        console.log(`[Worker] Relatorio diario enviado para ${user.email}`);
+        console.log(`[Worker] Relatorio IA enviado: ${user.email}`);
       } catch (err) {
-        console.error(`[Worker] Erro relatorio diario ${user.email}:`, err.message);
+        console.error(`[Worker] Erro relatorio IA ${user.email}:`, err.message);
       }
     }
   });
 
-  // Todos os dias as 07:00 BRT (10:00 UTC): relatorio WhatsApp
-  cron.schedule('0 10 * * *', async () => {
-    console.log('[Worker] Enviando relatorios diarios via WhatsApp (07:00 BRT)');
-    const users = await getActiveUsers();
+  // ── A cada minuto: checar agendamento personalizado de WhatsApp ──────────
+  cron.schedule('* * * * *', async () => {
+    const now = new Date();
+    // Usar horario de Brasilia (UTC-3)
+    const brtHour   = (now.getUTCHours() - 3 + 24) % 24;
+    const brtMinute = now.getUTCMinutes();
 
+    // So processar no minuto 0 de cada hora (ex: 08:00, 14:00, 20:00)
+    if (brtMinute !== 0) return;
+
+    console.log(`[Worker] Verificando relatorios agendados para ${brtHour}:00 BRT`);
+
+    const users = await getActiveUsers();
     for (const user of users) {
+      if (!user.report_freq || user.report_freq === 0) continue;
+      if (!shouldSendReportNow(user.report_times, brtHour, 0)) continue;
+
       try {
         const sent = await sendDailyWhatsAppReport(user.id);
-        if (sent) console.log(`[Worker] WhatsApp report enviado: ${user.email}`);
+        if (sent) {
+          console.log(`[Worker] WhatsApp agendado enviado para ${user.email} as ${brtHour}:00 BRT`);
+        } else {
+          console.log(`[Worker] WhatsApp nao configurado para ${user.email} — pulando`);
+        }
       } catch (err) {
-        console.error(`[Worker] Erro WhatsApp report ${user.email}:`, err.message);
+        console.error(`[Worker] Erro WhatsApp ${user.email}:`, err.message);
       }
     }
   });
 
   console.log('[Worker] Schedulers iniciados:');
   console.log('  - Motor de decisao: a cada 15 minutos');
-  console.log('  - Relatorio diario com IA: 06:00 BRT');
+  console.log('  - Relatorio IA: 06:00 BRT');
+  console.log('  - Relatorio WhatsApp personalizado: verificacao a cada hora');
 };
 
 module.exports = { startSyncScheduler, runFullCycleForUser };
