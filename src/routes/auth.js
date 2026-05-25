@@ -149,9 +149,17 @@ router.post('/logout', requireAuth, async (req, res) => {
 // ─── PERFIL ────────────────────────────────────────────────────────────────
 // GET /api/auth/me
 router.get('/me', requireAuth, async (req, res) => {
-  const { id, email, name, plan, plan_status, trial_expires_at, plan_expires_at } = req.user;
+  const {
+    id, email, name, plan, plan_status,
+    trial_expires_at, plan_expires_at,
+    whatsapp, whatsapp_key, cpa_target, roas_target, timezone
+  } = req.user;
   res.json({
-    data: { id, email, name, plan, plan_status, trial_expires_at, plan_expires_at }
+    data: {
+      id, email, name, plan, plan_status,
+      trial_expires_at, plan_expires_at,
+      whatsapp, whatsapp_key, cpa_target, roas_target, timezone
+    }
   });
 });
 
