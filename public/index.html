@@ -2599,16 +2599,28 @@ function copyAffCopy(type) {
 function showTab(name) {
   document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  // Se for para aba de plano, esconde o overlay para o usuario conseguir pagar
-  if (name === 'plan') hidePlanLock();
-  if (name === 'affiliates') initAffiliateTab();
   document.getElementById(`tab-${name}`)?.classList.add('active');
   document.getElementById(`nav-${name}`)?.classList.add('active');
+
+  // Controle de acesso: só "Meu Plano" é liberado sem assinatura
+  if (_planStatus !== 'active') {
+    if (name === 'plan') {
+      hidePlanLock(); // permite ver Meu Plano para pagar
+    } else {
+      showPlanLock(); // bloqueia todas as outras abas
+      return; // não carrega conteúdo da aba
+    }
+  } else {
+    hidePlanLock();
+  }
+
+  if (name === 'affiliates') initAffiliateTab();
   if (name === 'decisions')   loadDecisionsTab();
   if (name === 'campaigns')   { loadCampAccountSelector().then(loadCampaigns); }
   if (name === 'alerts')      loadAlerts();
   if (name === 'benchmarks')  loadBenchmarks();
   if (name === 'settings')    loadSettings();
+  if (name === 'plan')        loadPlanTab();
   // creatives tab has no auto-load (it's a generator)
 }
 
