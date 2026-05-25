@@ -18,7 +18,7 @@ const requireAuth = async (req, res, next) => {
 
     const result = await query(
       `SELECT id, email, name, plan, timezone, whatsapp,
-              trial_expires_at, plan_expires_at
+              trial_expires_at, plan_expires_at, is_admin
        FROM users WHERE id = $1 AND is_active = true`,
       [decoded.userId]
     );
@@ -33,6 +33,13 @@ const requireAuth = async (req, res, next) => {
     const user = result.rows[0];
     const now = new Date();
 
+    // Admin tem acesso total sem verificacao de plano
+    if (user.is_admin) {
+      user.plan_status = 'active';
+      req.user = user;
+      return next();
+    }
+
     // Verificar se assinatura venceu
     if (user.plan === 'active' && user.plan_expires_at && new Date(user.plan_expires_at) < now) {
       user.plan = 'expired';
@@ -43,7 +50,6 @@ const requireAuth = async (req, res, next) => {
     if (user.plan === 'active') {
       user.plan_status = 'active';
     } else {
-      // trial, null, pending, expired — tudo vira 'pending' (precisa pagar)
       user.plan_status = 'pending';
     }
 
@@ -70,6 +76,9 @@ const requireAuth = async (req, res, next) => {
 
 // ─── VERIFICACAO DE PLANO ATIVO ──────────────────────────────────────────────
 const requireActivePlan = (req, res, next) => {
+  // Admin sempre passa
+  if (req.user?.is_admin) return next();
+
   const { plan_status } = req.user;
   if (plan_status !== 'active') {
     return res.status(402).json({
