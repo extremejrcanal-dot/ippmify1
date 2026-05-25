@@ -988,10 +988,10 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">🤝 Entre para o programa de afiliados</div>
         <div style="font-size:12px;color:var(--text3);margin-bottom:10px">Clique no link abaixo para se cadastrar como afiliado no Cakto. Após o cadastro, você receberá seu link único de afiliado para compartilhar e ganhar comissão recorrente.</div>
         <div class="aff-link-field">
-          <span class="aff-link-url" id="affLinkUrl">https://app.cakto.com.br/affiliate/invite/387e9627-0012-4ae7-ab1e-b6d63ea407ef</span>
+          <span class="aff-link-url" id="affLinkUrl">https://app.kirvano.com/affiliate/99c3a5da-5919-4a64-b408-0b5b137d227c</span>
           <button class="btn btn-blue btn-xs" onclick="copyAffLink()">📋 Copiar</button>
         </div>
-        <a href="https://app.cakto.com.br/affiliate/invite/387e9627-0012-4ae7-ab1e-b6d63ea407ef" target="_blank" class="btn btn-blue btn-sm" style="margin-top:10px;display:inline-block;text-decoration:none">🚀 Quero ser afiliado →</a>
+        <a href="https://app.kirvano.com/affiliate/99c3a5da-5919-4a64-b408-0b5b137d227c" target="_blank" class="btn btn-blue btn-sm" style="margin-top:10px;display:inline-block;text-decoration:none">🚀 Quero ser afiliado →</a>
         <div id="affLinkMsg" style="font-size:11px;color:var(--green);margin-top:6px;display:none">✅ Link copiado!</div>
       </div>
 
@@ -2300,7 +2300,7 @@ function logout() {
 
 // ─── APP INIT ────────────────────────────────────────────────────────────────
 let _planStatus = null;
-let _checkoutUrl = 'https://pay.cakto.com.br/d38vgho_897199';
+let _checkoutUrl = 'https://pay.kirvano.com/38e05652-22f6-494e-a97f-bd2e3f0aa034';
 
 async function initApp(user) {
   document.getElementById('authPage').style.display = 'none';
@@ -2456,7 +2456,7 @@ async function initAffiliateTab() {
   try {
     const { data } = await api('GET', '/api/auth/me');
     const userId = data?.id || 'user';
-    const link = `https://app.cakto.com.br/affiliate/invite/387e9627-0012-4ae7-ab1e-b6d63ea407ef`;
+    const link = `https://app.kirvano.com/affiliate/99c3a5da-5919-4a64-b408-0b5b137d227c`;
     const el = document.getElementById('affLinkUrl');
     if (el) el.textContent = link;
     // Stats placeholder (substituir por endpoint real quando disponível)
@@ -2468,7 +2468,7 @@ async function initAffiliateTab() {
     if (earn) earn.textContent = 'R$ 0,00';
   } catch(e) {
     const el = document.getElementById('affLinkUrl');
-    if (el) el.textContent = 'https://app.cakto.com.br/affiliate/invite/387e9627-0012-4ae7-ab1e-b6d63ea407ef';
+    if (el) el.textContent = 'https://app.kirvano.com/affiliate/99c3a5da-5919-4a64-b408-0b5b137d227c';
   }
 }
 
@@ -4150,7 +4150,7 @@ async function loadPlanTab() {
 }
 
 function openCaktoPortal() {
-  window.open('https://app.cakto.com.br/my-subscriptions', '_blank');
+  window.open('https://app.cakto.com.br', '_blank');
 }
 
 function openPlanSupport() {
