@@ -1609,24 +1609,15 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <button class="btn btn-green" onclick="sendWhatsAppReport()">📲 Enviar Agora</button>
         </div>
       </div>
-      <div class="card">
-        <div class="card-title">⏰ Envio Automático</div>
-        <p style="font-size:13px;color:var(--text2);line-height:1.7">
-          O IPPMIFY envia automaticamente o relatório de WhatsApp todo dia às <strong style="color:var(--text)">07:00 BRT</strong>.<br>
-          Para ativar, configure seu <strong style="color:var(--text)">número de WhatsApp</strong> e a <strong style="color:var(--text)">CallMeBot API Key</strong> nas Configurações.
-        </p>
-      </div>
-    </div>
-
       <!-- Agendamento de Relatório Automático WhatsApp -->
       <div style="max-width:640px;margin-top:24px;">
         <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px;">📅 Relatório Automático via WhatsApp</div>
-        <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:20px;">
-          <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Configure quantas vezes por dia você quer receber o relatório automático no WhatsApp.</div>
-          
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;">
+          <div style="font-size:13px;color:var(--text2);margin-bottom:16px;">Configure quantas vezes por dia você quer receber o relatório automático no WhatsApp.</div>
+
           <div style="margin-bottom:16px;">
-            <label style="font-size:12px;color:var(--text-muted);font-weight:600;display:block;margin-bottom:8px;">Frequência diária</label>
-            <select id="reportFreqSelect" onchange="updateReportTimeSlots()" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;width:100%;font-family:'Montserrat',sans-serif;">
+            <label style="font-size:12px;color:var(--text2);font-weight:600;display:block;margin-bottom:8px;">Frequência diária</label>
+            <select id="reportFreqSelect" onchange="updateReportTimeSlots()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;width:100%;font-family:'Montserrat',sans-serif;outline:none;">
               <option value="0">Desativado</option>
               <option value="1">1x por dia</option>
               <option value="2">2x por dia</option>
@@ -1635,15 +1626,16 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           </div>
 
           <div id="reportTimeSlots" style="display:none;margin-bottom:16px;">
-            <label style="font-size:12px;color:var(--text-muted);font-weight:600;display:block;margin-bottom:8px;">Horários de envio</label>
+            <label style="font-size:12px;color:var(--text2);font-weight:600;display:block;margin-bottom:8px;">Horários de envio</label>
             <div id="reportTimeSlotsInputs" style="display:flex;flex-direction:column;gap:8px;"></div>
           </div>
 
-          <button class="btn btn-blue btn-sm" onclick="saveReportSchedule()" style="width:100%;padding:11px;">💾 Salvar agendamento</button>
+          <button class="btn btn-blue" onclick="saveReportSchedule()" style="width:100%;padding:11px;">💾 Salvar agendamento</button>
           <div id="reportScheduleMsg" style="margin-top:8px;font-size:12px;text-align:center;"></div>
         </div>
       </div>
-    
+    </div>
+
     <!-- ── IA INSIGHTS ── -->
     <div id="tab-insights" class="tab-page">
       <div class="page-header">
@@ -4207,7 +4199,7 @@ async function loadPlanTab() {
       title.textContent = 'Assinatura ativa';
       const days = daysLeft(plan_expires_at);
       sub.textContent = `Seu plano renova automaticamente via Pix ou cartão. Próxima cobrança em ${days} dia${days!==1?'s':''} (${fmtDate(plan_expires_at)}).`;
-      actions.innerHTML = `<button class="btn btn-ghost" onclick="openCaktoPortal()" style="padding:11px 24px;">Gerenciar assinatura →</button>`;
+      actions.innerHTML = `<button class="btn btn-ghost" onclick="window.open(_checkoutUrl,'_blank')" style="padding:11px 24px;">Gerenciar assinatura →</button>`;
       cStatus.textContent = 'Ativo';
       cStatus.style.color = 'var(--green)';
       cStatusS.textContent = 'renovação automática';
@@ -4266,7 +4258,7 @@ async function saveReportSchedule() {
 }
 
 function openCaktoPortal() {
-  window.open('https://app.cakto.com.br', '_blank');
+  window.open(_checkoutUrl, '_blank');
 }
 
 function openPlanSupport() {
