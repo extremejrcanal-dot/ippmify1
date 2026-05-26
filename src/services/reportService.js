@@ -165,19 +165,26 @@ const generateWhatsAppMessage = async (userId, days = 7) => {
 
 // ─── ENVIAR VIA CALLMEBOT WHATSAPP ─────────────────────────────────────────
 const sendWhatsApp = async (phone, apiKey, message) => {
-  if (!phone || !apiKey) throw new Error('WhatsApp e API Key não configurados');
+  if (!phone || !apiKey) throw new Error('WhatsApp e API Key nao configurados');
   let cleanPhone = phone.replace(/\D/g, '');
   // Auto-adiciona DDI 55 (Brasil) se numero tiver 10 ou 11 digitos (sem codigo do pais)
   if (cleanPhone.length === 10 || cleanPhone.length === 11) {
     cleanPhone = '55' + cleanPhone;
   }
   console.log(`[Report] Enviando WhatsApp para ${cleanPhone} (original: ${phone})`);
-  const response = await axios.get('https://api.callmebot.com/whatsapp.php', {
-    params: { phone: cleanPhone, text: message, apikey: apiKey },
-    timeout: 15000,
-  });
-  console.log(`[Report] CallMeBot resposta: ${JSON.stringify(response.data)}`);
-  return response.data;
+  try {
+    const response = await axios.get('https://api.callmebot.com/whatsapp.php', {
+      params: { phone: cleanPhone, text: message, apikey: apiKey },
+      timeout: 15000,
+    });
+    console.log(`[Report] CallMeBot resposta: ${JSON.stringify(response.data)}`);
+    return response.data;
+  } catch (err) {
+    if (err.response?.status === 503) {
+      throw new Error('Aguarde 1 minuto entre envios. O CallMeBot limita 1 mensagem por minuto.');
+    }
+    throw err;
+  }
 };
 
 // ─── ENVIAR RELATORIO DIARIO VIA WA (para ser chamado pelo worker) ──────────
