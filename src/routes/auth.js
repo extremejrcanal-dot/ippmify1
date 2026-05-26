@@ -106,6 +106,38 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// ─── ESQUECEU A SENHA ──────────────────────────────────────────────────────
+// POST /api/auth/forgot-password
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email obrigatorio' });
+
+    const result = await query(
+      'SELECT id, name FROM users WHERE email = $1 AND is_active = true',
+      [email.toLowerCase()]
+    );
+
+    if (result.rows.length === 0) {
+      return res.json({ message: 'Instrucoes enviadas.' });
+    }
+
+    const user = result.rows[0];
+    const crypto = require('crypto');
+    const resetToken = crypto.randomBytes(32).toString('hex');
+
+    console.log(`[Auth] Reset de senha para: ${email} | Token: ${resetToken} | User: ${user.name}`);
+
+    // TODO: integrar envio de email (Resend/SendGrid)
+    // Por enquanto o token aparece nos logs do Railway para o admin resetar manualmente
+    res.json({ message: 'Instrucoes enviadas.' });
+
+  } catch (error) {
+    console.error('[Auth] Forgot password erro:', error.message);
+    res.json({ message: 'Instrucoes enviadas.' });
+  }
+});
+
 // ─── RENOVAR TOKEN ─────────────────────────────────────────────────────────
 // POST /api/auth/refresh
 router.post('/refresh', async (req, res) => {
