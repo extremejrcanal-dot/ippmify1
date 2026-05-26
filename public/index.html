@@ -670,6 +670,31 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
     </div>
 
+    <!-- Tela de nova senha (acessada pelo link do email ?reset=TOKEN) -->
+    <div id="resetPasswordForm" style="display:none;">
+      <div style="text-align:center;margin-bottom:16px;">
+        <div style="font-size:28px;margin-bottom:8px;">🔐</div>
+        <div style="font-size:16px;font-weight:700;color:var(--text);">Criar nova senha</div>
+        <div style="font-size:13px;color:var(--text3);margin-top:6px;">Digite sua nova senha abaixo.</div>
+      </div>
+      <div class="form-group">
+        <label>Nova senha (mínimo 8 caracteres)</label>
+        <div style="position:relative;">
+          <input type="password" id="resetNewPassword" placeholder="••••••••" style="padding-right:44px;width:100%;box-sizing:border-box;">
+          <button type="button" onclick="togglePasswordVisibility('resetNewPassword', this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;padding:0;line-height:1;">👁</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Confirmar nova senha</label>
+        <div style="position:relative;">
+          <input type="password" id="resetConfirmPassword" placeholder="••••••••" style="padding-right:44px;width:100%;box-sizing:border-box;">
+          <button type="button" onclick="togglePasswordVisibility('resetConfirmPassword', this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;padding:0;line-height:1;">👁</button>
+        </div>
+      </div>
+      <div id="resetMsg"></div>
+      <button class="btn btn-primary" onclick="submitResetPassword()">Salvar nova senha</button>
+    </div>
+
   </div>
 </div>
 
@@ -2401,6 +2426,57 @@ function showForgotPassword() {
 function showLoginForm() {
   document.getElementById('forgotPasswordForm').style.display = 'none';
   document.getElementById('loginForm').style.display          = 'block';
+}
+
+// Token de reset lido da URL (?reset=TOKEN)
+let _resetToken = null;
+
+function showResetForm(token) {
+  _resetToken = token;
+  // Esconde tudo e mostra apenas o formulário de nova senha
+  document.getElementById('loginForm').style.display          = 'none';
+  document.getElementById('registerForm').style.display       = 'none';
+  document.getElementById('forgotPasswordForm').style.display = 'none';
+  document.getElementById('registerSuccess').style.display    = 'none';
+  document.getElementById('resetPasswordForm').style.display  = 'block';
+  // Esconde as abas de login/registro (ficam sem sentido neste estado)
+  const tabs = document.querySelector('.auth-tabs');
+  if (tabs) tabs.style.display = 'none';
+}
+
+async function submitResetPassword() {
+  const password  = document.getElementById('resetNewPassword').value;
+  const confirm   = document.getElementById('resetConfirmPassword').value;
+  const msgEl     = document.getElementById('resetMsg');
+
+  if (!password || password.length < 8) {
+    msgEl.innerHTML = '<div class="alert alert-error">A senha deve ter pelo menos 8 caracteres.</div>';
+    return;
+  }
+  if (password !== confirm) {
+    msgEl.innerHTML = '<div class="alert alert-error">As senhas não coincidem.</div>';
+    return;
+  }
+  if (!_resetToken) {
+    msgEl.innerHTML = '<div class="alert alert-error">Token inválido. Solicite um novo link.</div>';
+    return;
+  }
+
+  try {
+    await api('POST', '/api/auth/reset-password', { token: _resetToken, password });
+    msgEl.innerHTML = '<div class="alert alert-success">✅ Senha redefinida com sucesso! Redirecionando para o login...</div>';
+    // Limpa o token da URL e vai para login após 2s
+    setTimeout(() => {
+      history.replaceState(null, '', window.location.pathname);
+      _resetToken = null;
+      document.getElementById('resetPasswordForm').style.display = 'none';
+      const tabs = document.querySelector('.auth-tabs');
+      if (tabs) tabs.style.display = '';
+      document.getElementById('loginForm').style.display = 'block';
+    }, 2500);
+  } catch(e) {
+    msgEl.innerHTML = `<div class="alert alert-error">${e.message || 'Erro ao redefinir senha. Solicite um novo link.'}</div>`;
+  }
 }
 
 async function sendForgotPassword() {
@@ -4428,7 +4504,16 @@ function openPlanSupport() {
 }
 
 // ─── INICIALIZAR ─────────────────────────────────────────────────────────────
-if (token) {
+// Detecta link de redefinição de senha (?reset=TOKEN)
+const _urlParams     = new URLSearchParams(window.location.search);
+const _resetTokenUrl = _urlParams.get('reset');
+
+if (_resetTokenUrl) {
+  // Mostra a tela de authPage com o formulário de nova senha
+  document.getElementById('authPage').style.display = 'flex';
+  document.getElementById('appPage').style.display  = 'none';
+  showResetForm(_resetTokenUrl);
+} else if (token) {
   const user = JSON.parse(localStorage.getItem('ippmify_user')||'{}');
   if (user.name || user.email) initApp(user);
 }
