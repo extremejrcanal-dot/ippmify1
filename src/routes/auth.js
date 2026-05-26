@@ -1,11 +1,56 @@
-const express = require('express');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { query } = require('../config/database');
+const express    = require('express');
+const bcrypt     = require('bcryptjs');
+const jwt        = require('jsonwebtoken');
+const crypto     = require('crypto');
+const nodemailer = require('nodemailer');
+const { query }  = require('../config/database');
 const { setEx, get, del } = require('../config/redis');
 const { generateTokens, requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
+
+// ─── MAILER ────────────────────────────────────────────────────────────────
+const createMailer = () => nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'ippmify@gmail.com',
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+});
+
+const sendResetEmail = async (toEmail, toName, resetUrl) => {
+  const mailer = createMailer();
+  await mailer.sendMail({
+    from: '"IPPMIFY" <ippmify@gmail.com>',
+    to: toEmail,
+    subject: 'Redefinir sua senha — IPPMIFY',
+    html: `
+      <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;background:#0D1B2A;color:#E6F0FF;border-radius:12px;overflow:hidden;">
+        <div style="background:#146EF5;padding:24px 32px;">
+          <div style="font-size:22px;font-weight:800;letter-spacing:2px;">IPPMIFY</div>
+          <div style="font-size:12px;opacity:.7;margin-top:4px;">Profit Intelligence System</div>
+        </div>
+        <div style="padding:32px;">
+          <div style="font-size:18px;font-weight:700;margin-bottom:12px;">Olá, ${toName}!</div>
+          <p style="color:#8BA3BC;line-height:1.6;margin-bottom:24px;">
+            Recebemos uma solicitação para redefinir a senha da sua conta IPPMIFY.<br>
+            Clique no botão abaixo para criar uma nova senha. O link expira em <strong style="color:#E6F0FF;">1 hora</strong>.
+          </p>
+          <a href="${resetUrl}" style="display:inline-block;background:#146EF5;color:#fff;text-decoration:none;padding:14px 28px;border-radius:10px;font-weight:700;font-size:15px;">
+            🔑 Redefinir minha senha
+          </a>
+          <p style="color:#4A6580;font-size:12px;margin-top:24px;line-height:1.6;">
+            Se você não solicitou a redefinição, ignore este email — sua senha permanece a mesma.<br>
+            Por segurança, nunca compartilhe este link com ninguém.
+          </p>
+        </div>
+        <div style="padding:16px 32px;border-top:1px solid #1E3A5F;font-size:11px;color:#4A6580;text-align:center;">
+          IPPMIFY · ippmify@gmail.com
+        </div>
+      </div>
+    `,
+  });
+};
 
 // ─── REGISTRO ──────────────────────────────────────────────────────────────
 // POST /api/auth/register
@@ -109,32 +154,79 @@ router.post('/login', async (req, res) => {
 // ─── ESQUECEU A SENHA ──────────────────────────────────────────────────────
 // POST /api/auth/forgot-password
 router.post('/forgot-password', async (req, res) => {
+  // Sempre responde com sucesso (nao revela se email existe)
+  res.json({ message: 'Se esse email estiver cadastrado, voce recebera as instrucoes em breve.' });
+
   try {
     const { email } = req.body;
-    if (!email) return res.status(400).json({ error: 'Email obrigatorio' });
+    if (!email) return;
 
     const result = await query(
       'SELECT id, name FROM users WHERE email = $1 AND is_active = true',
       [email.toLowerCase()]
     );
+    if (result.rows.length === 0) return;
 
-    if (result.rows.length === 0) {
-      return res.json({ message: 'Instrucoes enviadas.' });
-    }
-
-    const user = result.rows[0];
-    const crypto = require('crypto');
+    const user       = result.rows[0];
     const resetToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt  = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
 
-    console.log(`[Auth] Reset de senha para: ${email} | Token: ${resetToken} | User: ${user.name}`);
+    // Salva token no banco
+    await query(
+      `UPDATE users SET reset_token = $1, reset_token_expires = $2 WHERE id = $3`,
+      [resetToken, expiresAt, user.id]
+    );
 
-    // TODO: integrar envio de email (Resend/SendGrid)
-    // Por enquanto o token aparece nos logs do Railway para o admin resetar manualmente
-    res.json({ message: 'Instrucoes enviadas.' });
+    const appUrl  = process.env.APP_URL || 'https://ippmify.com';
+    const resetUrl = `${appUrl}/app?reset=${resetToken}`;
+
+    await sendResetEmail(email.toLowerCase(), user.name, resetUrl);
+    console.log(`[Auth] Email de reset enviado para: ${email}`);
 
   } catch (error) {
-    console.error('[Auth] Forgot password erro:', error.message);
-    res.json({ message: 'Instrucoes enviadas.' });
+    console.error('[Auth] Erro ao enviar email de reset:', error.message);
+  }
+});
+
+// ─── REDEFINIR SENHA ───────────────────────────────────────────────────────
+// POST /api/auth/reset-password
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      return res.status(400).json({ error: 'Token e nova senha sao obrigatorios' });
+    }
+    if (password.length < 8) {
+      return res.status(400).json({ error: 'A senha deve ter pelo menos 8 caracteres' });
+    }
+
+    const result = await query(
+      `SELECT id, email FROM users
+       WHERE reset_token = $1
+         AND reset_token_expires > NOW()
+         AND is_active = true`,
+      [token]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({ error: 'Link invalido ou expirado. Solicite um novo.' });
+    }
+
+    const user         = result.rows[0];
+    const passwordHash = await bcrypt.hash(password, 12);
+
+    await query(
+      `UPDATE users SET password_hash = $1, reset_token = NULL, reset_token_expires = NULL WHERE id = $2`,
+      [passwordHash, user.id]
+    );
+
+    console.log(`[Auth] Senha redefinida para: ${user.email}`);
+    res.json({ message: 'Senha redefinida com sucesso! Faca login com a nova senha.' });
+
+  } catch (error) {
+    console.error('[Auth] Erro ao redefinir senha:', error.message);
+    res.status(500).json({ error: 'Erro ao redefinir senha. Tente novamente.' });
   }
 });
 
