@@ -165,12 +165,17 @@ const generateWhatsAppMessage = async (userId, days = 7) => {
 // ─── ENVIAR VIA CALLMEBOT WHATSAPP ─────────────────────────────────────────
 const sendWhatsApp = async (phone, apiKey, message) => {
   if (!phone || !apiKey) throw new Error('WhatsApp e API Key não configurados');
-  const cleanPhone = phone.replace(/\D/g, '');
+  let cleanPhone = phone.replace(/\D/g, '');
+  // Auto-adiciona DDI 55 (Brasil) se numero tiver 10 ou 11 digitos (sem codigo do pais)
+  if (cleanPhone.length === 10 || cleanPhone.length === 11) {
+    cleanPhone = '55' + cleanPhone;
+  }
+  console.log(`[Report] Enviando WhatsApp para ${cleanPhone} (original: ${phone})`);
   const response = await axios.get('https://api.callmebot.com/whatsapp.php', {
     params: { phone: cleanPhone, text: message, apikey: apiKey },
-    timeout: 12000,
+    timeout: 15000,
   });
-  console.log(`[Report] WhatsApp enviado para ${cleanPhone}`);
+  console.log(`[Report] CallMeBot resposta: ${JSON.stringify(response.data)}`);
   return response.data;
 };
 
