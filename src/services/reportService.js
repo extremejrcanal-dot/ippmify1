@@ -140,25 +140,26 @@ const generateWhatsAppMessage = async (userId, days = 7) => {
   const dateStr    = new Date().toLocaleDateString('pt-BR');
   const roasEmoji  = overview.roas >= 2 ? '🟢' : overview.roas >= 1 ? '🟡' : '🔴';
 
-  let msg = `📊 *IPPMIFY — Relatório Diário*\n`;
-  msg    += `📅 ${dateStr} · Últimos ${days} dias\n`;
-  msg    += `━━━━━━━━━━━━━━━━━\n`;
+  const sep = `-----------------`;
+  let msg = `📊 *IPPMIFY - Relatorio Diario*\n`;
+  msg    += `📅 ${dateStr} - Ultimos ${days} dias\n`;
+  msg    += `${sep}\n`;
   msg    += `💸 *Gasto:*      ${brl(overview.spend)}\n`;
   msg    += `💰 *Receita:*    ${brl(overview.revenue)}\n`;
   msg    += `📈 *Lucro:*      ${profSign}${brl(overview.profit)}\n`;
   msg    += `${roasEmoji} *ROAS:*       ${Number(overview.roas).toFixed(2)}x\n`;
   msg    += `💡 *CPA:*        ${brl(overview.cpa)}\n`;
-  msg    += `🛒 *Conversões:* ${overview.conversions}\n`;
+  msg    += `🛒 *Conversoes:* ${overview.conversions}\n`;
   msg    += `📊 *ROI:*        ${profSign}${Number(overview.roi_pct).toFixed(1)}%\n`;
   if (topCamp) {
     const tp = topCamp.revenue - topCamp.spend;
-    msg += `━━━━━━━━━━━━━━━━━\n`;
+    msg += `${sep}\n`;
     msg += `📢 *Top Campanha:*\n`;
     msg += `   ${(topCamp.campaign_name||'').substring(0,28)}\n`;
-    msg += `   ROAS ${Number(topCamp.roas).toFixed(2)}x · Lucro ${brl(tp)}\n`;
+    msg += `   ROAS ${Number(topCamp.roas).toFixed(2)}x - Lucro ${brl(tp)}\n`;
   }
-  msg += `━━━━━━━━━━━━━━━━━\n`;
-  msg += `_Gerado automaticamente pelo IPPMIFY_`;
+  msg += `${sep}\n`;
+  msg += `_Gerado pelo IPPMIFY_`;
   return msg;
 };
 
