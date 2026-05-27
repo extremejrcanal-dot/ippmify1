@@ -586,6 +586,134 @@ details summary::-webkit-details-marker{display:none;}
 details[open] summary::before{content:'▼';}
 details summary::before{content:'▶';font-size:10px;}
 details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radius:10px;border:1px solid var(--border);}
+
+/* ══════════════════════════════════════════════════════
+   MOBILE RESPONSIVO (≤ 768px) — nao afeta desktop
+══════════════════════════════════════════════════════ */
+
+/* Botao hamburguer — visivel so no mobile */
+#mobileMenuBtn{
+  display:none;
+  position:fixed;
+  top:14px;left:14px;
+  z-index:200;
+  background:var(--blue);
+  border:none;
+  border-radius:10px;
+  width:42px;height:42px;
+  cursor:pointer;
+  align-items:center;
+  justify-content:center;
+  font-size:20px;
+  color:#fff;
+  box-shadow:0 4px 16px #146ef540;
+}
+
+/* Overlay escuro ao abrir sidebar no mobile */
+#sidebarOverlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  z-index:99;
+}
+
+@media (max-width: 768px) {
+
+  /* Botao hamburguer aparece */
+  #mobileMenuBtn { display:flex; }
+
+  /* Sidebar fica escondida por padrao e desliza da esquerda */
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform .3s ease;
+    z-index: 150;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* Overlay aparece quando sidebar esta aberta */
+  #sidebarOverlay.open { display:block; }
+
+  /* Conteudo principal ocupa a tela toda */
+  .main {
+    margin-left: 0 !important;
+    padding: 16px 12px;
+    padding-top: 70px; /* espaco para o botao hamburguer */
+  }
+
+  /* Auth box ocupa mais espaco */
+  .auth-box {
+    padding: 28px 20px;
+    margin: 16px;
+    max-width: 100%;
+  }
+
+  /* Metricas: 2 colunas no mobile */
+  .metrics-row {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px;
+  }
+
+  /* Grids dashboard: 1 coluna */
+  .dash-grid-2,
+  .dash-grid-3,
+  .dash-grid-bot {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Campanhas KPIs: 2 colunas */
+  .camp-kpis {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px;
+  }
+
+  /* Page header empilha em vez de lado a lado */
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .page-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  /* Cards com menos padding */
+  .card, .metric-card {
+    padding: 14px;
+  }
+
+  /* Titulos menores */
+  .page-title { font-size: 18px; }
+  .metric-card .mc-value { font-size: 18px; }
+
+  /* Tabela de campanhas: scroll horizontal */
+  .top-camp-table-wrap, .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Fonte menor nas tabelas */
+  .top-camp-table th,
+  .top-camp-table td {
+    font-size: 11px;
+    padding: 8px 6px;
+  }
+
+  /* Trial banner mais compacto */
+  .trial-banner {
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+  }
+
+  /* Botoes menores */
+  .btn { font-size: 13px; padding: 10px 16px; }
+  .btn-sm { font-size: 11px; padding: 6px 12px; }
+}
 </style>
 </head>
 <body>
@@ -750,8 +878,13 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
 ══════════════════════════════════════════════════ -->
 <div id="appPage" style="display:none">
 
+  <!-- Botao hamburguer (mobile) -->
+  <button id="mobileMenuBtn" onclick="toggleMobileSidebar()" aria-label="Menu">☰</button>
+  <!-- Overlay escuro ao abrir sidebar no mobile -->
+  <div id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
   <!-- SIDEBAR -->
-  <aside class="sidebar">
+  <aside class="sidebar" id="mainSidebar">
     <div class="sidebar-logo">
       <div class="logo-wrap">
         <div class="logo-icon-wrap">📊</div>
@@ -4497,6 +4630,35 @@ async function saveReportSchedule() {
 function openCaktoPortal() {
   window.open(_checkoutUrl, '_blank');
 }
+
+// ─── MOBILE SIDEBAR ──────────────────────────────────────────────────────────
+function toggleMobileSidebar() {
+  const sidebar  = document.getElementById('mainSidebar');
+  const overlay  = document.getElementById('sidebarOverlay');
+  const btn      = document.getElementById('mobileMenuBtn');
+  const isOpen   = sidebar.classList.contains('open');
+  if (isOpen) {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
+    btn.textContent = '☰';
+  } else {
+    sidebar.classList.add('open');
+    overlay.classList.add('open');
+    btn.textContent = '✕';
+  }
+}
+
+function closeMobileSidebar() {
+  document.getElementById('mainSidebar')?.classList.remove('open');
+  document.getElementById('sidebarOverlay')?.classList.remove('open');
+  const btn = document.getElementById('mobileMenuBtn');
+  if (btn) btn.textContent = '☰';
+}
+
+// Fechar sidebar ao navegar (mobile)
+document.addEventListener('click', (e) => {
+  if (e.target.closest('.nav-item')) closeMobileSidebar();
+});
 
 function openPlanSupport() {
   const msg = encodeURIComponent('Olá! Preciso de ajuda com minha assinatura do IPPMIFY.');
