@@ -182,8 +182,8 @@ router.post('/forgot-password', async (req, res) => {
       [resetToken, expiresAt, user.id]
     );
 
-    const appUrl  = process.env.APP_URL || 'https://ippmify.com';
-    const resetUrl = `${appUrl}/app?reset=${resetToken}`;
+    const appUrl  = process.env.APP_URL || 'https://ippmify1-production.up.railway.app';
+    const resetUrl = `${appUrl}/?reset=${resetToken}`;
 
     await sendResetEmail(email.toLowerCase(), user.name, resetUrl);
     console.log(`[Auth] Email de reset enviado para: ${email}`);
