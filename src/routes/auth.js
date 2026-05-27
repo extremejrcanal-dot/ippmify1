@@ -1,55 +1,60 @@
-const express    = require('express');
-const bcrypt     = require('bcryptjs');
-const jwt        = require('jsonwebtoken');
-const crypto     = require('crypto');
-const nodemailer = require('nodemailer');
+const express  = require('express');
+const bcrypt   = require('bcryptjs');
+const jwt      = require('jsonwebtoken');
+const crypto   = require('crypto');
+const axios    = require('axios');
 const { query }  = require('../config/database');
 const { setEx, get, del } = require('../config/redis');
 const { generateTokens, requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
-// ─── MAILER ────────────────────────────────────────────────────────────────
-const createMailer = () => nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'ippmify@gmail.com',
-    pass: process.env.GMAIL_APP_PASSWORD,
-  },
-});
-
+// ─── MAILER (Resend — HTTP API, funciona no Railway) ───────────────────────
 const sendResetEmail = async (toEmail, toName, resetUrl) => {
-  const mailer = createMailer();
-  await mailer.sendMail({
-    from: '"IPPMIFY" <ippmify@gmail.com>',
-    to: toEmail,
-    subject: 'Redefinir sua senha — IPPMIFY',
-    html: `
-      <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;background:#0D1B2A;color:#E6F0FF;border-radius:12px;overflow:hidden;">
-        <div style="background:#146EF5;padding:24px 32px;">
-          <div style="font-size:22px;font-weight:800;letter-spacing:2px;">IPPMIFY</div>
-          <div style="font-size:12px;opacity:.7;margin-top:4px;">Profit Intelligence System</div>
-        </div>
-        <div style="padding:32px;">
-          <div style="font-size:18px;font-weight:700;margin-bottom:12px;">Olá, ${toName}!</div>
-          <p style="color:#8BA3BC;line-height:1.6;margin-bottom:24px;">
-            Recebemos uma solicitação para redefinir a senha da sua conta IPPMIFY.<br>
-            Clique no botão abaixo para criar uma nova senha. O link expira em <strong style="color:#E6F0FF;">1 hora</strong>.
-          </p>
-          <a href="${resetUrl}" style="display:inline-block;background:#146EF5;color:#fff;text-decoration:none;padding:14px 28px;border-radius:10px;font-weight:700;font-size:15px;">
-            🔑 Redefinir minha senha
-          </a>
-          <p style="color:#4A6580;font-size:12px;margin-top:24px;line-height:1.6;">
-            Se você não solicitou a redefinição, ignore este email — sua senha permanece a mesma.<br>
-            Por segurança, nunca compartilhe este link com ninguém.
-          </p>
-        </div>
-        <div style="padding:16px 32px;border-top:1px solid #1E3A5F;font-size:11px;color:#4A6580;text-align:center;">
-          IPPMIFY · ippmify@gmail.com
-        </div>
+  const html = `
+    <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;background:#0D1B2A;color:#E6F0FF;border-radius:12px;overflow:hidden;">
+      <div style="background:#146EF5;padding:24px 32px;">
+        <div style="font-size:22px;font-weight:800;letter-spacing:2px;">IPPMIFY</div>
+        <div style="font-size:12px;opacity:.7;margin-top:4px;">Profit Intelligence System</div>
       </div>
-    `,
-  });
+      <div style="padding:32px;">
+        <div style="font-size:18px;font-weight:700;margin-bottom:12px;">Ola, ${toName}!</div>
+        <p style="color:#8BA3BC;line-height:1.6;margin-bottom:24px;">
+          Recebemos uma solicitacao para redefinir a senha da sua conta IPPMIFY.<br>
+          Clique no botao abaixo para criar uma nova senha. O link expira em <strong style="color:#E6F0FF;">1 hora</strong>.
+        </p>
+        <a href="${resetUrl}" style="display:inline-block;background:#146EF5;color:#fff;text-decoration:none;padding:14px 28px;border-radius:10px;font-weight:700;font-size:15px;">
+          Redefinir minha senha
+        </a>
+        <p style="color:#4A6580;font-size:12px;margin-top:24px;line-height:1.6;">
+          Se voce nao solicitou a redefinicao, ignore este email - sua senha permanece a mesma.<br>
+          Por seguranca, nunca compartilhe este link com ninguem.
+        </p>
+      </div>
+      <div style="padding:16px 32px;border-top:1px solid #1E3A5F;font-size:11px;color:#4A6580;text-align:center;">
+        IPPMIFY - ippmify@gmail.com
+      </div>
+    </div>
+  `;
+
+  const response = await axios.post(
+    'https://api.resend.com/emails',
+    {
+      from:    'IPPMIFY <onboarding@resend.dev>',
+      to:      [toEmail],
+      subject: 'Redefinir sua senha - IPPMIFY',
+      html,
+    },
+    {
+      headers: {
+        'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+        'Content-Type':  'application/json',
+      },
+      timeout: 10000,
+    }
+  );
+
+  console.log(`[Auth] Resend resposta: ${response.status} - id: ${response.data?.id}`);
 };
 
 // ─── REGISTRO ──────────────────────────────────────────────────────────────
