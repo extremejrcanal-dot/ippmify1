@@ -9,9 +9,15 @@ const { sendDailyWhatsAppReport } = require('../services/reportService');
 // ─── WORKER DE SINCRONIZACAO E AUTOMACAO ─────────────────────────────────────
 
 // Buscar todos os usuarios ativos com plano ativo
+// Espelha a logica do middleware: plan='active' nao expirado, OU is_admin=true
 const getActiveUsers = async () => {
   const result = await query(
-    "SELECT id, email, timezone, report_freq, report_times FROM users WHERE is_active = true AND plan = 'active'",
+    `SELECT id, email, timezone, report_freq, report_times FROM users
+     WHERE is_active = true
+       AND (
+         is_admin = true
+         OR (plan = 'active' AND (plan_expires_at IS NULL OR plan_expires_at > NOW()))
+       )`,
     []
   );
   return result.rows;
