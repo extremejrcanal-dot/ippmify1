@@ -947,16 +947,14 @@ router.patch('/:id/toggle', requireAuth, async (req, res) => {
 
 // Remover integracao
 // DELETE /api/integrations/:id
+// Remover integracao
+// DELETE /api/integrations/:id
 router.delete('/:id', requireAuth, async (req, res) => {
   await query(
     'DELETE FROM integrations WHERE id = $1 AND user_id = $2',
     [req.params.id, req.user.id]
   );
   res.json({ message: 'Integracao removida' });
-});
-
-module.exports = router;
-});
 });
 
 module.exports = router;
