@@ -354,10 +354,10 @@ const findIntegration = async (platform, webhookKey = null) => {
 router.post('/eduzz/connect', requireAuth, async (req, res) => {
   try {
     const { public_key } = req.body;
+    await query(`DELETE FROM integrations WHERE user_id=$1 AND platform='eduzz'`, [req.user.id]);
     await query(
       `INSERT INTO integrations (user_id, platform, account_name, account_id, is_active)
-       VALUES ($1, 'eduzz', 'Eduzz', $2, true)
-       ON CONFLICT (user_id, platform) DO UPDATE SET account_id = $2, is_active = true`,
+       VALUES ($1, 'eduzz', 'Eduzz', $2, true)`,
       [req.user.id, public_key || null]
     );
     res.json({ message: 'Eduzz configurado! Adicione a URL do webhook no painel Eduzz.' });
@@ -404,12 +404,8 @@ router.post('/webhook/eduzz', async (req, res) => {
 
 router.post('/monetizze/connect', requireAuth, async (req, res) => {
   try {
-    await query(
-      `INSERT INTO integrations (user_id, platform, account_name, is_active)
-       VALUES ($1, 'monetizze', 'Monetizze', true)
-       ON CONFLICT (user_id, platform) DO UPDATE SET is_active = true`,
-      [req.user.id]
-    );
+    await query(`DELETE FROM integrations WHERE user_id=$1 AND platform='monetizze'`, [req.user.id]);
+    await query(`INSERT INTO integrations (user_id, platform, account_name, is_active) VALUES ($1, 'monetizze', 'Monetizze', true)`, [req.user.id]);
     res.json({ message: 'Monetizze configurado! Adicione a URL do webhook no painel Monetizze.' });
   } catch (error) {
     res.status(500).json({ error: 'Erro ao configurar Monetizze' });
@@ -457,12 +453,8 @@ router.post('/webhook/monetizze', async (req, res) => {
 
 router.post('/braip/connect', requireAuth, async (req, res) => {
   try {
-    await query(
-      `INSERT INTO integrations (user_id, platform, account_name, is_active)
-       VALUES ($1, 'braip', 'Braip', true)
-       ON CONFLICT (user_id, platform) DO UPDATE SET is_active = true`,
-      [req.user.id]
-    );
+    await query(`DELETE FROM integrations WHERE user_id=$1 AND platform='braip'`, [req.user.id]);
+    await query(`INSERT INTO integrations (user_id, platform, account_name, is_active) VALUES ($1, 'braip', 'Braip', true)`, [req.user.id]);
     res.json({ message: 'Braip configurado! Adicione a URL do webhook no painel Braip.' });
   } catch (error) {
     res.status(500).json({ error: 'Erro ao configurar Braip' });
@@ -509,12 +501,8 @@ router.post('/webhook/braip', async (req, res) => {
 
 router.post('/perfectpay/connect', requireAuth, async (req, res) => {
   try {
-    await query(
-      `INSERT INTO integrations (user_id, platform, account_name, is_active)
-       VALUES ($1, 'perfectpay', 'PerfectPay', true)
-       ON CONFLICT (user_id, platform) DO UPDATE SET is_active = true`,
-      [req.user.id]
-    );
+    await query(`DELETE FROM integrations WHERE user_id=$1 AND platform='perfectpay'`, [req.user.id]);
+    await query(`INSERT INTO integrations (user_id, platform, account_name, is_active) VALUES ($1, 'perfectpay', 'PerfectPay', true)`, [req.user.id]);
     res.json({ message: 'PerfectPay configurado! Adicione a URL do webhook no painel PerfectPay.' });
   } catch (error) {
     res.status(500).json({ error: 'Erro ao configurar PerfectPay' });
@@ -561,12 +549,8 @@ router.post('/webhook/perfectpay', async (req, res) => {
 
 router.post('/ticto/connect', requireAuth, async (req, res) => {
   try {
-    await query(
-      `INSERT INTO integrations (user_id, platform, account_name, is_active)
-       VALUES ($1, 'ticto', 'Ticto', true)
-       ON CONFLICT (user_id, platform) DO UPDATE SET is_active = true`,
-      [req.user.id]
-    );
+    await query(`DELETE FROM integrations WHERE user_id=$1 AND platform='ticto'`, [req.user.id]);
+    await query(`INSERT INTO integrations (user_id, platform, account_name, is_active) VALUES ($1, 'ticto', 'Ticto', true)`, [req.user.id]);
     res.json({ message: 'Ticto configurado! Adicione a URL do webhook no painel Ticto.' });
   } catch (error) {
     res.status(500).json({ error: 'Erro ao configurar Ticto' });
@@ -619,10 +603,9 @@ router.post('/mercadopago/connect', requireAuth, async (req, res) => {
     const { access_token } = req.body;
     if (!access_token) return res.status(400).json({ error: 'access_token e obrigatorio' });
 
+    await query(`DELETE FROM integrations WHERE user_id=$1 AND platform='mercadopago'`, [req.user.id]);
     await query(
-      `INSERT INTO integrations (user_id, platform, access_token, account_name, is_active)
-       VALUES ($1, 'mercadopago', $2, 'Mercado Pago', true)
-       ON CONFLICT (user_id, platform) DO UPDATE SET access_token = $2, is_active = true`,
+      `INSERT INTO integrations (user_id, platform, access_token, account_name, is_active) VALUES ($1, 'mercadopago', $2, 'Mercado Pago', true)`,
       [req.user.id, encrypt(access_token)]
     );
     res.json({ message: 'Mercado Pago conectado! Configure a URL de webhook no painel MP.' });
@@ -690,10 +673,9 @@ router.post('/stripe/connect', requireAuth, async (req, res) => {
     const { secret_key, webhook_secret } = req.body;
     if (!secret_key) return res.status(400).json({ error: 'secret_key e obrigatorio' });
 
+    await query(`DELETE FROM integrations WHERE user_id=$1 AND platform='stripe'`, [req.user.id]);
     await query(
-      `INSERT INTO integrations (user_id, platform, access_token, refresh_token, account_name, is_active)
-       VALUES ($1, 'stripe', $2, $3, 'Stripe', true)
-       ON CONFLICT (user_id, platform) DO UPDATE SET access_token = $2, refresh_token = $3, is_active = true`,
+      `INSERT INTO integrations (user_id, platform, access_token, refresh_token, account_name, is_active) VALUES ($1, 'stripe', $2, $3, 'Stripe', true)`,
       [req.user.id, encrypt(secret_key), webhook_secret ? encrypt(webhook_secret) : null]
     );
     res.json({ message: 'Stripe conectado! Configure a URL de webhook no painel Stripe.' });
@@ -756,10 +738,9 @@ router.post('/asaas/connect', requireAuth, async (req, res) => {
     const { api_key } = req.body;
     if (!api_key) return res.status(400).json({ error: 'api_key e obrigatoria' });
 
+    await query(`DELETE FROM integrations WHERE user_id=$1 AND platform='asaas'`, [req.user.id]);
     await query(
-      `INSERT INTO integrations (user_id, platform, access_token, account_name, is_active)
-       VALUES ($1, 'asaas', $2, 'Asaas', true)
-       ON CONFLICT (user_id, platform) DO UPDATE SET access_token = $2, is_active = true`,
+      `INSERT INTO integrations (user_id, platform, access_token, account_name, is_active) VALUES ($1, 'asaas', $2, 'Asaas', true)`,
       [req.user.id, encrypt(api_key)]
     );
     res.json({ message: 'Asaas conectado! Configure a URL de webhook no painel Asaas.' });
@@ -820,10 +801,9 @@ router.post('/pagarme/connect', requireAuth, async (req, res) => {
     const { secret_key } = req.body;
     if (!secret_key) return res.status(400).json({ error: 'secret_key e obrigatorio' });
 
+    await query(`DELETE FROM integrations WHERE user_id=$1 AND platform='pagarme'`, [req.user.id]);
     await query(
-      `INSERT INTO integrations (user_id, platform, access_token, account_name, is_active)
-       VALUES ($1, 'pagarme', $2, 'Pagar.me', true)
-       ON CONFLICT (user_id, platform) DO UPDATE SET access_token = $2, is_active = true`,
+      `INSERT INTO integrations (user_id, platform, access_token, account_name, is_active) VALUES ($1, 'pagarme', $2, 'Pagar.me', true)`,
       [req.user.id, encrypt(secret_key)]
     );
     res.json({ message: 'Pagar.me conectado! Configure a URL de webhook no painel Pagar.me.' });
@@ -890,10 +870,9 @@ router.post('/pagseguro/connect', requireAuth, async (req, res) => {
     const { token } = req.body;
     if (!token) return res.status(400).json({ error: 'Token de acesso e obrigatorio' });
 
+    await query(`DELETE FROM integrations WHERE user_id=$1 AND platform='pagseguro'`, [req.user.id]);
     await query(
-      `INSERT INTO integrations (user_id, platform, access_token, account_name, is_active)
-       VALUES ($1, 'pagseguro', $2, 'PagSeguro', true)
-       ON CONFLICT (user_id, platform) DO UPDATE SET access_token = $2, is_active = true`,
+      `INSERT INTO integrations (user_id, platform, access_token, account_name, is_active) VALUES ($1, 'pagseguro', $2, 'PagSeguro', true)`,
       [req.user.id, encrypt(token)]
     );
     res.json({ message: 'PagSeguro conectado! Configure a URL de webhook (notificacoes) no painel PagSeguro.' });
@@ -974,6 +953,10 @@ router.delete('/:id', requireAuth, async (req, res) => {
     [req.params.id, req.user.id]
   );
   res.json({ message: 'Integracao removida' });
+});
+
+module.exports = router;
+});
 });
 
 module.exports = router;
