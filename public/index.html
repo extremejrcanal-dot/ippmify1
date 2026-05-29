@@ -519,6 +519,11 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .int-chevron.open{transform:rotate(180deg);}
 .int-pbody{padding:0 20px 20px;border-top:1px solid var(--border);}
 .int-guide{background:var(--bg3);border-radius:10px;padding:16px;margin-bottom:16px;}
+.int-msg{font-size:13px;padding:8px 12px;border-radius:8px;margin-bottom:10px;background:var(--bg3);}
+.int-msg.ok{background:rgba(34,197,94,.12);color:#4ade80;}
+.int-msg.err{background:rgba(239,68,68,.12);color:#f87171;}
+.int-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:13px;outline:none;}
+.int-input:focus{border-color:var(--blue);}
 .int-guide-title{font-size:12px;font-weight:700;color:var(--text2);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
 .int-guide-step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;}
 .int-guide-step:last-child{margin-bottom:0;}
@@ -586,6 +591,19 @@ details summary::-webkit-details-marker{display:none;}
 details[open] summary::before{content:'▼';}
 details summary::before{content:'▶';font-size:10px;}
 details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radius:10px;border:1px solid var(--border);}
+
+/* ── INTEGRATION CATEGORY FILTER ── */
+.int-cat-btn{padding:8px 16px;border-radius:8px;border:none;background:transparent;color:var(--text2);font-size:13px;font-weight:600;font-family:'Montserrat',sans-serif;cursor:pointer;transition:.2s;white-space:nowrap;}
+.int-cat-btn:hover{background:var(--bg3);color:var(--text);}
+.int-cat-btn.active{background:var(--blue);color:#fff;}
+
+/* ── SOON CARDS GRID ── */
+.int-soon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:8px;}
+.int-soon-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;opacity:.7;transition:.2s;}
+.int-soon-card:hover{opacity:1;border-color:var(--blue);}
+.int-soon-logo{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;}
+.int-soon-name{font-size:13px;font-weight:600;color:var(--text);line-height:1.3;}
+.int-soon-tag{font-size:10px;background:var(--bg3);color:var(--text3);padding:2px 8px;border-radius:20px;border:1px solid var(--border);font-weight:600;}
 
 /* ══════════════════════════════════════════════════════
    MOBILE RESPONSIVO (≤ 768px) — nao afeta desktop
@@ -1942,15 +1960,26 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       <div class="page-header">
         <div>
           <div class="page-title">Integrações</div>
-          <div class="page-subtitle">Conecte suas plataformas de anúncio e checkout</div>
+          <div class="page-subtitle">Conecte todas as suas plataformas em um só lugar</div>
         </div>
       </div>
 
+      <!-- ── FILTRO POR CATEGORIA ── -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;background:var(--bg2);padding:6px;border-radius:12px;border:1px solid var(--border);">
+        <button class="int-cat-btn active" onclick="filterIntCategory('todos', this)">🔗 Todos</button>
+        <button class="int-cat-btn" onclick="filterIntCategory('anuncios', this)">📣 Anúncios</button>
+        <button class="int-cat-btn" onclick="filterIntCategory('checkouts', this)">🛒 Checkouts</button>
+        <button class="int-cat-btn" onclick="filterIntCategory('gateways', this)">💳 Gateways</button>
+        <button class="int-cat-btn" onclick="filterIntCategory('ecommerce', this)">🏪 E-commerce</button>
+        <button class="int-cat-btn" onclick="filterIntCategory('crm', this)">🎯 CRM</button>
+        <button class="int-cat-btn" onclick="filterIntCategory('erp', this)">📊 ERP / Gestão</button>
+      </div>
+
       <!-- ── ANÚNCIOS ── -->
-      <div class="int-section-label">📣 Anúncios</div>
+      <div class="int-section-label int-cat-section" data-cat="anuncios">📣 Anúncios</div>
 
       <!-- Meta Ads -->
-      <div class="int-pcard" id="pcard-meta_ads">
+      <div class="int-pcard" id="pcard-meta_ads" data-cat="anuncios">
         <div class="int-pcard-header" onclick="togglePlatformCard('meta_ads')">
           <div style="display:flex;align-items:center;gap:12px">
             <div class="int-plogo" style="background:#1877f2;font-size:14px;">f</div>
@@ -1987,10 +2016,10 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
 
       <!-- ── CHECKOUTS ── -->
-      <div class="int-section-label" style="margin-top:24px">🛒 Checkouts</div>
+      <div class="int-section-label int-cat-section" data-cat="checkouts" style="margin-top:24px">🛒 Checkouts</div>
 
       <!-- Hotmart -->
-      <div class="int-pcard" id="pcard-hotmart">
+      <div class="int-pcard" id="pcard-hotmart" data-cat="checkouts">
         <div class="int-pcard-header" onclick="togglePlatformCard('hotmart')">
           <div style="display:flex;align-items:center;gap:12px">
             <div class="int-plogo" style="background:#e63929">🔥</div>
@@ -2024,7 +2053,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
 
       <!-- Kiwify -->
-      <div class="int-pcard" id="pcard-kiwify">
+      <div class="int-pcard" id="pcard-kiwify" data-cat="checkouts">
         <div class="int-pcard-header" onclick="togglePlatformCard('kiwify')">
           <div style="display:flex;align-items:center;gap:12px">
             <div class="int-plogo" style="background:#2563eb">K</div>
@@ -2054,7 +2083,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
 
       <!-- Kirvano -->
-      <div class="int-pcard" id="pcard-kirvano">
+      <div class="int-pcard" id="pcard-kirvano" data-cat="checkouts">
         <div class="int-pcard-header" onclick="togglePlatformCard('kirvano')">
           <div style="display:flex;align-items:center;gap:12px">
             <div class="int-plogo" style="background:#7c3aed">Ki</div>
@@ -2090,7 +2119,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
 
       <!-- Eduzz -->
-      <div class="int-pcard" id="pcard-eduzz">
+      <div class="int-pcard" id="pcard-eduzz" data-cat="checkouts">
         <div class="int-pcard-header" onclick="togglePlatformCard('eduzz')">
           <div style="display:flex;align-items:center;gap:12px">
             <div class="int-plogo" style="background:#0ea5e9">Ed</div>
@@ -2126,7 +2155,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
 
       <!-- Monetizze -->
-      <div class="int-pcard" id="pcard-monetizze">
+      <div class="int-pcard" id="pcard-monetizze" data-cat="checkouts">
         <div class="int-pcard-header" onclick="togglePlatformCard('monetizze')">
           <div style="display:flex;align-items:center;gap:12px">
             <div class="int-plogo" style="background:#16a34a">Mo</div>
@@ -2161,7 +2190,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
 
       <!-- Braip -->
-      <div class="int-pcard" id="pcard-braip">
+      <div class="int-pcard" id="pcard-braip" data-cat="checkouts">
         <div class="int-pcard-header" onclick="togglePlatformCard('braip')">
           <div style="display:flex;align-items:center;gap:12px">
             <div class="int-plogo" style="background:#dc2626">Br</div>
@@ -2196,7 +2225,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
 
       <!-- PerfectPay -->
-      <div class="int-pcard" id="pcard-perfectpay">
+      <div class="int-pcard" id="pcard-perfectpay" data-cat="checkouts">
         <div class="int-pcard-header" onclick="togglePlatformCard('perfectpay')">
           <div style="display:flex;align-items:center;gap:12px">
             <div class="int-plogo" style="background:#d97706">PP</div>
@@ -2231,7 +2260,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
 
       <!-- Ticto -->
-      <div class="int-pcard" id="pcard-ticto">
+      <div class="int-pcard" id="pcard-ticto" data-cat="checkouts">
         <div class="int-pcard-header" onclick="togglePlatformCard('ticto')">
           <div style="display:flex;align-items:center;gap:12px">
             <div class="int-plogo" style="background:#0f766e">Ti</div>
@@ -2263,6 +2292,255 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div id="tictoMsg"></div>
           <button class="btn btn-ghost btn-sm" onclick="connectWebhookPlatform('ticto')">⚡ Gerar URL do Webhook</button>
         </div>
+      </div>
+
+      <!-- ── MAIS ANÚNCIOS (em breve) ── -->
+      <div class="int-soon-grid int-cat-section" data-cat="anuncios" style="margin-top:8px">
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#000">▶</div><div class="int-soon-name">TikTok Ads</div><span class="int-soon-tag">Em breve</span></div>
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#4285f4">G</div><div class="int-soon-name">Google Ads</div><span class="int-soon-tag">Em breve</span></div>
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#e60023">P</div><div class="int-soon-name">Pinterest Ads</div><span class="int-soon-tag">Em breve</span></div>
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#0077b5">in</div><div class="int-soon-name">LinkedIn Ads</div><span class="int-soon-tag">Em breve</span></div>
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#ff6600">T</div><div class="int-soon-name">Taboola Ads</div><span class="int-soon-tag">Em breve</span></div>
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#006699">O</div><div class="int-soon-name">Outbrain Ads</div><span class="int-soon-tag">Em breve</span></div>
+      </div>
+
+      <!-- ── GATEWAYS DE PAGAMENTO ── -->
+      <div class="int-section-label int-cat-section" data-cat="gateways" style="margin-top:28px">💳 Gateways de Pagamento</div>
+
+      <!-- Mercado Pago -->
+      <div class="int-pcard int-cat-section" id="pcard-mercadopago" data-cat="gateways">
+        <div class="int-pcard-header" onclick="togglePlatformCard('mercadopago')">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="int-plogo" style="background:#009ee3">MP</div>
+            <div>
+              <div class="int-pname">Mercado Pago</div>
+              <div class="int-pdesc">Gateway via Access Token + Webhook</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="int-badge disconnected" id="badge-mercadopago">Não conectado</span>
+            <button class="int-toggle-btn" id="toggle-mercadopago" style="display:none" onclick="event.stopPropagation();toggleIntegration('mercadopago')"></button>
+            <span class="int-chevron" id="chev-mercadopago">▼</span>
+          </div>
+        </div>
+        <div class="int-pbody" id="body-mercadopago" style="display:none;padding-top:16px">
+          <div class="int-guide">
+            <div class="int-guide-title">📋 Como conectar</div>
+            <div class="int-guide-step"><div class="int-step-num">1</div><div class="int-step-text">No painel Mercado Pago, vá em <strong>Seu negócio → Credenciais</strong> e copie o <strong>Access Token de produção</strong>.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">2</div><div class="int-step-text">Cole o token abaixo e clique em <strong>Conectar</strong>.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">3</div><div class="int-step-text">Após conectar, copie a <strong>URL do Webhook</strong> e cadastre em <strong>Seu negócio → Notificações IPN/Webhooks</strong>.</div></div>
+          </div>
+          <div style="margin-bottom:12px">
+            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">Access Token de Produção</label>
+            <input class="int-input" id="mp-token" type="password" placeholder="APP_USR-...">
+          </div>
+          <div id="mpWebhookArea" style="display:none;margin-bottom:14px">
+            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">URL do Webhook (cadastre no MP)</label>
+            <div class="int-webhook-box">
+              <input class="int-webhook-input" id="mpWebhookUrl" readonly onclick="this.select()">
+              <button class="btn btn-ghost btn-sm" onclick="copyWebhook('mpWebhookUrl')">📋 Copiar</button>
+            </div>
+          </div>
+          <div id="mercadopagoMsg"></div>
+          <button class="btn btn-primary btn-sm" onclick="connectGateway('mercadopago', {access_token: document.getElementById('mp-token').value}, 'mercadopagoMsg', 'mpWebhookArea', 'mpWebhookUrl')">⚡ Conectar Mercado Pago</button>
+        </div>
+      </div>
+
+      <!-- Stripe -->
+      <div class="int-pcard int-cat-section" id="pcard-stripe" data-cat="gateways">
+        <div class="int-pcard-header" onclick="togglePlatformCard('stripe')">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="int-plogo" style="background:#635bff">St</div>
+            <div>
+              <div class="int-pname">Stripe</div>
+              <div class="int-pdesc">Gateway via Secret Key + Webhook</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="int-badge disconnected" id="badge-stripe">Não conectado</span>
+            <button class="int-toggle-btn" id="toggle-stripe" style="display:none" onclick="event.stopPropagation();toggleIntegration('stripe')"></button>
+            <span class="int-chevron" id="chev-stripe">▼</span>
+          </div>
+        </div>
+        <div class="int-pbody" id="body-stripe" style="display:none;padding-top:16px">
+          <div class="int-guide">
+            <div class="int-guide-title">📋 Como conectar</div>
+            <div class="int-guide-step"><div class="int-step-num">1</div><div class="int-step-text">No <a href="https://dashboard.stripe.com/apikeys" target="_blank">Stripe Dashboard</a>, copie sua <strong>Secret Key</strong> (sk_live_...).</div></div>
+            <div class="int-guide-step"><div class="int-step-num">2</div><div class="int-step-text">Opcional: copie o <strong>Webhook Signing Secret</strong> (whsec_...) para maior segurança.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">3</div><div class="int-step-text">Conecte e cadastre a URL do Webhook em <strong>Developers → Webhooks</strong> no Stripe.</div></div>
+          </div>
+          <div style="margin-bottom:12px">
+            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">Secret Key</label>
+            <input class="int-input" id="stripe-secret" type="password" placeholder="sk_live_...">
+          </div>
+          <div style="margin-bottom:12px">
+            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">Webhook Signing Secret (opcional)</label>
+            <input class="int-input" id="stripe-wsecret" type="password" placeholder="whsec_...">
+          </div>
+          <div id="stripeWebhookArea" style="display:none;margin-bottom:14px">
+            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">URL do Webhook (cadastre no Stripe)</label>
+            <div class="int-webhook-box">
+              <input class="int-webhook-input" id="stripeWebhookUrl" readonly onclick="this.select()">
+              <button class="btn btn-ghost btn-sm" onclick="copyWebhook('stripeWebhookUrl')">📋 Copiar</button>
+            </div>
+          </div>
+          <div id="stripeMsg"></div>
+          <button class="btn btn-primary btn-sm" onclick="connectGateway('stripe', {secret_key: document.getElementById('stripe-secret').value, webhook_secret: document.getElementById('stripe-wsecret').value}, 'stripeMsg', 'stripeWebhookArea', 'stripeWebhookUrl')">⚡ Conectar Stripe</button>
+        </div>
+      </div>
+
+      <!-- PagSeguro -->
+      <div class="int-pcard int-cat-section" id="pcard-pagseguro" data-cat="gateways">
+        <div class="int-pcard-header" onclick="togglePlatformCard('pagseguro')">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="int-plogo" style="background:#009fe3">PS</div>
+            <div>
+              <div class="int-pname">PagSeguro</div>
+              <div class="int-pdesc">Gateway via Token + Webhook</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="int-badge disconnected" id="badge-pagseguro">Não conectado</span>
+            <button class="int-toggle-btn" id="toggle-pagseguro" style="display:none" onclick="event.stopPropagation();toggleIntegration('pagseguro')"></button>
+            <span class="int-chevron" id="chev-pagseguro">▼</span>
+          </div>
+        </div>
+        <div class="int-pbody" id="body-pagseguro" style="display:none;padding-top:16px">
+          <div class="int-guide">
+            <div class="int-guide-title">📋 Como conectar</div>
+            <div class="int-guide-step"><div class="int-step-num">1</div><div class="int-step-text">Acesse <a href="https://minha.conta.uol.com.br/myaccount/" target="_blank">PagSeguro → Minha Conta → Preferências → Integração</a> e copie seu <strong>Token de Acesso</strong>.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">2</div><div class="int-step-text">Cole abaixo e conecte. Em seguida, cadastre a URL do Webhook em <strong>Notificações</strong>.</div></div>
+          </div>
+          <div style="margin-bottom:12px">
+            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">Token de Acesso</label>
+            <input class="int-input" id="ps-token" type="password" placeholder="Token PagSeguro...">
+          </div>
+          <div id="pagseguroWebhookArea" style="display:none;margin-bottom:14px">
+            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">URL do Webhook</label>
+            <div class="int-webhook-box">
+              <input class="int-webhook-input" id="pagseguroWebhookUrl" readonly onclick="this.select()">
+              <button class="btn btn-ghost btn-sm" onclick="copyWebhook('pagseguroWebhookUrl')">📋 Copiar</button>
+            </div>
+          </div>
+          <div id="pagseguroMsg"></div>
+          <button class="btn btn-primary btn-sm" onclick="connectGateway('pagseguro', {token: document.getElementById('ps-token').value}, 'pagseguroMsg', 'pagseguroWebhookArea', 'pagseguroWebhookUrl')">⚡ Conectar PagSeguro</button>
+        </div>
+      </div>
+
+      <!-- Asaas -->
+      <div class="int-pcard int-cat-section" id="pcard-asaas" data-cat="gateways">
+        <div class="int-pcard-header" onclick="togglePlatformCard('asaas')">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="int-plogo" style="background:#00b5e2">As</div>
+            <div>
+              <div class="int-pname">Asaas</div>
+              <div class="int-pdesc">Gateway via API Key + Webhook</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="int-badge disconnected" id="badge-asaas">Não conectado</span>
+            <button class="int-toggle-btn" id="toggle-asaas" style="display:none" onclick="event.stopPropagation();toggleIntegration('asaas')"></button>
+            <span class="int-chevron" id="chev-asaas">▼</span>
+          </div>
+        </div>
+        <div class="int-pbody" id="body-asaas" style="display:none;padding-top:16px">
+          <div class="int-guide">
+            <div class="int-guide-title">📋 Como conectar</div>
+            <div class="int-guide-step"><div class="int-step-num">1</div><div class="int-step-text">No <a href="https://app.asaas.com/config/account/api" target="_blank">Asaas → Configurações → Integrações</a>, copie sua <strong>API Key</strong>.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">2</div><div class="int-step-text">Cole abaixo, conecte e depois cadastre a URL do Webhook em <strong>Integrações → Webhooks</strong>.</div></div>
+          </div>
+          <div style="margin-bottom:12px">
+            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">API Key</label>
+            <input class="int-input" id="asaas-key" type="password" placeholder="$aact_...">
+          </div>
+          <div id="asaasWebhookArea" style="display:none;margin-bottom:14px">
+            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">URL do Webhook</label>
+            <div class="int-webhook-box">
+              <input class="int-webhook-input" id="asaasWebhookUrl" readonly onclick="this.select()">
+              <button class="btn btn-ghost btn-sm" onclick="copyWebhook('asaasWebhookUrl')">📋 Copiar</button>
+            </div>
+          </div>
+          <div id="asaasMsg"></div>
+          <button class="btn btn-primary btn-sm" onclick="connectGateway('asaas', {api_key: document.getElementById('asaas-key').value}, 'asaasMsg', 'asaasWebhookArea', 'asaasWebhookUrl')">⚡ Conectar Asaas</button>
+        </div>
+      </div>
+
+      <!-- Pagar.me -->
+      <div class="int-pcard int-cat-section" id="pcard-pagarme" data-cat="gateways">
+        <div class="int-pcard-header" onclick="togglePlatformCard('pagarme')">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="int-plogo" style="background:#1a1a2e">Pg</div>
+            <div>
+              <div class="int-pname">Pagar.me</div>
+              <div class="int-pdesc">Gateway via Secret Key + Webhook</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="int-badge disconnected" id="badge-pagarme">Não conectado</span>
+            <button class="int-toggle-btn" id="toggle-pagarme" style="display:none" onclick="event.stopPropagation();toggleIntegration('pagarme')"></button>
+            <span class="int-chevron" id="chev-pagarme">▼</span>
+          </div>
+        </div>
+        <div class="int-pbody" id="body-pagarme" style="display:none;padding-top:16px">
+          <div class="int-guide">
+            <div class="int-guide-title">📋 Como conectar</div>
+            <div class="int-guide-step"><div class="int-step-num">1</div><div class="int-step-text">No <a href="https://dashboard.pagar.me" target="_blank">Pagar.me Dashboard</a>, vá em <strong>Configurações → Chaves de API</strong> e copie a <strong>Secret Key</strong>.</div></div>
+            <div class="int-guide-step"><div class="int-step-num">2</div><div class="int-step-text">Cole abaixo, conecte e cadastre a URL do Webhook em <strong>Configurações → Webhooks</strong>.</div></div>
+          </div>
+          <div style="margin-bottom:12px">
+            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">Secret Key</label>
+            <input class="int-input" id="pagarme-key" type="password" placeholder="sk_...">
+          </div>
+          <div id="pagarmeWebhookArea" style="display:none;margin-bottom:14px">
+            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">URL do Webhook</label>
+            <div class="int-webhook-box">
+              <input class="int-webhook-input" id="pagarmeWebhookUrl" readonly onclick="this.select()">
+              <button class="btn btn-ghost btn-sm" onclick="copyWebhook('pagarmeWebhookUrl')">📋 Copiar</button>
+            </div>
+          </div>
+          <div id="pagarmeMsg"></div>
+          <button class="btn btn-primary btn-sm" onclick="connectGateway('pagarme', {secret_key: document.getElementById('pagarme-key').value}, 'pagarmeMsg', 'pagarmeWebhookArea', 'pagarmeWebhookUrl')">⚡ Conectar Pagar.me</button>
+        </div>
+      </div>
+
+      <!-- Demais gateways em breve -->
+      <div class="int-soon-grid int-cat-section" data-cat="gateways" style="margin-top:8px">
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#003087">PP</div><div class="int-soon-name">PayPal</div><span class="int-soon-tag">Em breve</span></div>
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#00b14f">PF</div><div class="int-soon-name">PagBank</div><span class="int-soon-tag">Em breve</span></div>
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#142032">Sf</div><div class="int-soon-name">Safe2Pay</div><span class="int-soon-tag">Em breve</span></div>
+      </div>
+
+      <!-- ── E-COMMERCE ── -->
+      <div class="int-section-label int-cat-section" data-cat="ecommerce" style="margin-top:28px">🏪 E-commerce</div>
+      <div class="int-soon-grid int-cat-section" data-cat="ecommerce">
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#96bf48">Sh</div><div class="int-soon-name">Shopify</div><span class="int-soon-tag">Em breve</span></div>
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#7f54b3">Wc</div><div class="int-soon-name">WooCommerce</div><span class="int-soon-tag">Em breve</span></div>
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#f26522">VT</div><div class="int-soon-name">VTEX</div><span class="int-soon-tag">Em breve</span></div>
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#1e88e5">Nv</div><div class="int-soon-name">Nuvemshop</div><span class="int-soon-tag">Em breve</span></div>
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#f5a623">Tr</div><div class="int-soon-name">Tray</div><span class="int-soon-tag">Em breve</span></div>
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#00c6d7">Lj</div><div class="int-soon-name">Lojas Virtuais</div><span class="int-soon-tag">Em breve</span></div>
+      </div>
+
+      <!-- ── CRM / AUTOMAÇÃO ── -->
+      <div class="int-section-label int-cat-section" data-cat="crm" style="margin-top:28px">🎯 CRM e Automação</div>
+      <div class="int-soon-grid int-cat-section" data-cat="crm">
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#ff7a59">Hb</div><div class="int-soon-name">HubSpot</div><span class="int-soon-tag">Em breve</span></div>
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#004c97">RD</div><div class="int-soon-name">RD Station</div><span class="int-soon-tag">Em breve</span></div>
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#11a37f">AC</div><div class="int-soon-name">ActiveCampaign</div><span class="int-soon-tag">Em breve</span></div>
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#ffe01b;color:#000">Mc</div><div class="int-soon-name">Mailchimp</div><span class="int-soon-tag">Em breve</span></div>
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#5433ff">Kl</div><div class="int-soon-name">Klaviyo</div><span class="int-soon-tag">Em breve</span></div>
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#00a4ef">Br</div><div class="int-soon-name">Brevo</div><span class="int-soon-tag">Em breve</span></div>
+      </div>
+
+      <!-- ── ERP / GESTÃO ── -->
+      <div class="int-section-label int-cat-section" data-cat="erp" style="margin-top:28px">📊 ERP e Gestão Financeira</div>
+      <div class="int-soon-grid int-cat-section" data-cat="erp">
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#009bde">Nt</div><div class="int-soon-name">Netsuite</div><span class="int-soon-tag">Em breve</span></div>
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#00b0ea">Om</div><div class="int-soon-name">Bling</div><span class="int-soon-tag">Em breve</span></div>
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#f04e23">Tf</div><div class="int-soon-name">Tiny ERP</div><span class="int-soon-tag">Em breve</span></div>
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#2ea84f">Qb</div><div class="int-soon-name">QuickBooks</div><span class="int-soon-tag">Em breve</span></div>
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#1db954">Cx</div><div class="int-soon-name">Conta Azul</div><span class="int-soon-tag">Em breve</span></div>
+        <div class="int-soon-card"><div class="int-soon-logo" style="background:#0061a8">Zr</div><div class="int-soon-name">Zero Finance</div><span class="int-soon-tag">Em breve</span></div>
       </div>
 
     </div>
@@ -3050,7 +3328,8 @@ async function loadIntegrations() {
     });
 
     // Update UI for all platforms
-    const allPlatforms = ['meta_ads','hotmart','kiwify','kirvano','eduzz','monetizze','braip','perfectpay','ticto'];
+    const allPlatforms = ['meta_ads','hotmart','kiwify','kirvano','eduzz','monetizze','braip','perfectpay','ticto',
+                          'mercadopago','stripe','pagseguro','asaas','pagarme'];
     allPlatforms.forEach(p => updatePlatformUI(p, grouped[p] || []));
 
     // Store for account selector usage elsewhere
@@ -3101,13 +3380,44 @@ async function removeIntegration(id) {
 async function connectWebhookPlatform(platform) {
   try {
     const { message } = await api('POST', `/api/integrations/${platform}/connect`);
-    alert(message);
     loadIntegrations();
-    // Show webhook URL section
+    // Exibir URL do webhook
+    const apiBase = window.location.origin;
+    const webhookUrl = `${apiBase}/api/hook/webhook/${platform}`;
+    const inputEl = document.getElementById(`${platform}WebhookUrl`);
+    const areaEl  = document.getElementById(`${platform}WebhookArea`);
+    if (inputEl) inputEl.value = webhookUrl;
+    if (areaEl)  areaEl.style.display = 'block';
     const body = document.getElementById(`body-${platform}`);
     if (body) body.style.display = 'block';
+    alert(message);
   } catch(e) {
     alert('Erro: ' + e.message);
+  }
+}
+
+// Conectar gateway de pagamento (Mercado Pago, Stripe, Asaas, etc)
+async function connectGateway(platform, body, msgId, webhookAreaId, webhookInputId) {
+  const msgEl = document.getElementById(msgId);
+  // Validar que pelo menos um campo obrigatório foi preenchido
+  const firstVal = Object.values(body)[0];
+  if (!firstVal || !firstVal.trim()) {
+    if (msgEl) msgEl.innerHTML = '<div class="int-msg err">Preencha as credenciais antes de conectar.</div>';
+    return;
+  }
+  if (msgEl) msgEl.innerHTML = '<div class="int-msg">Conectando...</div>';
+  try {
+    const resp = await api('POST', `/api/integrations/${platform}/connect`, body);
+    if (msgEl) msgEl.innerHTML = `<div class="int-msg ok">✅ ${resp.message}</div>`;
+    // Mostrar URL do webhook
+    const apiBase = window.location.origin;
+    const webhookArea = document.getElementById(webhookAreaId);
+    const webhookInput = document.getElementById(webhookInputId);
+    if (webhookArea) webhookArea.style.display = 'block';
+    if (webhookInput) webhookInput.value = `${apiBase}/api/hook/webhook/${platform}`;
+    loadIntegrations();
+  } catch(e) {
+    if (msgEl) msgEl.innerHTML = `<div class="int-msg err">❌ ${e.message}</div>`;
   }
 }
 
@@ -3186,10 +3496,15 @@ async function connectKiwify() {
 async function connectKirvano() {
   try {
     const { message } = await api('POST', '/api/integrations/kirvano/connect');
-    alert(message);
     loadIntegrations();
+    const apiBase = window.location.origin;
+    const inputEl = document.getElementById('kirvanoWebhookUrl');
+    const areaEl  = document.getElementById('kirvanoWebhookArea');
+    if (inputEl) inputEl.value = `${apiBase}/api/hook/webhook/kirvano`;
+    if (areaEl)  areaEl.style.display = 'block';
     const body = document.getElementById('body-kirvano');
     if (body) body.style.display = 'block';
+    alert(message);
   } catch(e) {
     alert('Erro: ' + e.message);
   }
@@ -4629,6 +4944,28 @@ async function saveReportSchedule() {
 
 function openCaktoPortal() {
   window.open(_checkoutUrl, '_blank');
+}
+
+// ─── INTEGRATION CATEGORY FILTER ─────────────────────────────────────────────
+function filterIntCategory(cat, btn) {
+  // Atualizar botões ativos
+  document.querySelectorAll('.int-cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  // Mostrar/esconder cards e seções
+  const allCards    = document.querySelectorAll('#tab-integrations .int-pcard');
+  const allSections = document.querySelectorAll('#tab-integrations .int-cat-section');
+  const allGrids    = document.querySelectorAll('#tab-integrations .int-soon-grid');
+
+  if (cat === 'todos') {
+    allCards.forEach(el    => el.style.display = '');
+    allSections.forEach(el => el.style.display = '');
+    allGrids.forEach(el    => el.style.display = '');
+  } else {
+    allCards.forEach(el    => el.style.display = el.dataset.cat === cat ? '' : 'none');
+    allSections.forEach(el => el.style.display = el.dataset.cat === cat ? '' : 'none');
+    allGrids.forEach(el    => el.style.display = el.dataset.cat === cat ? '' : 'none');
+  }
 }
 
 // ─── MOBILE SIDEBAR ──────────────────────────────────────────────────────────
