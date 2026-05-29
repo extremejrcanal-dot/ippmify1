@@ -117,7 +117,8 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // ─── ROTAS PUBLICAS (sem verificacao de plano) ────────────────────────────────
 app.use('/api/auth',    authLimiter, authRoutes);   // login, registro, /me, /settings
-app.use('/api/webhook', webhookRoutes);             // Kirvano / Cakto
+app.use('/api/webhook', webhookRoutes);             // Kirvano / Cakto (billing IPPMIFY)
+app.use('/api/hook',    integrationsRoutes);        // Webhooks publicos das plataformas (Stripe, MP, etc)
 
 // ─── ROTAS PROTEGIDAS (exigem login + plano ativo) ───────────────────────────
 // requireAuth seta req.user; requireActivePlan bloqueia se plan_status !== 'active'
