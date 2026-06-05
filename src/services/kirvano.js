@@ -3,19 +3,36 @@ const { query } = require('../config/database');
 // ─── PROCESSAR WEBHOOK DA KIRVANO ─────────────────────────────────────────
 const processWebhook = async (userId, integrationId, payload) => {
   const eventMap = {
-    'SALE_APPROVED':   'approved',
-    'SALE_COMPLETE':   'approved',
-    'SALE_REFUNDED':   'refunded',
-    'SALE_CHARGEBACK': 'chargeback',
-    'SALE_CANCELLED':  'refunded',
-    'PURCHASE_APPROVED': 'approved',
-    'PURCHASE_COMPLETE': 'approved',
-    'PURCHASE_REFUNDED': 'refunded',
+    // Vendas diretas
+    'SALE_APPROVED':               'approved',
+    'SALE_COMPLETE':               'approved',
+    'SALE_CONFIRMED':              'approved',
+    'SALE_REFUNDED':               'refunded',
+    'SALE_CHARGEBACK':             'chargedback',
+    'SALE_CANCELLED':              'refunded',
+    // Compras
+    'PURCHASE_APPROVED':           'approved',
+    'PURCHASE_COMPLETE':           'approved',
+    'PURCHASE_CONFIRMED':          'approved',
+    'PURCHASE_REFUNDED':           'refunded',
+    // Vendas de afiliados (producer recebe esses eventos)
+    'AFFILIATE_SALE_APPROVED':     'approved',
+    'AFFILIATE_SALE_COMPLETE':     'approved',
+    'AFFILIATE_SALE_CONFIRMED':    'approved',
+    'AFFILIATE_SALE_REFUNDED':     'refunded',
+    'AFFILIATE_SALE_CANCELLED':    'refunded',
+    'AFFILIATE_PURCHASE_APPROVED': 'approved',
+    // Comissoes
+    'COMMISSION_APPROVED':         'approved',
+    'COMMISSION_CONFIRMED':        'approved',
   };
+
+  // Log para debug — captura qualquer evento nao mapeado
+  console.log(`[Kirvano Webhook] Evento recebido: ${payload.event} | sale_id: ${payload.sale_id}`);
 
   const status = eventMap[payload.event];
   if (!status) {
-    console.log(`[Kirvano] Evento ignorado: ${payload.event}`);
+    console.log(`[Kirvano] Evento nao mapeado (ignorado): ${payload.event}`);
     return;
   }
 
