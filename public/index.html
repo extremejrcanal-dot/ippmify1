@@ -1874,6 +1874,16 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
               <div id="reportTimeSlotsInputs" style="display:flex;flex-direction:column;gap:8px;"></div>
             </div>
 
+            <div style="margin-bottom:16px;">
+              <label style="font-size:12px;color:var(--text2);font-weight:600;display:block;margin-bottom:8px;">📅 Período do relatório</label>
+              <div style="display:flex;gap:8px;">
+                <button id="rdBtn1" onclick="selectReportDays(1)" class="btn btn-ghost btn-sm" style="flex:1;padding:10px 6px;font-size:12px;border-radius:8px;">Hoje</button>
+                <button id="rdBtn7" onclick="selectReportDays(7)" class="btn btn-ghost btn-sm" style="flex:1;padding:10px 6px;font-size:12px;border-radius:8px;">Últimos 7 dias</button>
+                <button id="rdBtn30" onclick="selectReportDays(30)" class="btn btn-ghost btn-sm" style="flex:1;padding:10px 6px;font-size:12px;border-radius:8px;">Últimos 30 dias</button>
+              </div>
+              <input type="hidden" id="reportDaysValue" value="7">
+            </div>
+
             <div style="display:flex;gap:8px;">
               <button class="btn btn-blue" onclick="saveReportSchedule()" style="flex:1;padding:11px;">💾 Salvar agendamento</button>
               <button class="btn btn-ghost" onclick="cancelReportScheduleEdit()" style="padding:11px 16px;">✕</button>
@@ -4897,26 +4907,55 @@ async function loadReportSchedule() {
     const user = resp.data || resp.user || resp;
     const freq  = parseInt(user.report_freq  || 0);
     const times = (user.report_times || '').split(',').map(t => t.trim()).filter(Boolean);
-    renderReportScheduleView(freq, times);
+    const days  = parseInt(user.report_days  || 7);
+    // Salvar days no campo hidden para ser lido no modo edição
+    const hiddenDays = document.getElementById('reportDaysValue');
+    if (hiddenDays) hiddenDays.value = days;
+    renderReportScheduleView(freq, times, days);
   } catch(e) { console.error('loadReportSchedule:', e.message); }
 }
 
-function renderReportScheduleView(freq, times) {
+const _daysLabel = { 1: 'Hoje', 7: 'Últimos 7 dias', 30: 'Últimos 30 dias' };
+
+function renderReportScheduleView(freq, times, days) {
   const display = document.getElementById('reportScheduleDisplay');
   if (!display) return;
   if (freq === 0 || !times.length) {
     display.innerHTML = `<span style="color:var(--text3);">⏸ Desativado</span>`;
   } else {
-    const freqLabel = freq === 1 ? '1x por dia' : `${freq}x por dia`;
-    const timeTags  = times.map(t => `<span style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:3px 10px;font-size:13px;font-family:'Montserrat',sans-serif;">${t}</span>`).join(' ');
-    display.innerHTML = `<div style="margin-bottom:8px;">🔔 <strong>${freqLabel}</strong></div><div style="display:flex;flex-wrap:wrap;gap:6px;">${timeTags}</div>`;
+    const freqLabel  = freq === 1 ? '1x por dia' : `${freq}x por dia`;
+    const timeTags   = times.map(t => `<span style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:3px 10px;font-size:13px;font-family:'Montserrat',sans-serif;">${t}</span>`).join(' ');
+    const periodLabel = _daysLabel[days] || `Últimos ${days} dias`;
+    display.innerHTML = `
+      <div style="margin-bottom:8px;">🔔 <strong>${freqLabel}</strong> &nbsp;|&nbsp; 📅 <strong>${periodLabel}</strong></div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">${timeTags}</div>`;
   }
+}
+
+function selectReportDays(days) {
+  document.getElementById('reportDaysValue').value = days;
+  [1, 7, 30].forEach(d => {
+    const btn = document.getElementById(`rdBtn${d}`);
+    if (!btn) return;
+    if (d === days) {
+      btn.style.background    = 'var(--blue)';
+      btn.style.color         = '#fff';
+      btn.style.borderColor   = 'var(--blue)';
+    } else {
+      btn.style.background    = '';
+      btn.style.color         = '';
+      btn.style.borderColor   = '';
+    }
+  });
 }
 
 function editReportSchedule() {
   document.getElementById('reportScheduleView').style.display = 'none';
   document.getElementById('reportScheduleForm').style.display = 'block';
   document.getElementById('reportScheduleMsg').textContent    = '';
+  // Restaurar seleção salva
+  const savedDays = parseInt(document.getElementById('reportDaysValue')?.value || 7);
+  selectReportDays(savedDays);
 }
 
 function cancelReportScheduleEdit() {
@@ -4926,6 +4965,7 @@ function cancelReportScheduleEdit() {
 
 async function saveReportSchedule() {
   const freq = parseInt(document.getElementById('reportFreqSelect').value);
+  const days = parseInt(document.getElementById('reportDaysValue')?.value || 7);
   const times = [];
   for (let i = 0; i < freq; i++) {
     const t = document.getElementById(`reportTime${i}`)?.value;
@@ -4933,12 +4973,12 @@ async function saveReportSchedule() {
   }
   const msg = document.getElementById('reportScheduleMsg');
   try {
-    await api('PUT', '/api/auth/settings', { report_freq: freq, report_times: times.join(',') });
-    renderReportScheduleView(freq, times);
+    await api('PUT', '/api/auth/settings', { report_freq: freq, report_times: times.join(','), report_days: days });
+    renderReportScheduleView(freq, times, days);
     cancelReportScheduleEdit();
+    if (msg) { msg.style.color = 'var(--green)'; msg.textContent = '✅ Agendamento salvo!'; }
   } catch(e) {
-    msg.style.color = 'var(--red)';
-    msg.textContent = '❌ Erro ao salvar. Tente novamente.';
+    if (msg) { msg.style.color = 'var(--red)'; msg.textContent = '❌ Erro ao salvar. Tente novamente.'; }
   }
 }
 
