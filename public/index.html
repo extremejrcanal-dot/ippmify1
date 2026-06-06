@@ -3293,8 +3293,10 @@ function updatePlatformUI(platform, integrations) {
           <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${i.account_name || i.account_id || 'Conta Meta'}</div>
           <div style="font-size:11px;color:${i.is_active ? 'var(--green)' : 'var(--orange)'};">● ${i.is_active ? 'ATIVA' : 'INATIVA'}</div>
         </div>
-        ${!i.is_active ? `<button class="btn btn-green btn-xs" onclick="toggleMetaAccount(${i.id})">▶ Reativar</button>` : `<button class="btn btn-ghost btn-xs" onclick="toggleMetaAccount(${i.id})">⏸ Desativar</button>`}
-        <button class="btn btn-red btn-xs" onclick="removeIntegration(${i.id})">✕</button>
+        ${!i.is_active
+          ? `<button class="btn btn-green btn-xs" onclick="toggleMetaAccount('${i.id}')">▶ Reativar</button>`
+          : `<button class="btn btn-ghost btn-xs" onclick="toggleMetaAccount('${i.id}')">⏸ Desativar</button>`}
+        <button class="btn btn-red btn-xs" onclick="removeIntegration('${i.id}')">✕</button>
       </div>`).join('');
     return;
   }
@@ -3322,7 +3324,7 @@ function updatePlatformUI(platform, integrations) {
   // Webhook URL for webhook-based platforms
   if (WEBHOOK_PLATFORMS.includes(platform)) {
     const input = document.getElementById(`${platform}WebhookUrl`);
-    if (input) input.value = `${API_URL}/api/integrations/webhook/${platform}`;
+    if (input) input.value = `${window.location.origin}/api/hook/webhook/${platform}`;
   }
 }
 
