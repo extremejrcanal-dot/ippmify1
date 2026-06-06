@@ -131,7 +131,15 @@ router.post('/meta-ads/connect-token', requireAuth, async (req, res) => {
       VALUES ($1, 'meta_ads', $2, $3, $4, true)
     `, [req.user.id, encrypt(longToken), accountId, accountName]);
 
-    res.json({ message: `Conta conectada: ${accountName}` });
+    // Disparar sync imediato em background (nao bloqueia a resposta)
+    const userId = req.user.id;
+    setImmediate(() => {
+      metaSync(userId)
+        .then(r => console.log(`[Meta Token] Sync imediato concluido: ${r?.total || 0} contas`))
+        .catch(err => console.error('[Meta Token] Sync imediato falhou:', err.message));
+    });
+
+    res.json({ message: `Conta conectada: ${accountName}. Sincronizando dados em segundo plano...` });
   } catch (error) {
     console.error('[Meta Token] Erro:', error.message);
     res.status(500).json({ error: error.message });
