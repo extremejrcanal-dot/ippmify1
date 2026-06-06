@@ -298,26 +298,29 @@ router.get('/me', requireAuth, async (req, res) => {
 // PUT /api/auth/settings
 router.put('/settings', requireAuth, async (req, res) => {
   try {
-    const { cpa_target, roas_target, whatsapp, whatsapp_key, timezone, report_freq, report_times, report_days } = req.body;
+    const allowed = ['cpa_target','roas_target','whatsapp','whatsapp_key','timezone','report_freq','report_times','report_days'];
+    const sets = [];
+    const vals = [];
+    let idx = 1;
 
-    await query(
-      `UPDATE users SET
-        cpa_target   = COALESCE($1, cpa_target),
-        roas_target  = COALESCE($2, roas_target),
-        whatsapp     = COALESCE($3, whatsapp),
-        whatsapp_key = COALESCE($4, whatsapp_key),
-        timezone     = COALESCE($5, timezone),
-        report_freq  = COALESCE($7, report_freq),
-        report_times = COALESCE($8, report_times),
-        report_days  = COALESCE($9, report_days),
-        updated_at   = NOW()
-       WHERE id = $6`,
-      [cpa_target, roas_target, whatsapp, whatsapp_key || null, timezone, req.user.id,
-       report_freq !== undefined ? report_freq : null,
-       report_times || null,
-       report_days !== undefined ? parseInt(report_days) : null]
-    );
+    for (const field of allowed) {
+      if (req.body[field] !== undefined) {
+        let val = req.body[field];
+        if (field === 'report_freq' || field === 'report_days') val = val === '' ? null : parseInt(val);
+        if (field === 'report_times' && val === '') val = null;
+        if (field === 'cpa_target'  || field === 'roas_target') val = val === '' ? null : parseFloat(val);
+        sets.push(`${field} = $${idx}`);
+        vals.push(val ?? null);
+        idx++;
+      }
+    }
 
+    if (sets.length === 0) return res.json({ message: 'Nada para atualizar' });
+
+    sets.push(`updated_at = NOW()`);
+    vals.push(req.user.id);
+
+    await query(`UPDATE users SET ${sets.join(', ')} WHERE id = $${idx}`, vals);
     res.json({ message: 'Configuracoes atualizadas com sucesso' });
   } catch (error) {
     console.error('[Auth] Erro ao atualizar configuracoes:', error.message);
