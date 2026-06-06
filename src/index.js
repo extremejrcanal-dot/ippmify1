@@ -77,6 +77,7 @@ const runMigrations = async () => {
     await query("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;");
     await query("ALTER TABLE users ADD COLUMN IF NOT EXISTS report_freq INT DEFAULT 0;");
     await query("ALTER TABLE users ADD COLUMN IF NOT EXISTS report_times VARCHAR(100) DEFAULT NULL;");
+    await query("ALTER TABLE users ADD COLUMN IF NOT EXISTS report_days INT DEFAULT 7;");
 
     console.log('[Migrations] OK');
   } catch (err) {
