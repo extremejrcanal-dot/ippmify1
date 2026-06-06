@@ -18,7 +18,7 @@ const requireAuth = async (req, res, next) => {
 
     const result = await query(
       `SELECT id, email, name, plan, timezone, whatsapp, whatsapp_key,
-              cpa_target, roas_target, report_freq, report_times,
+              cpa_target, roas_target, report_freq, report_times, report_days,
               trial_expires_at, plan_expires_at, is_admin
        FROM users WHERE id = $1 AND is_active = true`,
       [decoded.userId]
