@@ -104,6 +104,7 @@ const globalLimiter = rateLimit({
 });
 app.use(globalLimiter);
 
+// Rate limiter restrito apenas para login e registro (previne brute-force)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
@@ -117,7 +118,11 @@ app.get('/health', (req, res) => {
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // ─── ROTAS PUBLICAS (sem verificacao de plano) ────────────────────────────────
-app.use('/api/auth',    authLimiter, authRoutes);   // login, registro, /me, /settings
+// authLimiter apenas em login/register — nao em /me e /settings (evita bloqueio)
+app.use('/api/auth/login',    authLimiter);
+app.use('/api/auth/register', authLimiter);
+app.use('/api/auth/refresh',  authLimiter);
+app.use('/api/auth',    authRoutes);   // login, registro, /me, /settings
 app.use('/api/webhook', webhookRoutes);             // Kirvano / Cakto (billing IPPMIFY)
 app.use('/api/hook',    integrationsRoutes);        // Webhooks publicos das plataformas (Stripe, MP, etc)
 
