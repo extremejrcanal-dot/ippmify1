@@ -188,14 +188,16 @@ const sendWhatsApp = async (phone, apiKey, message) => {
 };
 
 // ─── ENVIAR RELATORIO DIARIO VIA WA (para ser chamado pelo worker) ──────────
-const sendDailyWhatsAppReport = async (userId) => {
+const sendDailyWhatsAppReport = async (userId, days) => {
   const result = await query(
-    'SELECT whatsapp, whatsapp_key FROM users WHERE id=$1',
+    'SELECT whatsapp, whatsapp_key, report_days FROM users WHERE id=$1',
     [userId]
   );
   const user = result.rows[0];
   if (!user?.whatsapp || !user?.whatsapp_key) return false;
-  const message = await generateWhatsAppMessage(userId, 7);
+  // Prioridade: parametro explicito > preferencia do usuario > default 7
+  const reportDays = days || user.report_days || 7;
+  const message = await generateWhatsAppMessage(userId, reportDays);
   await sendWhatsApp(user.whatsapp, user.whatsapp_key, message);
   return true;
 };
