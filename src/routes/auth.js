@@ -282,14 +282,14 @@ router.get('/me', requireAuth, async (req, res) => {
     id, email, name, plan, plan_status,
     trial_expires_at, plan_expires_at,
     whatsapp, whatsapp_key, cpa_target, roas_target, timezone,
-    report_freq, report_times
+    report_freq, report_times, report_days
   } = req.user;
   res.json({
     data: {
       id, email, name, plan, plan_status,
       trial_expires_at, plan_expires_at,
       whatsapp, whatsapp_key, cpa_target, roas_target, timezone,
-      report_freq, report_times
+      report_freq, report_times, report_days
     }
   });
 });
@@ -298,7 +298,7 @@ router.get('/me', requireAuth, async (req, res) => {
 // PUT /api/auth/settings
 router.put('/settings', requireAuth, async (req, res) => {
   try {
-    const { cpa_target, roas_target, whatsapp, whatsapp_key, timezone, report_freq, report_times } = req.body;
+    const { cpa_target, roas_target, whatsapp, whatsapp_key, timezone, report_freq, report_times, report_days } = req.body;
 
     await query(
       `UPDATE users SET
@@ -309,11 +309,13 @@ router.put('/settings', requireAuth, async (req, res) => {
         timezone     = COALESCE($5, timezone),
         report_freq  = COALESCE($7, report_freq),
         report_times = COALESCE($8, report_times),
+        report_days  = COALESCE($9, report_days),
         updated_at   = NOW()
        WHERE id = $6`,
       [cpa_target, roas_target, whatsapp, whatsapp_key || null, timezone, req.user.id,
        report_freq !== undefined ? report_freq : null,
-       report_times || null]
+       report_times || null,
+       report_days !== undefined ? parseInt(report_days) : null]
     );
 
     res.json({ message: 'Configuracoes atualizadas com sucesso' });
