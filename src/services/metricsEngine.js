@@ -120,7 +120,9 @@ const calculateByCampaign = async (userId, days = 7) => {
       AND s.sale_date >= NOW() - INTERVAL '${days} days'
     WHERE c.user_id = $1
     GROUP BY c.id, c.name, c.external_id, c.status, c.daily_budget
-    ORDER BY total_spend DESC
+    ORDER BY
+      CASE WHEN c.status = 'ACTIVE' THEN 0 ELSE 1 END ASC,
+      total_spend DESC
   `, [userId]);
 
   return result.rows.map(row => ({
