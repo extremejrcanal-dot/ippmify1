@@ -4144,12 +4144,22 @@ async function loadTopCampaigns(days = 7) {
     }
 
     // Normalizar campos: backend retorna campaign_name/campaign_id
-    const top = camps.slice(0, 5).map(c => ({
+    // Ativas primeiro (backend já ordena, mas garantir no front também)
+    const allNorm = camps.map(c => ({
       ...c,
       name: c.campaign_name || c.name || 'Campanha',
       id:   c.campaign_id   || c.id,
-    }));
-    const totalRev = camps.reduce((s,c)=>s+(c.revenue||0),0);
+    })).sort((a, b) => {
+      const aActive = (a.status === 'ACTIVE') ? 0 : 1;
+      const bActive = (b.status === 'ACTIVE') ? 0 : 1;
+      if (aActive !== bActive) return aActive - bActive;
+      return (b.spend || 0) - (a.spend || 0);
+    });
+
+    // Donut: usar top 5 com gasto > 0, ou top 5 geral
+    const withSpend = allNorm.filter(c => (c.spend||0) > 0);
+    const top5 = (withSpend.length > 0 ? withSpend : allNorm).slice(0, 5);
+    const totalRev = allNorm.reduce((s,c)=>s+(c.revenue||0),0);
 
     // Donut
     if (chartDonut) chartDonut.destroy();
@@ -4157,13 +4167,13 @@ async function loadTopCampaigns(days = 7) {
     chartDonut = new Chart(document.getElementById('chartDonut'), {
       type:'doughnut',
       data:{
-        labels: top.map(c=>c.name.substring(0,20)),
-        datasets:[{ data:top.map(c=>c.revenue||0), backgroundColor:colors, borderWidth:0 }],
+        labels: top5.map(c=>c.name.substring(0,20)),
+        datasets:[{ data:top5.map(c=>c.revenue||c.spend||0), backgroundColor:colors, borderWidth:0 }],
       },
       options:{ responsive:true, cutout:'72%', plugins:{legend:{display:false}} }
     });
     document.getElementById('donutCenter').textContent = fmt(totalRev).replace('R$ ','R$\n');
-    document.getElementById('donutLegend').innerHTML = top.map((c,i)=>`
+    document.getElementById('donutLegend').innerHTML = top5.map((c,i)=>`
       <div class="dl-item">
         <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0">
           <div class="dl-dot" style="background:${colors[i]}"></div>
@@ -4172,27 +4182,32 @@ async function loadTopCampaigns(days = 7) {
         <span class="dl-pct">${totalRev>0?(((c.revenue||0)/totalRev)*100).toFixed(1):0}%</span>
       </div>`).join('');
 
-    // Top Camps Table
+    // Tabela: mostrar TODAS as campanhas (ativas primeiro, máx 10)
+    const tableRows = allNorm.slice(0, 10);
     document.getElementById('topCampsContent').innerHTML = `
       <table class="top-camp-table">
         <thead><tr>
-          <th>Campanha</th><th>Gasto</th><th>Receita</th><th>Lucro</th><th>ROAS</th><th>CPA</th>
+          <th>Campanha</th><th>Status</th><th>Gasto</th><th>Receita</th><th>Lucro</th><th>ROAS</th><th>CPA</th>
         </tr></thead>
         <tbody>
-          ${top.map(c => {
+          ${tableRows.map(c => {
             const p = (c.revenue||0) - (c.spend||0);
             const rc = c.roas>=2?'roas-high':c.roas>=1?'roas-mid':'roas-low';
-            return `<tr>
-              <td title="${c.name}">${c.name.substring(0,32)}</td>
-              <td>${fmt(c.spend)}</td>
-              <td style="color:var(--green)">${fmt(c.revenue)}</td>
-              <td style="color:${p>=0?'var(--green)':'var(--red)'}">${p>=0?'+':''}${fmt(p)}</td>
-              <td><span class="roas-badge ${rc}">${fmtN(c.roas)}x</span></td>
-              <td>${c.cpa>0?fmt(c.cpa):'—'}</td>
+            const isActive = c.status === 'ACTIVE';
+            const noData = (c.spend||0) === 0 && isActive;
+            return `<tr style="${isActive?'border-left:3px solid #22C55E;':''}" >
+              <td title="${c.name}" style="${isActive?'font-weight:600;':''}">${c.name.substring(0,30)}${isActive?' <span style="color:#22C55E;font-size:10px">●</span>':''}</td>
+              <td><span style="font-size:11px;padding:2px 6px;border-radius:4px;background:${isActive?'#14532d':'#1E3A5F'};color:${isActive?'#22C55E':'#8BA3BC'}">${isActive?'Ativa':'Pausada'}</span></td>
+              <td>${noData?'<span style="color:#4A6580;font-size:11px">aguardando...</span>':fmt(c.spend)}</td>
+              <td style="color:var(--green)">${noData?'—':fmt(c.revenue)}</td>
+              <td style="color:${p>=0?'var(--green)':'var(--red)'}">${noData?'—':(p>=0?'+':'')+fmt(p)}</td>
+              <td><span class="roas-badge ${rc}">${noData?'—':fmtN(c.roas)+'x'}</span></td>
+              <td>${noData?'—':c.cpa>0?fmt(c.cpa):'—'}</td>
             </tr>`;
           }).join('')}
         </tbody>
-      </table>`;
+      </table>
+      ${allNorm.length > 10 ? `<div style="text-align:center;padding:8px;color:var(--text-muted);font-size:12px">+ ${allNorm.length - 10} campanhas — veja mais na aba Campanhas</div>` : ''}`;
   } catch(e) {}
 }
 
