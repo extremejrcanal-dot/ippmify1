@@ -5,6 +5,7 @@ const { generateInsights } = require('../services/aiInsights');
 const { sendAlert, sendDailyReport } = require('../services/alertService');
 const { calculateOverview } = require('../services/metricsEngine');
 const { sendDailyWhatsAppReport } = require('../services/reportService');
+const { runFullSync: metaAdsSync } = require('../services/metaAds');
 
 // ─── WORKER DE SINCRONIZACAO E AUTOMACAO ─────────────────────────────────────
 
@@ -106,8 +107,26 @@ const startSyncScheduler = () => {
     }
   });
 
+  // ── A cada 2 horas: Meta Ads sync automatico ─────────────────────────────
+  cron.schedule('0 */2 * * *', async () => {
+    console.log('[Worker] Meta Ads — sync automatico a cada 2h');
+    const users = await getActiveUsers();
+    for (const user of users) {
+      try {
+        const result = await metaAdsSync(user.id);
+        if (result) {
+          console.log(`[Worker] Meta Ads sync: ${user.email} (${result.total} contas, ${result.errors} erros)`);
+        }
+      } catch (err) {
+        console.error(`[Worker] Erro Meta Ads sync ${user.email}:`, err.message);
+      }
+    }
+    console.log(`[Worker] Meta Ads sync concluido para ${users.length} usuarios`);
+  });
+
   console.log('[Worker] Schedulers iniciados:');
   console.log('  - Motor de decisao: a cada 15 minutos');
+  console.log('  - Meta Ads sync: a cada 2 horas');
   console.log('  - Relatorio IA: 06:00 BRT');
   console.log('  - Relatorio WhatsApp personalizado: verificacao a cada hora');
 };
