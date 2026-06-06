@@ -3457,12 +3457,39 @@ async function connectMetaToken() {
     alert(message);
     document.getElementById('metaAccessToken').value = '';
     document.getElementById('metaAdAccountId').value = '';
+    // Após conectar, disparar sync e recarregar dashboard
+    const msgEl = document.getElementById('metaMsg');
+    if (msgEl) msgEl.innerHTML = '<div class="int-msg ok">✅ Conta conectada! Sincronizando dados...</div>';
+    try {
+      await api('POST', '/api/integrations/meta-ads/sync');
+      if (msgEl) msgEl.innerHTML = '<div class="int-msg ok">✅ Conta conectada e dados sincronizados!</div>';
+      loadDashboard();
+    } catch(syncErr) {
+      if (msgEl) msgEl.innerHTML = '<div class="int-msg ok">✅ Conta conectada. Use o botão ↻ Sincronizar para carregar os dados.</div>';
+    }
     loadIntegrations();
   } catch(e) {
     alert('Erro: ' + e.message);
   } finally {
     btn.innerHTML = '⚡ Conectar Conta';
     btn.disabled = false;
+  }
+}
+
+async function syncMeta() {
+  const msgEl = document.getElementById('metaMsg');
+  const btn = event?.target;
+  if (btn) { btn.innerHTML = '<span class="spinner"></span> Sincronizando...'; btn.disabled = true; }
+  if (msgEl) msgEl.innerHTML = '<div class="int-msg">⏳ Sincronizando campanhas e métricas do Meta Ads...</div>';
+  try {
+    await api('POST', '/api/integrations/meta-ads/sync');
+    if (msgEl) msgEl.innerHTML = '<div class="int-msg ok">✅ Sincronizado com sucesso! Recarregando dashboard...</div>';
+    loadDashboard();
+    setTimeout(() => { if (msgEl) msgEl.innerHTML = ''; }, 4000);
+  } catch(e) {
+    if (msgEl) msgEl.innerHTML = `<div class="int-msg err">❌ Erro ao sincronizar: ${e.message}</div>`;
+  } finally {
+    if (btn) { btn.innerHTML = '↻ Sincronizar'; btn.disabled = false; }
   }
 }
 
@@ -4007,6 +4034,18 @@ async function applyBatchBudget() {
 }
 
 // ─── DASHBOARD ───────────────────────────────────────────────────────────────
+async function triggerMetaSyncFromDash() {
+  const btn = event?.target;
+  if (btn) { btn.innerHTML = '<span class="spinner"></span> Sincronizando...'; btn.disabled = true; }
+  try {
+    await api('POST', '/api/integrations/meta-ads/sync');
+    loadDashboard();
+  } catch(e) {
+    alert('Erro ao sincronizar: ' + e.message);
+    if (btn) { btn.innerHTML = '↻ Sincronizar Meta Ads Agora'; btn.disabled = false; }
+  }
+}
+
 async function loadDashboard() {
   const days = document.getElementById('dashDays')?.value || 7;
   document.getElementById('dashDateLabel').textContent = `Últimos ${days} dias`;
@@ -4094,7 +4133,15 @@ async function loadCharts() {
 async function loadTopCampaigns(days = 7) {
   try {
     const { data: camps } = await api('GET', `/api/metrics/campaigns?days=${days}`);
-    if (!camps || !camps.length) { document.getElementById('topCampsContent').innerHTML = '<div class="empty-state" style="padding:20px"><p>Sem dados de campanhas.</p></div>'; return; }
+    if (!camps || !camps.length) {
+      document.getElementById('topCampsContent').innerHTML = `
+        <div class="empty-state" style="padding:24px;text-align:center">
+          <div style="font-size:32px;margin-bottom:8px">📡</div>
+          <p style="margin-bottom:12px;color:var(--text-muted)">Nenhuma campanha encontrada. Sincronize o Meta Ads para carregar os dados.</p>
+          <button class="btn btn-blue btn-sm" onclick="triggerMetaSyncFromDash()">↻ Sincronizar Meta Ads Agora</button>
+        </div>`;
+      return;
+    }
 
     // Normalizar campos: backend retorna campaign_name/campaign_id
     const top = camps.slice(0, 5).map(c => ({
