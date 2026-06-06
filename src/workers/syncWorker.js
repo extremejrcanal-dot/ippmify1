@@ -12,7 +12,7 @@ const { sendDailyWhatsAppReport } = require('../services/reportService');
 // Espelha a logica do middleware: plan='active' nao expirado, OU is_admin=true
 const getActiveUsers = async () => {
   const result = await query(
-    `SELECT id, email, timezone, report_freq, report_times FROM users
+    `SELECT id, email, timezone, report_freq, report_times, report_days FROM users
      WHERE is_active = true
        AND (
          is_admin = true
@@ -93,9 +93,10 @@ const startSyncScheduler = () => {
       if (!shouldSendReportNow(user.report_times, brtHour, 0)) continue;
 
       try {
-        const sent = await sendDailyWhatsAppReport(user.id);
+        const days = user.report_days || 7;
+        const sent = await sendDailyWhatsAppReport(user.id, days);
         if (sent) {
-          console.log(`[Worker] WhatsApp agendado enviado para ${user.email} as ${brtHour}:00 BRT`);
+          console.log(`[Worker] WhatsApp agendado enviado para ${user.email} as ${brtHour}:00 BRT (${days} dias)`);
         } else {
           console.log(`[Worker] WhatsApp nao configurado para ${user.email} — pulando`);
         }
