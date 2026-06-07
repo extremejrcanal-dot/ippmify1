@@ -32,9 +32,14 @@ const calculateMetrics = (spend, revenue, conversions, impressions, clicks) => {
   };
 };
 
+// Data atual no fuso BRT — garante que o cache invalida na virada de meia-noite
+const getTodayBRT = () =>
+  new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))
+    .toISOString().slice(0, 10);
+
 // Calcular metricas gerais de um usuario (todas as campanhas)
 const calculateOverview = async (userId, days = 7) => {
-  const cacheKey = `metrics:overview:${userId}:${days}d`;
+  const cacheKey = `metrics:overview:${userId}:${days}d:${getTodayBRT()}`;
 
   // Query que junta gastos do Meta Ads com vendas do Hotmart/Kiwify
   // Esta e a magica do IPPMIFY: lucro REAL, nao o que o Meta reporta
