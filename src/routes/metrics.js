@@ -112,7 +112,9 @@ router.get('/tree', async (req, res) => {
       WHERE c.user_id = $1 ${integFilter}
       GROUP BY c.id, c.name, c.status, c.external_id, c.objective,
                c.integration_id, c.daily_budget, c.lifetime_budget
-      ORDER BY spend DESC
+      ORDER BY
+        CASE WHEN c.status = 'ACTIVE' THEN 0 ELSE 1 END ASC,
+        spend DESC
     `, [userId]);
 
     // NIVEL 2 — Conjuntos
