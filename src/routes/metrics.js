@@ -9,12 +9,18 @@ const router = express.Router();
 // Todas as rotas exigem login
 router.use(requireAuth);
 
+// Helper: data atual no fuso horario de Sao Paulo (evita bug de virada de meia-noite)
+const getTodayBRT = () =>
+  new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))
+    .toISOString().slice(0, 10); // ex: '2026-06-07'
+
 // ─── VISAO GERAL ───────────────────────────────────────────────────────────
 // GET /api/metrics/overview?days=7
 router.get('/overview', async (req, res) => {
   try {
     const days = parseInt(req.query.days) || 7;
-    const cacheKey = `metrics:overview:${req.user.id}:${days}d`;
+    // Incluir data BRT na chave: invalida cache automaticamente apos meia-noite
+    const cacheKey = `metrics:overview:${req.user.id}:${days}d:${getTodayBRT()}`;
 
     // Tentar cache primeiro
     const cached = await get(cacheKey);
