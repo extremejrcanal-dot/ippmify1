@@ -6,11 +6,13 @@ const { pauseEntity, updateDailyBudget, getIntegrationToken } = require('./metaA
 const getUserConfig = async (userId) => {
   const result = await query('SELECT cpa_target, roas_target, roas_breakeven FROM users WHERE id = $1', [userId]);
   const u = result.rows[0] || {};
+  const cpaTarget = parseFloat(u.cpa_target || 50);
   return {
-    cpa_target:     parseFloat(u.cpa_target || 50),
+    cpa_target:     cpaTarget,
     roas_target:    parseFloat(u.roas_target || 2),
     roas_breakeven: parseFloat(u.roas_breakeven || 1),
-    min_spend:      30,
+    // Minimo 2x o CPA target para evitar pausas prematuras (ex: CPA R$70 → min R$140)
+    min_spend:      Math.max(cpaTarget * 2, 50),
     ctr_drop_pct:   0.30,
     conv_drop_pct:  0.50,
     cpm_spike_pct:  1.0,
@@ -70,6 +72,53 @@ const executeMetaAction = async (userId, decisionId, action) => {
   }
 };
 
+// ─── CRIAR ACAO PENDENTE — AGUARDA CONFIRMACAO VIA LINK NO WHATSAPP ──────────
+// PAUSA nunca e executada automaticamente — usuario clica em link recebido no WA
+const createPendingAction = async (userId, decisionId, decision) => {
+  try {
+    // Verificar se ja existe acao pendente ativa para esta entidade
+    const existing = await query(`
+      SELECT id FROM pending_actions
+      WHERE user_id = $1
+        AND entity_external_id = $2
+        AND status = 'pending_approval'
+        AND expires_at > NOW()
+    `, [userId, decision.entity_external_id]);
+
+    if (existing.rows.length > 0) {
+      console.log(`[Action] Acao pendente ja existe para "${decision.entity_name}" — nao reenviando alerta`);
+      return;
+    }
+
+    // Inserir acao pendente e obter o UUID gerado (sera usado como token no link)
+    const result = await query(`
+      INSERT INTO pending_actions
+        (user_id, decision_id, action_type, entity_type, entity_external_id, entity_name, new_budget)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING id
+    `, [
+      userId, decisionId,
+      decision.action_type,
+      decision.entity_type,
+      decision.entity_external_id,
+      decision.entity_name,
+      decision.new_budget || null,
+    ]);
+
+    const pendingId = result.rows[0].id;
+    // Link de confirmacao — usuario clica no WhatsApp para aprovar a pausa
+    const confirmUrl = `${process.env.APP_URL || 'https://ippmify1-production.up.railway.app'}/api/integrations/confirm/${pendingId}`;
+
+    // Enviar WhatsApp com link de confirmacao via CallMeBot
+    const { sendPauseRequest } = require('./alertService');
+    await sendPauseRequest(userId, decision, confirmUrl);
+
+    console.log(`[Action] PAUSE pendente (${pendingId}) — link enviado via WhatsApp: "${decision.entity_name}"`);
+  } catch (err) {
+    console.error('[createPendingAction] Erro:', err.message);
+  }
+};
+
 // ═══════════════════════════════════════════════════════════════════════════
 // NIVEL 1 — AVALIACAO DE CAMPANHAS
 // ═══════════════════════════════════════════════════════════════════════════
@@ -110,7 +159,7 @@ const evaluateCampaign = (campaign, history7d, config) => {
       rule_id: 'R01', type: 'HIGH_CPA', severity: 9,
       title: `CPA R$${c.cpa.toFixed(2)} — ${(c.cpa/config.cpa_target).toFixed(1)}x acima do target`,
       description: `Campanha "${c.campaign_name}" com CPA critico. Target: R$${config.cpa_target.toFixed(2)}.`,
-      recommendation: `⚡ ACAO AUTOMATICA: Campanha pausada automaticamente. Revise criativos e publico antes de reativar.`,
+      recommendation: `CPA critico detectado. Aguardando sua confirmacao via WhatsApp para pausar. Revise criativos e publico antes de reativar.`,
       action_type: 'PAUSE', entity_type: 'campaign', entity_external_id: c.external_id, entity_name: c.campaign_name,
       data_snapshot: { cpa: c.cpa, cpa_target: config.cpa_target, spend: c.spend }
     });
@@ -129,7 +178,7 @@ const evaluateCampaign = (campaign, history7d, config) => {
       rule_id: 'R03', type: 'LOW_ROAS', severity: 9,
       title: `ROAS ${c.roas.toFixed(2)}x — Campanha dando PREJUIZO`,
       description: `Prejuizo real de R$${Math.abs(c.profit).toFixed(2)} no periodo.`,
-      recommendation: `⚡ ACAO AUTOMATICA: Campanha pausada automaticamente.`,
+      recommendation: `ROAS abaixo do ponto de equilibrio — campanha gerando prejuizo. Aguardando sua confirmacao via WhatsApp para pausar.`,
       action_type: 'PAUSE', entity_type: 'campaign', entity_external_id: c.external_id, entity_name: c.campaign_name,
       data_snapshot: { roas: c.roas, roas_breakeven: config.roas_breakeven, profit: c.profit }
     });
@@ -164,7 +213,7 @@ const evaluateCampaign = (campaign, history7d, config) => {
       rule_id: 'R09', type: 'ZERO_SALES', severity: 8,
       title: `R$${c.spend.toFixed(2)} gastos — ZERO vendas`,
       description: `Gasto sem nenhuma conversao registrada.`,
-      recommendation: `⚡ ACAO AUTOMATICA: Campanha pausada. Verifique pagina de vendas e rastreamento.`,
+      recommendation: `Gasto sem conversoes rastreadas. Aguardando sua confirmacao via WhatsApp para pausar. Verifique pagina de vendas e rastreamento.`,
       action_type: 'PAUSE', entity_type: 'campaign', entity_external_id: c.external_id, entity_name: c.campaign_name,
       data_snapshot: { spend: c.spend, conversions: 0 }
     });
@@ -244,7 +293,7 @@ const evaluateAdSets = async (userId, config) => {
         rule_id: 'AS01', type: 'AUDIENCE_FATIGUE', severity: 7,
         title: `Fadiga de audiencia — Conjunto "${adSet.ad_set_name}"`,
         description: `CPM subiu ${((cpm/avgCpm7d-1)*100).toFixed(0)}% e CTR caiu ${((1-ctr/avgCtr7d)*100).toFixed(0)}% vs media 7 dias. Audiencia saturada.`,
-        recommendation: `⚡ ACAO AUTOMATICA: Conjunto pausado. Crie um novo conjunto com audiencia diferente (lookalike, interesse alternativo).`,
+        recommendation: `Audiencia saturada detectada. Aguardando sua confirmacao via WhatsApp para pausar. Crie um novo conjunto com audiencia diferente.`,
         action_type: 'PAUSE', entity_type: 'ad_set', entity_external_id: adSet.ad_set_external_id, entity_name: adSet.ad_set_name,
         data_snapshot: { cpm, cpm_7d: avgCpm7d, ctr, ctr_7d: avgCtr7d }
       });
@@ -256,7 +305,7 @@ const evaluateAdSets = async (userId, config) => {
         rule_id: 'AS02', type: 'HIGH_CPA_ADSET', severity: 8,
         title: `CPA R$${cpa.toFixed(2)} — Conjunto "${adSet.ad_set_name}"`,
         description: `CPA ${(cpa/config.cpa_target).toFixed(1)}x acima do target neste conjunto de anuncios.`,
-        recommendation: `⚡ ACAO AUTOMATICA: Conjunto pausado. Teste nova segmentacao de publico.`,
+        recommendation: `CPA critico no conjunto. Aguardando sua confirmacao via WhatsApp para pausar. Teste nova segmentacao de publico.`,
         action_type: 'PAUSE', entity_type: 'ad_set', entity_external_id: adSet.ad_set_external_id, entity_name: adSet.ad_set_name,
         data_snapshot: { cpa, cpa_target: config.cpa_target, spend }
       });
@@ -359,7 +408,7 @@ const evaluateAds = async (userId, config) => {
         rule_id: 'AD01', type: 'CREATIVE_FATIGUE_AD', severity: 7,
         title: `Criativo esgotado — "${ad.ad_name}"`,
         description: `CTR caiu ${dropPct}% vs media 7 dias. Publico ignorando este anuncio.`,
-        recommendation: `⚡ ACAO AUTOMATICA: Anuncio pausado. Crie nova versao do criativo com angulo diferente.`,
+        recommendation: `Criativo com queda de CTR detectada. Aguardando sua confirmacao via WhatsApp para pausar. Crie nova versao com angulo diferente.`,
         action_type: 'PAUSE', entity_type: 'ad', entity_external_id: ad.ad_external_id, entity_name: ad.ad_name,
         data_snapshot: { ctr, ctr_7d: avgCtr7d, drop_pct: dropPct, spend }
       });
@@ -371,7 +420,7 @@ const evaluateAds = async (userId, config) => {
         rule_id: 'AD02', type: 'HIGH_CPA_AD', severity: 8,
         title: `CPA R$${cpa.toFixed(2)} — Anuncio "${ad.ad_name}"`,
         description: `Este anuncio especifico tem CPA ${(cpa/config.cpa_target).toFixed(1)}x acima do target. Criativo nao converte.`,
-        recommendation: `⚡ ACAO AUTOMATICA: Anuncio pausado. O criativo nao esta convertendo para este publico.`,
+        recommendation: `CPA critico no anuncio. Aguardando sua confirmacao via WhatsApp para pausar. O criativo nao esta convertendo para este publico.`,
         action_type: 'PAUSE', entity_type: 'ad', entity_external_id: ad.ad_external_id, entity_name: ad.ad_name,
         data_snapshot: { cpa, cpa_target: config.cpa_target, spend, conversions }
       });
@@ -383,7 +432,7 @@ const evaluateAds = async (userId, config) => {
         rule_id: 'AD03', type: 'ZERO_CONVERSION_AD', severity: 7,
         title: `R$${spend.toFixed(2)} gastos — ZERO conversoes — "${ad.ad_name}"`,
         description: `Este anuncio gastou R$${spend.toFixed(2)} sem gerar nenhuma venda rastreada via UTM.`,
-        recommendation: `⚡ ACAO AUTOMATICA: Anuncio pausado. Verifique se utm_content esta configurado corretamente.`,
+        recommendation: `Anuncio sem conversoes rastreadas. Aguardando sua confirmacao via WhatsApp para pausar. Verifique se utm_content esta configurado corretamente.`,
         action_type: 'PAUSE', entity_type: 'ad', entity_external_id: ad.ad_external_id, entity_name: ad.ad_name,
         data_snapshot: { spend, conversions: 0, ad_external_id: ad.ad_external_id }
       });
@@ -432,18 +481,22 @@ const runDecisionEngine = async (userId) => {
 
       const decisionId = result.rows[0]?.id;
 
-      // Executar acao automaticamente se elegivel
-      if (decisionId && decision.entity_external_id &&
-         (decision.action_type === 'PAUSE' || decision.action_type === 'SCALE_BUDGET')) {
-        await executeMetaAction(userId, decisionId, {
-          type:       decision.action_type,
-          entityType: decision.entity_type,
-          entityId:   decision.entity_external_id,
-          entityName: decision.entity_name,
-          newBudget:  decision.new_budget,
-          oldValue:   { status: 'ACTIVE' },
-          newValue:   decision.action_type === 'PAUSE' ? { status: 'PAUSED' } : { budget: decision.new_budget },
-        });
+      if (decisionId && decision.entity_external_id) {
+        if (decision.action_type === 'SCALE_BUDGET') {
+          // Escala e segura — executa automaticamente sem precisar de aprovacao
+          await executeMetaAction(userId, decisionId, {
+            type:       'SCALE_BUDGET',
+            entityType: decision.entity_type,
+            entityId:   decision.entity_external_id,
+            entityName: decision.entity_name,
+            newBudget:  decision.new_budget,
+            oldValue:   { budget: decision.old_budget },
+            newValue:   { budget: decision.new_budget },
+          });
+        } else if (decision.action_type === 'PAUSE') {
+          // PAUSA *nunca* e automatica — envia WhatsApp e aguarda SIM do usuario
+          await createPendingAction(userId, decisionId, decision);
+        }
       }
 
       allDecisions.push({ ...decision, campaign_name: campaign.campaign_name });
@@ -464,17 +517,20 @@ const runDecisionEngine = async (userId) => {
 
     const decisionId = result.rows[0]?.id;
 
-    if (decisionId && decision.entity_external_id &&
-       (decision.action_type === 'PAUSE' || decision.action_type === 'SCALE_BUDGET')) {
-      await executeMetaAction(userId, decisionId, {
-        type:       decision.action_type,
-        entityType: decision.entity_type,
-        entityId:   decision.entity_external_id,
-        entityName: decision.entity_name,
-        newBudget:  decision.new_budget,
-        oldValue:   {},
-        newValue:   decision.action_type === 'PAUSE' ? { status: 'PAUSED' } : { budget: decision.new_budget },
-      });
+    if (decisionId && decision.entity_external_id) {
+      if (decision.action_type === 'SCALE_BUDGET') {
+        await executeMetaAction(userId, decisionId, {
+          type:       'SCALE_BUDGET',
+          entityType: decision.entity_type,
+          entityId:   decision.entity_external_id,
+          entityName: decision.entity_name,
+          newBudget:  decision.new_budget,
+          oldValue:   {},
+          newValue:   { budget: decision.new_budget },
+        });
+      } else if (decision.action_type === 'PAUSE') {
+        await createPendingAction(userId, decisionId, decision);
+      }
     }
 
     allDecisions.push(decision);
@@ -495,14 +551,8 @@ const runDecisionEngine = async (userId) => {
     const decisionId = result.rows[0]?.id;
 
     if (decisionId && decision.entity_external_id && decision.action_type === 'PAUSE') {
-      await executeMetaAction(userId, decisionId, {
-        type:       'PAUSE',
-        entityType: decision.entity_type,
-        entityId:   decision.entity_external_id,
-        entityName: decision.entity_name,
-        oldValue:   { status: 'ACTIVE' },
-        newValue:   { status: 'PAUSED' },
-      });
+      // Nivel 3 (anuncios): PAUSA tambem requer confirmacao via WhatsApp
+      await createPendingAction(userId, decisionId, decision);
     }
 
     allDecisions.push(decision);
