@@ -3,9 +3,10 @@ const crypto = require('crypto');
 const { requireAuth } = require('../middleware/auth');
 const { query } = require('../config/database');
 const { encrypt, decrypt } = require('../services/encryptionService');
-const { getOAuthUrl, exchangeCodeForToken, exchangeForLongLivedToken, getAdAccounts, runFullSync: metaSync } = require('../services/metaAds');
+const { getOAuthUrl, exchangeCodeForToken, exchangeForLongLivedToken, getAdAccounts, runFullSync: metaSync, pauseEntity, getIntegrationToken } = require('../services/metaAds');
 const { getAccessToken, runFullSync: hotmartSync, processWebhook: hotmartWebhook } = require('../services/hotmart');
 const { processWebhook: kirvanoWebhook } = require('../services/kirvano');
+const { sendCallMeBot } = require('../services/alertService');
 
 const router = express.Router();
 
@@ -970,5 +971,129 @@ router.delete('/:id', requireAuth, async (req, res) => {
   );
   res.json({ message: 'Integracao removida' });
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CONFIRMACAO DE PAUSA VIA LINK (CallMeBot — sem Twilio)
+// ═══════════════════════════════════════════════════════════════════════════
+// O usuario recebe no WhatsApp um link como:
+//   https://ippmify1-production.up.railway.app/api/integrations/confirm/UUID
+// Clicar no link executa a pausa imediatamente.
+// Rota publica (sem requireAuth) pois e acessada direto do WhatsApp.
+// ─────────────────────────────────────────────────────────────────────────────
+router.get('/confirm/:token', async (req, res) => {
+  const { token } = req.params;
+
+  // Validar formato UUID para evitar SQL injection
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidPattern.test(token)) {
+    return res.status(400).send(confirmPage('❌ Link inválido.', '', false));
+  }
+
+  try {
+    // Buscar acao pendente pelo UUID (o ID e o token)
+    const actionResult = await query(`
+      SELECT pa.*, u.name AS user_name, u.whatsapp
+      FROM pending_actions pa
+      JOIN users u ON u.id = pa.user_id
+      WHERE pa.id = $1
+    `, [token]);
+
+    if (!actionResult.rows.length) {
+      return res.send(confirmPage('❌ Link não encontrado.', 'Este link pode já ter sido usado ou nunca existiu.', false));
+    }
+
+    const action = actionResult.rows[0];
+
+    // Verificar se ainda e valido
+    if (action.status !== 'pending_approval') {
+      const msg = action.status === 'executed'
+        ? '✅ Esta ação já foi executada anteriormente.'
+        : '❌ Esta ação foi cancelada.';
+      return res.send(confirmPage(msg, `Campanha: ${action.entity_name}`, false));
+    }
+
+    if (new Date(action.expires_at) < new Date()) {
+      return res.send(confirmPage('⏰ Link expirado.', `A confirmação de "${action.entity_name}" expirou. O motor gerará um novo alerta no próximo ciclo.`, false));
+    }
+
+    // Executar a pausa no Meta Ads
+    const tokenData = await getIntegrationToken(action.user_id);
+    if (!tokenData || !tokenData.accessToken) {
+      return res.send(confirmPage('❌ Erro de autenticação.', 'Token do Meta Ads não encontrado. Reconecte sua conta Meta Ads no painel.', false));
+    }
+
+    await pauseEntity(action.entity_external_id, tokenData.accessToken);
+
+    // Marcar como executada
+    await query(`
+      UPDATE pending_actions
+      SET status = 'executed', executed_at = NOW()
+      WHERE id = $1
+    `, [action.id]);
+
+    // Registrar em automated_actions
+    await query(`
+      INSERT INTO automated_actions
+        (user_id, decision_id, entity_type, entity_id, entity_name,
+         action_type, old_value, new_value, status, executed_at)
+      VALUES ($1,$2,$3,$4,$5,'PAUSE','{"status":"ACTIVE"}','{"status":"PAUSED"}','executed',NOW())
+    `, [action.user_id, action.decision_id, action.entity_type,
+        action.entity_external_id, action.entity_name]);
+
+    console.log(`[Confirm] PAUSE executada: "${action.entity_name}" — aprovada por ${action.user_name}`);
+
+    // Enviar confirmacao via WhatsApp (CallMeBot)
+    if (action.whatsapp) {
+      const tipo = action.entity_type === 'campaign' ? 'Campanha'
+        : action.entity_type === 'ad_set' ? 'Conjunto' : 'Anuncio';
+      await sendCallMeBot(action.whatsapp,
+        `✅ IPPMIFY - ${tipo} pausado!\n\n"${action.entity_name}" foi pausado com sucesso.\n\nVoce pode reativar no painel do Meta Ads.\n— IPPMIFY`
+      );
+    }
+
+    return res.send(confirmPage(
+      `✅ "${action.entity_name}" pausada com sucesso!`,
+      `A campanha foi pausada. Você receberá uma confirmação no WhatsApp.\nPode reativar a qualquer momento no painel do Meta Ads.`,
+      true
+    ));
+
+  } catch (err) {
+    console.error('[Confirm] Erro ao executar pausa:', err.message);
+    return res.send(confirmPage('❌ Erro ao pausar.', `Detalhe: ${err.message}\n\nTente pausar manualmente no Meta Ads.`, false));
+  }
+});
+
+// Gerar pagina HTML de resposta para o link de confirmacao
+function confirmPage(title, detail, success) {
+  const color = success ? '#2E7D32' : '#C62828';
+  const bg    = success ? '#E8F5E9' : '#FFEBEE';
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IPPMIFY</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f5f5f5; display: flex;
+           align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+    .card { background: white; border-radius: 12px; padding: 40px; max-width: 400px;
+            width: 90%; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,.1); }
+    .icon { font-size: 64px; margin-bottom: 20px; }
+    h1 { color: ${color}; font-size: 22px; margin: 0 0 12px; }
+    p { color: #666; font-size: 15px; line-height: 1.5; white-space: pre-line; }
+    .badge { background: ${bg}; color: ${color}; padding: 8px 16px;
+             border-radius: 20px; font-size: 13px; display: inline-block; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">${success ? '✅' : '⚠️'}</div>
+    <h1>${title}</h1>
+    <p>${detail}</p>
+    <div class="badge">IPPMIFY Profit Intelligence</div>
+  </div>
+</body>
+</html>`;
+}
 
 module.exports = router;
