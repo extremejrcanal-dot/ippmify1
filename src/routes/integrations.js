@@ -149,14 +149,20 @@ router.post('/meta-ads/connect-token', requireAuth, async (req, res) => {
 // Sincronizar Meta Ads manualmente
 // POST /api/integrations/meta-ads/sync
 router.post('/meta-ads/sync', requireAuth, async (req, res) => {
-  try {
-    const result = await metaSync(req.user.id);
-    if (!result) return res.status(400).json({ error: 'Integracao com Meta Ads nao encontrada' });
-    res.json({ message: 'Sincronizacao do Meta Ads concluida com sucesso!' });
-  } catch (error) {
-    console.error('[Meta Sync] Erro:', error.message);
-    res.status(500).json({ error: error.message });
-  }
+  // Responde imediatamente — sync roda em background para evitar timeout do Railway
+  res.json({ message: 'Sincronizacao iniciada! Aguarde alguns segundos e recarregue o dashboard.' });
+  setImmediate(async () => {
+    try {
+      const result = await metaSync(req.user.id);
+      if (result) {
+        console.log(`[Meta Sync] Concluido: ${result.total} contas, ${result.errors} erros`);
+      } else {
+        console.log('[Meta Sync] Nenhuma integracao ativa encontrada');
+      }
+    } catch (err) {
+      console.error('[Meta Sync] Erro:', err.message);
+    }
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
