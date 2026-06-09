@@ -2592,7 +2592,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div class="page-title">Configurações</div>
           <div class="page-subtitle">Targets, notificações e preferências</div>
         </div>
-        <button class="btn btn-ghost" onclick="toggleSettingsEdit()" id="settingsEditBtn">✏️ Editar</button>
+        <div style="display:flex;gap:8px;"><button class="btn btn-blue" onclick="openSetupGuide()" style="font-size:12px;padding:9px 16px;">🚀 Guia de Conexão</button><button class="btn btn-ghost" onclick="toggleSettingsEdit()" id="settingsEditBtn">✏️ Editar</button></div>
       </div>
 
       <!-- MODO VISUALIZAÇÃO -->
@@ -5355,311 +5355,389 @@ async function loadPlanTab() {
   }
 }
 
-// ─── ADMIN: Trial em conta já cadastrada ─────────────────────────────────────
+// ─── ADMIN: 
+<!-- =====================================================================
+     SETUP GUIDE WIZARD - Guia de Conexao Completo
+     ===================================================================== -->
+<div id="setupGuideOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2000;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;width:100%;max-width:620px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.5);">
 
-async function grantTrialToExisting() {
-  const email = (document.getElementById('grantTrialEmail')?.value || '').trim();
-  const days  = parseInt(document.getElementById('grantTrialDays')?.value) || 7;
-  const msg   = document.getElementById('grantTrialMsg');
-  const btn   = document.getElementById('btnGrantTrial');
+    <!-- Header -->
+    <div style="padding:24px 28px 0;flex-shrink:0;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div style="font-size:17px;font-weight:800;font-family:'Sora',sans-serif;color:var(--text1);">Guia de Conexao</div>
+        <button onclick="closeSetupGuide()" style="background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:4px 8px;line-height:1;">x</button>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:0;">
+        <div id="sgBar1" style="height:4px;flex:1;border-radius:99px;background:var(--blue);transition:background .3s;"></div>
+        <div id="sgBar2" style="height:4px;flex:1;border-radius:99px;background:var(--border);transition:background .3s;"></div>
+        <div id="sgBar3" style="height:4px;flex:1;border-radius:99px;background:var(--border);transition:background .3s;"></div>
+        <div id="sgBar4" style="height:4px;flex:1;border-radius:99px;background:var(--border);transition:background .3s;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--text3);">
+        <span id="sgLabel1" style="color:var(--blue);font-weight:700;">1. Pixel + Token</span>
+        <span id="sgLabel2">2. Conta de Anuncios</span>
+        <span id="sgLabel3">3. Snippet no funil</span>
+        <span id="sgLabel4">4. Webhooks</span>
+      </div>
+    </div>
 
-  if (!email || !email.includes('@')) {
-    if (msg) { msg.style.color = 'var(--red)'; msg.textContent = 'Informe um email válido.'; }
-    return;
+    <!-- Steps container -->
+    <div style="flex:1;overflow-y:auto;padding:28px;">
+
+      <!-- STEP 1: Meta Pixel + Token CAPI -->
+      <div id="sg-step-1">
+        <div style="font-size:32px;margin-bottom:12px;">📡</div>
+        <div style="font-size:18px;font-weight:800;font-family:'Sora',sans-serif;color:var(--text1);margin-bottom:8px;">Passo 1 — Meta Pixel e Token CAPI</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px;">
+          O rastreamento server-side (CAPI) envia dados de conversao diretamente para o Meta, sem depender do navegador. Isso garante muito mais precisao e nao e afetado por bloqueadores de anuncio.
+        </div>
+
+        <div style="background:var(--bg3);border-radius:12px;padding:16px;margin-bottom:16px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;">Como obter o Pixel ID</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <div style="background:var(--blue);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;">1</div>
+              <div style="font-size:13px;color:var(--text2);line-height:1.5;">Acesse <a href="https://business.facebook.com" target="_blank" style="color:var(--blue);">business.facebook.com</a> e clique em <strong>Gerenciador de Eventos</strong>.</div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <div style="background:var(--blue);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;">2</div>
+              <div style="font-size:13px;color:var(--text2);line-height:1.5;">Selecione seu Pixel > clique em <strong>Configuracoes</strong>. O numero de 15-16 digitos no topo e o seu <strong>Pixel ID</strong>. Copie.</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:var(--bg3);border-radius:12px;padding:16px;margin-bottom:20px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;">Como gerar o Token de Acesso (CAPI)</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <div style="background:var(--orange);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;">1</div>
+              <div style="font-size:13px;color:var(--text2);line-height:1.5;">Em <a href="https://business.facebook.com/settings" target="_blank" style="color:var(--blue);">Configuracoes do Negocio</a>, va em <strong>Usuarios > Usuarios do Sistema</strong>.</div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <div style="background:var(--orange);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;">2</div>
+              <div style="font-size:13px;color:var(--text2);line-height:1.5;">Crie um <strong>Usuario do Sistema</strong> com a funcao <strong>Administrador</strong> (ou use um existente).</div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <div style="background:var(--orange);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;">3</div>
+              <div style="font-size:13px;color:var(--text2);line-height:1.5;">Clique em <strong>Gerar novo token</strong>. Selecione o seu Pixel, marque <strong>ads_management</strong> e gere. Copie o token.</div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <div style="background:var(--orange);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;">4</div>
+              <div style="font-size:13px;color:var(--text2);line-height:1.5;">Salve o token em local seguro — o Meta nao exibe novamente.</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div>
+            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">Meta Pixel ID</label>
+            <input type="text" id="sg-pixel-id" placeholder="Ex: 1234567890123456"
+                   style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text1);font-size:13px;">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">Token de Acesso (CAPI)</label>
+            <input type="password" id="sg-token" placeholder="Cole o token do seu usuario de sistema"
+                   style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text1);font-size:13px;">
+          </div>
+          <div id="sg-step1-msg" style="font-size:12px;min-height:18px;"></div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Conta de Anuncios -->
+      <div id="sg-step-2" style="display:none;">
+        <div style="font-size:32px;margin-bottom:12px;">📊</div>
+        <div style="font-size:18px;font-weight:800;font-family:'Sora',sans-serif;color:var(--text1);margin-bottom:8px;">Passo 2 — Conta de Anuncios no Pixel</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px;">
+          Para o Meta saber quais anuncios geraram cada venda, sua <strong>Conta de Anuncios</strong> precisa estar vinculada ao mesmo Pixel que voce configurou.
+        </div>
+
+        <div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:12px;padding:16px;margin-bottom:20px;">
+          <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:4px;">Por que isso importa?</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.6;">Sem essa vinculacao o Meta recebe os eventos mas nao consegue atribuir aos seus anuncios. CPA parece alto, ROAS parece baixo — tudo distorcido.</div>
+        </div>
+
+        <div style="background:var(--bg3);border-radius:12px;padding:16px;margin-bottom:16px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;">Passo a passo</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <div style="background:var(--blue);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;">1</div>
+              <div style="font-size:13px;color:var(--text2);line-height:1.5;">Acesse <a href="https://business.facebook.com/settings" target="_blank" style="color:var(--blue);">Configuracoes do Negocio</a>.</div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <div style="background:var(--blue);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;">2</div>
+              <div style="font-size:13px;color:var(--text2);line-height:1.5;">No menu lateral, va em <strong>Fontes de Dados &gt; Pixels</strong>.</div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <div style="background:var(--blue);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;">3</div>
+              <div style="font-size:13px;color:var(--text2);line-height:1.5;">Clique no seu Pixel e depois em <strong>Adicionar ativos</strong>.</div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <div style="background:var(--blue);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;">4</div>
+              <div style="font-size:13px;color:var(--text2);line-height:1.5;">Selecione <strong>Contas de Anuncios</strong> e marque a conta que voce usa para veicular. Confirme.</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:14px;">
+          <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:4px;">Dica</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.6;">Apos vincular, confirme no <strong>Gerenciador de Eventos</strong> que os eventos aparecem na aba <em>Atividade de Eventos</em>. Pode demorar alguns minutos apos a primeira venda.</div>
+        </div>
+      </div>
+
+      <!-- STEP 3: Snippet JS no funil -->
+      <div id="sg-step-3" style="display:none;">
+        <div style="font-size:32px;margin-bottom:12px;">🔗</div>
+        <div style="font-size:18px;font-weight:800;font-family:'Sora',sans-serif;color:var(--text1);margin-bottom:8px;">Passo 3 — Snippet JS nas Paginas do Funil</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px;">
+          Cole esse codigo em <strong>todas as paginas do seu funil</strong> (venda, checkout, obrigado). Ele rastreia automaticamente PageView, ViewContent, InitiateCheckout e Purchase via CAPI.
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;">Seu snippet personalizado:</div>
+          <div style="position:relative;">
+            <pre id="sg-snippet-code" style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 48px 14px 14px;font-size:10px;font-family:monospace;color:var(--text1);white-space:pre-wrap;word-break:break-all;line-height:1.55;margin:0;max-height:140px;overflow-y:auto;"></pre>
+            <button onclick="sgCopySnippet()" id="sg-copy-btn" style="position:absolute;top:8px;right:8px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--text2);cursor:pointer;">Copiar</button>
+          </div>
+        </div>
+
+        <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:10px;">Como colar por plataforma:</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+          <button onclick="sgShowPlatform('wp')"      id="sgpt-wp"      class="sg-ptab active-ptab">WordPress</button>
+          <button onclick="sgShowPlatform('cf')"      id="sgpt-cf"      class="sg-ptab">ClickFunnels</button>
+          <button onclick="sgShowPlatform('hp')"      id="sgpt-hp"      class="sg-ptab">Hotmart Pages</button>
+          <button onclick="sgShowPlatform('generic')" id="sgpt-generic" class="sg-ptab">Outra plat.</button>
+        </div>
+
+        <div id="sg-platform-wp" style="background:var(--bg3);border-radius:10px;padding:14px;font-size:13px;color:var(--text2);line-height:1.65;">
+          <strong>WordPress / Elementor / WooCommerce</strong><br><br>
+          1. Instale o plugin gratuito <strong>Insert Headers and Footers</strong>.<br>
+          2. Va em <em>Configuracoes &gt; Insert Headers and Footers &gt; Scripts no Header</em>.<br>
+          3. Cole o snippet e salve. Ele aparece em todas as paginas automaticamente.
+        </div>
+        <div id="sg-platform-cf" style="display:none;background:var(--bg3);border-radius:10px;padding:14px;font-size:13px;color:var(--text2);line-height:1.65;">
+          <strong>ClickFunnels 2.0</strong><br><br>
+          1. Dentro do seu funil, clique em <strong>Configuracoes</strong> (engrenagem).<br>
+          2. Va em <em>Tracking Codes &gt; Head Tracking Code</em>.<br>
+          3. Cole o snippet e salve. Repita em cada passo do funil.
+        </div>
+        <div id="sg-platform-hp" style="display:none;background:var(--bg3);border-radius:10px;padding:14px;font-size:13px;color:var(--text2);line-height:1.65;">
+          <strong>Hotmart Pages</strong><br><br>
+          1. Abra sua pagina no editor da Hotmart Pages.<br>
+          2. Clique em <strong>Configuracoes da Pagina</strong> &gt; <em>Scripts personalizados</em>.<br>
+          3. Cole o snippet na secao <strong>Head</strong> e salve.
+        </div>
+        <div id="sg-platform-generic" style="display:none;background:var(--bg3);border-radius:10px;padding:14px;font-size:13px;color:var(--text2);line-height:1.65;">
+          <strong>Qualquer outra plataforma</strong><br><br>
+          Cole o snippet dentro da tag <code style="background:var(--bg2);padding:2px 5px;border-radius:4px;">&lt;head&gt;</code> do HTML das suas paginas — ou no campo de "Scripts personalizados" que a plataforma oferece.
+        </div>
+
+        <div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:14px;margin-top:14px;">
+          <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:6px;">Capturar e-mail do lead (melhora o match rate)</div>
+          <pre style="font-size:10.5px;font-family:monospace;color:var(--text2);margin:0;white-space:pre-wrap;">// Quando o lead preenche o formulario:
+window.ippmify('setUser', { email: 'lead@email.com' });
+
+// Na pagina de checkout:
+window.ippmify('track', 'InitiateCheckout', { value: 97, currency: 'BRL' });</pre>
+        </div>
+      </div>
+
+      <!-- STEP 4: Webhooks das plataformas -->
+      <div id="sg-step-4" style="display:none;">
+        <div style="font-size:32px;margin-bottom:12px;">🔔</div>
+        <div style="font-size:18px;font-weight:800;font-family:'Sora',sans-serif;color:var(--text1);margin-bottom:8px;">Passo 4 — Conectar Plataforma de Vendas</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px;">
+          Sempre que uma venda e aprovada, a plataforma envia uma notificacao (webhook) para o IPPMIFY. Registramos a venda e disparamos um evento <strong>Purchase</strong> server-side no seu Pixel automaticamente.
+        </div>
+
+        <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:10px;">Selecione sua plataforma:</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
+          <button onclick="sgShowWebhook('kirvano')"    id="sgwh-kirvano"    class="sg-ptab active-ptab">Kirvano</button>
+          <button onclick="sgShowWebhook('hotmart')"    id="sgwh-hotmart"    class="sg-ptab">Hotmart</button>
+          <button onclick="sgShowWebhook('eduzz')"      id="sgwh-eduzz"      class="sg-ptab">Eduzz</button>
+          <button onclick="sgShowWebhook('monetizze')"  id="sgwh-monetizze"  class="sg-ptab">Monetizze</button>
+          <button onclick="sgShowWebhook('braip')"      id="sgwh-braip"      class="sg-ptab">Braip</button>
+          <button onclick="sgShowWebhook('perfectpay')" id="sgwh-perfectpay" class="sg-ptab">PerfectPay</button>
+          <button onclick="sgShowWebhook('ticto')"      id="sgwh-ticto"      class="sg-ptab">Ticto</button>
+          <button onclick="sgShowWebhook('mercadopago')" id="sgwh-mercadopago" class="sg-ptab">Mercado Pago</button>
+          <button onclick="sgShowWebhook('stripe')"     id="sgwh-stripe"     class="sg-ptab">Stripe</button>
+          <button onclick="sgShowWebhook('asaas')"      id="sgwh-asaas"      class="sg-ptab">Asaas</button>
+          <button onclick="sgShowWebhook('pagarme')"    id="sgwh-pagarme"    class="sg-ptab">Pagar.me</button>
+          <button onclick="sgShowWebhook('pagseguro')"  id="sgwh-pagseguro"  class="sg-ptab">PagSeguro</button>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;">URL do Webhook — cole na sua plataforma:</div>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="sg-webhook-url" readonly
+                   style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text1);font-size:12px;font-family:monospace;">
+            <button onclick="sgCopyWebhook()" id="sg-copy-wh-btn" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 16px;color:var(--text2);font-size:13px;cursor:pointer;white-space:nowrap;font-weight:600;">Copiar</button>
+          </div>
+        </div>
+
+        <div id="sg-wh-instructions" style="background:var(--bg3);border-radius:10px;padding:14px;font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:14px;"></div>
+
+        <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:14px;">
+          <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:4px;">Tudo pronto!</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.6;">Faca uma venda teste. Em segundos ela aparece no IPPMIFY e um evento <strong>Purchase</strong> e enviado ao seu Pixel automaticamente.</div>
+        </div>
+      </div>
+
+    </div><!-- /steps container -->
+
+    <!-- Footer navigation -->
+    <div style="padding:16px 28px 24px;flex-shrink:0;border-top:1px solid var(--border);display:flex;align-items:center;gap:12px;">
+      <button id="sg-btn-prev" onclick="sgPrev()" style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 22px;color:var(--text2);font-size:13px;cursor:pointer;font-weight:600;display:none;">Anterior</button>
+      <div style="flex:1;text-align:center;font-size:12px;color:var(--text3);" id="sg-step-counter">Passo 1 de 4</div>
+      <button id="sg-btn-next" onclick="sgNext()" style="background:var(--blue);color:#fff;border:none;border-radius:10px;padding:11px 28px;font-size:13px;cursor:pointer;font-weight:700;">Proximo</button>
+    </div>
+
+  </div>
+</div>
+
+<style>
+.sg-ptab{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:5px 12px;font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s;}
+.sg-ptab:hover{border-color:var(--blue);color:var(--blue);}
+.sg-ptab.active-ptab{background:var(--blue)!important;border-color:var(--blue)!important;color:#fff!important;}
+</style>
+
+<script>
+var _sgStep = 1;
+var _sgCurrentPlatform = 'kirvano';
+var _sgWebhookInstructions = {
+  kirvano:     '<strong>Kirvano:</strong> Painel Kirvano &gt; <em>Configuracoes &gt; Webhooks</em> &gt; cole a URL e ative eventos de venda aprovada.',
+  hotmart:     '<strong>Hotmart:</strong> <em>Ferramentas &gt; Webhooks &gt; Adicionar webhook</em>. Cole a URL e selecione os eventos <em>PURCHASE_APPROVED</em> e <em>PURCHASE_COMPLETE</em>.',
+  eduzz:       '<strong>Eduzz:</strong> <em>Minha Conta &gt; Postback / Webhook</em>. Cole a URL no campo de postback e salve.',
+  monetizze:   '<strong>Monetizze:</strong> <em>Configuracoes &gt; IPN / Postback</em>. Cole a URL e ative as notificacoes de venda.',
+  braip:       '<strong>Braip:</strong> <em>Ferramentas &gt; Webhook &gt; Adicionar</em>. Cole a URL e escolha eventos de compra aprovada.',
+  perfectpay:  '<strong>PerfectPay:</strong> <em>Configuracoes &gt; Webhooks &gt; Adicionar</em>. Cole a URL e ative eventos de venda.',
+  ticto:       '<strong>Ticto:</strong> <em>Configuracoes &gt; Webhooks</em>. Cole a URL e ative eventos de compra aprovada.',
+  mercadopago: '<strong>Mercado Pago:</strong> <em>Seu Perfil &gt; Configuracoes &gt; Notificacoes de pagamento (IPN/Webhook)</em>. Cole a URL e salve.',
+  stripe:      '<strong>Stripe:</strong> <a href="https://dashboard.stripe.com/webhooks" target="_blank" style="color:var(--blue);">Dashboard Stripe</a> &gt; <em>Developers &gt; Webhooks &gt; Add endpoint</em>. Cole a URL e selecione <em>checkout.session.completed</em>.',
+  asaas:       '<strong>Asaas:</strong> <em>Configuracoes &gt; Integracoes</em> — copie sua API Key. Depois em <em>Webhooks</em>, cole a URL acima.',
+  pagarme:     '<strong>Pagar.me:</strong> <em>Configuracoes &gt; Webhooks &gt; Adicionar webhook</em>. Cole a URL e selecione eventos de pagamento aprovado.',
+  pagseguro:   '<strong>PagSeguro:</strong> <em>Minha Conta &gt; Preferencias de IPN</em>. Cole a URL de notificacao e salve.',
+};
+
+function openSetupGuide() {
+  _sgStep = 1;
+  document.getElementById('setupGuideOverlay').style.display = 'flex';
+  sgUpdateUI();
+  var mainPixel = document.getElementById('settingMetaPixelId');
+  if (mainPixel && mainPixel.value) document.getElementById('sg-pixel-id').value = mainPixel.value;
+  document.getElementById('sg-token').value = '';
+  document.getElementById('sg-step1-msg').textContent = '';
+}
+
+function closeSetupGuide() {
+  document.getElementById('setupGuideOverlay').style.display = 'none';
+}
+
+function sgUpdateUI() {
+  for (var i = 1; i <= 4; i++) {
+    document.getElementById('sg-step-' + i).style.display = (i === _sgStep) ? '' : 'none';
   }
+  ['sgBar1','sgBar2','sgBar3','sgBar4'].forEach(function(id, idx) {
+    document.getElementById(id).style.background = (idx < _sgStep) ? 'var(--blue)' : 'var(--border)';
+  });
+  ['sgLabel1','sgLabel2','sgLabel3','sgLabel4'].forEach(function(id, idx) {
+    var el = document.getElementById(id);
+    el.style.color = (idx + 1 === _sgStep) ? 'var(--blue)' : 'var(--text3)';
+    el.style.fontWeight = (idx + 1 === _sgStep) ? '700' : '400';
+  });
+  document.getElementById('sg-btn-prev').style.display = (_sgStep > 1) ? '' : 'none';
+  document.getElementById('sg-btn-next').textContent = (_sgStep === 4) ? 'Concluir!' : 'Proximo';
+  document.getElementById('sg-step-counter').textContent = 'Passo ' + _sgStep + ' de 4';
+  if (_sgStep === 3) sgEnsureSnippet();
+  if (_sgStep === 4) sgShowWebhook(_sgCurrentPlatform);
+}
 
-  if (btn) { btn.disabled = true; btn.textContent = 'Ativando...'; }
-  if (msg) msg.textContent = '';
-
-  try {
-    const data = await api('POST', '/api/admin/grant-trial', { email, days });
-    if (msg) {
-      msg.style.color = 'var(--green)';
-      const exp = new Date(data.trial_expires_at).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
-      msg.textContent = `✓ ${data.message} — acesso expira em ${exp}`;
+async function sgNext() {
+  if (_sgStep === 1) {
+    var pixelId = document.getElementById('sg-pixel-id').value.trim();
+    var token   = document.getElementById('sg-token').value.trim();
+    var msg     = document.getElementById('sg-step1-msg');
+    if (pixelId || token) {
+      try {
+        var body = {};
+        if (pixelId) body.meta_pixel_id = pixelId;
+        if (token)   body.meta_access_token = token;
+        await api('PUT', '/api/auth/settings', body);
+        if (pixelId) {
+          var mainPixel = document.getElementById('settingMetaPixelId');
+          if (mainPixel) mainPixel.value = pixelId;
+        }
+        msg.style.color = 'var(--green)';
+        msg.textContent = 'Salvo!';
+      } catch(e) {
+        msg.style.color = 'var(--red)';
+        msg.textContent = 'Erro ao salvar: ' + (e.message || 'tente novamente');
+        return;
+      }
     }
-    if (document.getElementById('grantTrialEmail')) document.getElementById('grantTrialEmail').value = '';
+  }
+  if (_sgStep < 4) { _sgStep++; sgUpdateUI(); }
+  else { closeSetupGuide(); if (typeof loadSettings === 'function') loadSettings(); }
+}
+
+function sgPrev() {
+  if (_sgStep > 1) { _sgStep--; sgUpdateUI(); }
+}
+
+async function sgEnsureSnippet() {
+  var snipEl = document.getElementById('sg-snippet-code');
+  try {
+    var resp = await api('GET', '/api/auth/me');
+    var user = resp.data || resp.user || resp;
+    var key  = user.capi_api_key;
+    if (!key) {
+      var r = await api('POST', '/api/auth/generate-capi-key');
+      key = r.capi_api_key;
+      var inp = document.getElementById('capiApiKeyInput');
+      if (inp) {
+        inp.value = key;
+        document.getElementById('capiSnippetSection').style.display = '';
+        document.getElementById('capiSnippetCode').textContent = buildCapiSnippet(key);
+        document.getElementById('capiApiExample').textContent  = buildCapiApiExample(key);
+      }
+    }
+    snipEl.textContent = buildCapiSnippet(key);
   } catch(e) {
-    if (msg) { msg.style.color = 'var(--red)'; msg.textContent = '✗ ' + e.message; }
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = 'Ativar trial'; }
+    snipEl.textContent = '// Erro ao carregar snippet. Verifique sua conexao.';
   }
 }
 
-// ─── ADMIN: Gerar / listar tokens demo ───────────────────────────────────────
-
-async function generateDemoToken() {
-  const label  = (document.getElementById('demoTokenLabel')?.value || '').trim();
-  const btn    = document.getElementById('btnGenToken');
-  if (btn) { btn.disabled = true; btn.textContent = 'Gerando...'; }
-
-  try {
-    const data = await api('POST', '/api/admin/demo-token', { label: label || undefined });
-    // Mostrar link gerado
-    const resultEl = document.getElementById('demoTokenResult');
-    const linkEl   = document.getElementById('demoTokenLink');
-    const metaEl   = document.getElementById('demoTokenMeta');
-    if (resultEl) resultEl.style.display = 'block';
-    if (linkEl)   linkEl.textContent = data.link;
-    if (metaEl) {
-      const exp = new Date(data.expires_at).toLocaleString('pt-BR');
-      const lbl = data.label ? `Lead: ${data.label} · ` : '';
-      metaEl.textContent = `${lbl}Expira em: ${exp}`;
-    }
-    // Limpar input e recarregar lista
-    if (document.getElementById('demoTokenLabel')) document.getElementById('demoTokenLabel').value = '';
-    loadDemoTokens();
-  } catch(e) {
-    alert('Erro ao gerar token: ' + e.message);
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = 'Gerar link'; }
-  }
-}
-
-function copyDemoLink() {
-  const link = document.getElementById('demoTokenLink')?.textContent;
-  if (!link) return;
-  navigator.clipboard.writeText(link).then(() => {
-    const btn = event?.target;
-    if (btn) { const old = btn.textContent; btn.textContent = '✓ Copiado!'; setTimeout(() => btn.textContent = old, 2000); }
+function sgCopySnippet() {
+  navigator.clipboard.writeText(document.getElementById('sg-snippet-code').textContent).then(function() {
+    var btn = document.getElementById('sg-copy-btn');
+    btn.textContent = 'Copiado!';
+    setTimeout(function(){ btn.textContent = 'Copiar'; }, 1800);
   });
 }
 
-async function loadDemoTokens() {
-  const list = document.getElementById('demoTokenList');
-  if (!list) return;
-
-  try {
-    const { data } = await api('GET', '/api/admin/demo-tokens');
-    if (!data || data.length === 0) {
-      list.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:10px;text-align:center;">Nenhum token gerado ainda</div>';
-      return;
-    }
-
-    const statusInfo = {
-      active:  { color: 'var(--green)',  label: '🟢 Ativo' },
-      used:    { color: 'var(--text3)',  label: '✓ Usado' },
-      expired: { color: 'var(--red)',    label: '⏱ Expirado' },
-    };
-
-    list.innerHTML = data.map(t => {
-      const si      = statusInfo[t.status] || statusInfo.expired;
-      const lbl     = t.label ? `<strong>${t.label}</strong>` : '<em style="color:var(--text3)">sem label</em>';
-      const created = new Date(t.created_at).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
-      const usedBy  = t.used_by_email ? `<span style="color:var(--text3)"> · usado por ${t.used_by_email}</span>` : '';
-      const copyBtn = t.status === 'active'
-        ? `<button onclick="navigator.clipboard.writeText('${t.link}').then(()=>{ this.textContent='✓'; setTimeout(()=>this.textContent='Copiar',1500); })"
-             style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--text2);cursor:pointer;flex-shrink:0;">Copiar</button>`
-        : '';
-      const revokeBtn = t.status === 'active'
-        ? `<button onclick="revokeDemoToken('${t.id}')"
-             style="background:transparent;border:none;font-size:11px;color:var(--red);cursor:pointer;flex-shrink:0;padding:4px 6px;">Revogar</button>`
-        : '';
-
-      return `<div style="display:flex;align-items:center;gap:8px;background:var(--bg3);border-radius:8px;padding:10px 12px;flex-wrap:wrap;">
-        <span style="color:${si.color};font-size:11px;font-weight:700;flex-shrink:0;">${si.label}</span>
-        <span style="font-size:12px;flex:1;min-width:100px;">${lbl}${usedBy}</span>
-        <span style="font-size:11px;color:var(--text3);flex-shrink:0;">${created}</span>
-        ${copyBtn}
-        ${revokeBtn}
-      </div>`;
-    }).join('');
-
-  } catch(e) {
-    list.innerHTML = `<div style="font-size:12px;color:var(--red);padding:10px;text-align:center;">Erro ao carregar tokens: ${e.message}</div>`;
-  }
-}
-
-async function revokeDemoToken(id) {
-  if (!confirm('Revogar este token? O lead não conseguirá mais usar este link.')) return;
-  try {
-    await api('DELETE', `/api/admin/demo-token/${id}`);
-    loadDemoTokens();
-  } catch(e) {
-    alert('Erro ao revogar: ' + e.message);
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-
-function updateReportTimeSlots() {
-  const freq = parseInt(document.getElementById('reportFreqSelect').value);
-  const container = document.getElementById('reportTimeSlots');
-  const inputs = document.getElementById('reportTimeSlotsInputs');
-  if (freq === 0) { container.style.display = 'none'; return; }
-  container.style.display = 'block';
-  const defaults = ['08:00', '14:00', '20:00'];
-  inputs.innerHTML = Array.from({length: freq}, (_, i) => `
-    <input type="time" id="reportTime${i}" value="${defaults[i]}"
-      style="background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;width:100%;font-family:'Montserrat',sans-serif;">
-  `).join('');
-}
-
-// ─── AGENDAMENTO WHATSAPP — VIEW / EDIT ──────────────────────────────────────
-
-async function loadReportSchedule() {
-  try {
-    const resp = await api('GET', '/api/auth/me');
-    const user = resp.data || resp.user || resp;
-    const freq  = parseInt(user.report_freq  || 0);
-    const times = (user.report_times || '').split(',').map(t => t.trim()).filter(Boolean);
-    const days  = parseInt(user.report_days  || 7);
-    // Salvar days no campo hidden para ser lido no modo edição
-    const hiddenDays = document.getElementById('reportDaysValue');
-    if (hiddenDays) hiddenDays.value = days;
-    renderReportScheduleView(freq, times, days);
-  } catch(e) { console.error('loadReportSchedule:', e.message); }
-}
-
-const _daysLabel = { 1: 'Hoje', 7: 'Últimos 7 dias', 30: 'Últimos 30 dias' };
-
-function renderReportScheduleView(freq, times, days) {
-  const display = document.getElementById('reportScheduleDisplay');
-  if (!display) return;
-  if (freq === 0 || !times.length) {
-    display.innerHTML = `<span style="color:var(--text3);">⏸ Desativado</span>`;
-  } else {
-    const freqLabel  = freq === 1 ? '1x por dia' : `${freq}x por dia`;
-    const timeTags   = times.map(t => `<span style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:3px 10px;font-size:13px;font-family:'Montserrat',sans-serif;">${t}</span>`).join(' ');
-    const periodLabel = _daysLabel[days] || `Últimos ${days} dias`;
-    display.innerHTML = `
-      <div style="margin-bottom:8px;">🔔 <strong>${freqLabel}</strong> &nbsp;|&nbsp; 📅 <strong>${periodLabel}</strong></div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;">${timeTags}</div>`;
-  }
-}
-
-function selectReportDays(days) {
-  document.getElementById('reportDaysValue').value = days;
-  [1, 7, 30].forEach(d => {
-    const btn = document.getElementById(`rdBtn${d}`);
-    if (!btn) return;
-    if (d === days) {
-      btn.style.background    = 'var(--blue)';
-      btn.style.color         = '#fff';
-      btn.style.borderColor   = 'var(--blue)';
-    } else {
-      btn.style.background    = '';
-      btn.style.color         = '';
-      btn.style.borderColor   = '';
-    }
+function sgShowPlatform(p) {
+  ['wp','cf','hp','generic'].forEach(function(k) {
+    document.getElementById('sg-platform-' + k).style.display = (k === p) ? '' : 'none';
+    var btn = document.getElementById('sgpt-' + k);
+    if (btn) btn.className = (k === p) ? 'sg-ptab active-ptab' : 'sg-ptab';
   });
 }
 
-function editReportSchedule() {
-  document.getElementById('reportScheduleView').style.display = 'none';
-  document.getElementById('reportScheduleForm').style.display = 'block';
-  const resp  = window._lastReportData || {};
-  const freq  = parseInt(resp.report_freq  || 0);
-  const times = (resp.report_times || '').split(',').map(t => t.trim()).filter(Boolean);
-  const days  = parseInt(resp.report_days  || 7);
-  const sel = document.getElementById('reportFreqSelect');
-  if (sel) sel.value = freq;
-  updateReportTimeSlots();
-  setTimeout(() => {
-    times.forEach((t, i) => {
-      const inp = document.getElementById('reportTime' + i);
-      if (inp) inp.value = t;
-    });
-  }, 50);
-  selectReportDays(days);
+function sgShowWebhook(platform) {
+  _sgCurrentPlatform = platform;
+  document.getElementById('sg-webhook-url').value = window.location.origin + '/api/hook/webhook/' + platform;
+  document.getElementById('sg-wh-instructions').innerHTML = _sgWebhookInstructions[platform] || '';
+  ['kirvano','hotmart','eduzz','monetizze','braip','perfectpay','ticto','mercadopago','stripe','asaas','pagarme','pagseguro'].forEach(function(p) {
+    var btn = document.getElementById('sgwh-' + p);
+    if (btn) btn.className = (p === platform) ? 'sg-ptab active-ptab' : 'sg-ptab';
+  });
 }
 
-async function saveReportSchedule() {
-  try {
-    const freq  = parseInt(document.getElementById('reportFreqSelect').value);
-    const times = [];
-    for (let i = 0; i < freq; i++) {
-      const inp = document.getElementById('reportTime' + i);
-      if (inp) times.push(inp.value);
-    }
-    const days = parseInt(document.getElementById('reportDaysValue')?.value || 7);
-    await api('PUT', '/api/auth/settings', {
-      report_freq:  freq,
-      report_times: times.join(','),
-      report_days:  days,
-    });
-    window._lastReportData = { report_freq: freq, report_times: times.join(','), report_days: days };
-    const msg = document.getElementById('reportScheduleMsg');
-    if (msg) { msg.style.color = 'var(--green)'; msg.textContent = 'Agendamento salvo!'; }
-    setTimeout(() => {
-      cancelReportScheduleEdit();
-      renderReportScheduleView(freq, times, days);
-    }, 1000);
-  } catch(e) {
-    const msg = document.getElementById('reportScheduleMsg');
-    if (msg) { msg.style.color = 'var(--red)'; msg.textContent = 'Erro: ' + e.message; }
-  }
-}
-
-function cancelReportScheduleEdit() {
-  document.getElementById('reportScheduleView').style.display = 'block';
-  document.getElementById('reportScheduleForm').style.display = 'none';
-  const msg = document.getElementById('reportScheduleMsg');
-  if (msg) msg.textContent = '';
-}
-
-function toggleMobileSidebar() {
-  const sidebar = document.getElementById('mainSidebar');
-  const overlay = document.getElementById('sidebarOverlay');
-  const btn     = document.getElementById('mobileMenuBtn');
-  if (sidebar.classList.contains('open')) {
-    sidebar.classList.remove('open');
-    overlay.classList.remove('open');
-    if (btn) btn.textContent = String.fromCharCode(9776);
-  } else {
-    sidebar.classList.add('open');
-    overlay.classList.add('open');
-    if (btn) btn.textContent = String.fromCharCode(10005);
-  }
-}
-
-function closeMobileSidebar() {
-  document.getElementById('mainSidebar')?.classList.remove('open');
-  document.getElementById('sidebarOverlay')?.classList.remove('open');
-  const btn = document.getElementById('mobileMenuBtn');
-  if (btn) btn.textContent = String.fromCharCode(9776);
-}
-
-document.addEventListener('click', (e) => {
-  if (e.target.closest('.nav-item')) closeMobileSidebar();
-});
-
-function openPlanSupport() {
-  const msg = encodeURIComponent('Ola! Preciso de ajuda com minha assinatura do IPPMIFY.');
-  window.open('https://wa.me/5543996267951?text=' + msg, '_blank');
-}
-
-// INICIALIZAR
-const _urlParams     = new URLSearchParams(window.location.search);
-const _resetTokenUrl = _urlParams.get('reset');
-const _demoCodeUrl   = _urlParams.get('demo');
-
-if (_resetTokenUrl) {
-  document.getElementById('authPage').style.display = 'flex';
-  document.getElementById('appPage').style.display  = 'none';
-  showResetForm(_resetTokenUrl);
-
-} else if (_demoCodeUrl) {
-  window._demoTrialCode = _demoCodeUrl;
-  history.replaceState(null, '', window.location.pathname);
-
-  document.getElementById('authPage').style.display = 'flex';
-  document.getElementById('appPage').style.display  = 'none';
-  switchAuthTab('register');
-
-  const trialBannerReg = document.getElementById('trialRegBanner');
-  if (trialBannerReg) trialBannerReg.style.display = 'block';
-
-  const regBtn = document.getElementById('regSubmitBtn');
-  if (regBtn) regBtn.textContent = 'Ativar trial gratuito - 7 dias gratis';
-
-  const subtitle = document.querySelector('.auth-subtitle');
-  if (subtitle) subtitle.textContent = 'Trial gratuito por 7 dias - sem cartao';
-
-} else if (token) {
-  const user = JSON.parse(localStorage.getItem('ippmify_user')||'{}');
-  if (user.name || user.email) initApp(user);
+function sgCopyWebhook() {
+  navigator.clipboard.writeText(document.getElementById('sg-webhook-url').value).then(function() {
+    var btn = document.getElementById('sg-copy-wh-btn');
+    btn.textContent = 'Copiado!';
+    setTimeout(function(){ btn.textContent = 'Copiar'; }, 1800);
+  });
 }
 </script>
-</body>
-</html>
