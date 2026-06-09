@@ -358,7 +358,8 @@ router.get('/me', requireAuth, async (req, res) => {
     id, email, name, plan, plan_status,
     trial_expires_at, plan_expires_at,
     whatsapp, whatsapp_key, cpa_target, roas_target, timezone,
-    report_freq, report_times, report_days, is_admin
+    report_freq, report_times, report_days, is_admin,
+    meta_pixel_id, meta_access_token, capi_api_key,
   } = req.user;
   res.json({
     data: {
@@ -366,7 +367,11 @@ router.get('/me', requireAuth, async (req, res) => {
       trial_expires_at, plan_expires_at,
       whatsapp, whatsapp_key, cpa_target, roas_target, timezone,
       report_freq, report_times, report_days,
-      is_admin: !!is_admin
+      is_admin: !!is_admin,
+      meta_pixel_id:        meta_pixel_id  || null,
+      meta_access_token:    meta_access_token  ? '••••••••' : null, // nunca expõe o token completo
+      meta_capi_configured: !!(meta_pixel_id && meta_access_token),
+      capi_api_key:         capi_api_key   || null,
     }
   });
 });
@@ -375,7 +380,7 @@ router.get('/me', requireAuth, async (req, res) => {
 // PUT /api/auth/settings
 router.put('/settings', requireAuth, async (req, res) => {
   try {
-    const allowed = ['cpa_target','roas_target','whatsapp','whatsapp_key','timezone','report_freq','report_times','report_days'];
+    const allowed = ['cpa_target','roas_target','whatsapp','whatsapp_key','timezone','report_freq','report_times','report_days','meta_pixel_id','meta_access_token'];
     const sets = [];
     const vals = [];
     let idx = 1;
@@ -402,6 +407,22 @@ router.put('/settings', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('[Auth] Erro ao atualizar configuracoes:', error.message);
     res.status(500).json({ error: 'Erro ao atualizar configuracoes' });
+  }
+});
+
+// POST /api/auth/generate-capi-key
+// Gera (ou rotaciona) a capi_api_key publica do assinante para o proxy de eventos
+router.post('/generate-capi-key', requireAuth, async (req, res) => {
+  try {
+    const newKey = crypto.randomBytes(32).toString('hex'); // 64 chars hex
+    await query(
+      'UPDATE users SET capi_api_key = $1, updated_at = NOW() WHERE id = $2',
+      [newKey, req.user.id]
+    );
+    res.json({ capi_api_key: newKey });
+  } catch (error) {
+    console.error('[Auth] Erro ao gerar capi_api_key:', error.message);
+    res.status(500).json({ error: 'Erro ao gerar chave CAPI' });
   }
 });
 
