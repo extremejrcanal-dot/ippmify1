@@ -8,6 +8,8 @@ const path = require('path');
 
 // Rotas
 const authRoutes         = require('./routes/auth');
+const adminRoutes        = require('./routes/admin');
+const trackRoutes        = require('./routes/track');
 const metricsRoutes      = require('./routes/metrics');
 const decisionsRoutes    = require('./routes/decisions');
 const insightsRoutes     = require('./routes/insights');
@@ -79,6 +81,19 @@ const runMigrations = async () => {
     await query("ALTER TABLE users ADD COLUMN IF NOT EXISTS report_times VARCHAR(100) DEFAULT NULL;");
     await query("ALTER TABLE users ADD COLUMN IF NOT EXISTS report_days INT DEFAULT 7;");
 
+    // ── Tokens demo de uso único por lead ────────────────────────────────
+    await query(`CREATE TABLE IF NOT EXISTS demo_tokens (
+      id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+      created_by    UUID        REFERENCES users(id) ON DELETE CASCADE,
+      label         VARCHAR(255),
+      used_at       TIMESTAMPTZ,
+      used_by_email VARCHAR(255),
+      expires_at    TIMESTAMPTZ NOT NULL DEFAULT NOW() + INTERVAL '48 hours',
+      created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_demo_tokens_active
+      ON demo_tokens (id) WHERE used_at IS NULL;`);
+
     console.log('[Migrations] OK');
   } catch (err) {
     console.error('[Migrations] Erro:', err.message);
@@ -122,7 +137,9 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use('/api/auth/login',    authLimiter);
 app.use('/api/auth/register', authLimiter);
 app.use('/api/auth/refresh',  authLimiter);
-app.use('/api/auth',    authRoutes);   // login, registro, /me, /settings
+app.use('/api/auth',    authRoutes);                // login, registro, /me, /settings
+app.use('/api/admin',   requireAuth, adminRoutes);  // gerar/listar tokens demo (somente admins)
+app.use('/api/track',   requireAuth, trackRoutes);  // tracking Meta CAPI server-side
 app.use('/api/webhook', webhookRoutes);             // Kirvano / Cakto (billing IPPMIFY)
 app.use('/api/hook',    integrationsRoutes);        // Webhooks publicos das plataformas (Stripe, MP, etc)
 
