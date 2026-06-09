@@ -2684,7 +2684,105 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
             <div class="hint">Siga o guia acima para obter sua chave gratuita em 2 minutos.</div>
           </div>
 
-          <div id="settingsMsg" style="margin-bottom:8px;"></div>
+          <div class="card-title" style="margin-top:24px">📡 Meta CAPI — Rastreamento Server-Side</div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6;">
+            Configure seu Pixel e Token de Acesso do Meta para que a IPPMIFY envie eventos de <strong>Purchase</strong> server-side ao seu pixel toda vez que uma venda for registrada nos seus webhooks (Kirvano, Hotmart, Eduzz, Stripe etc.)
+          </div>
+          <div class="form-group">
+            <label>Meta Pixel ID</label>
+            <input type="text" id="settingMetaPixelId" placeholder="Ex: 1234567890123456">
+            <div class="hint">Encontre em: Meta Business Suite → Gerenciador de Eventos → seu Pixel → Configurações.</div>
+          </div>
+          <div class="form-group">
+            <label>Meta Access Token (CAPI)</label>
+            <input type="text" id="settingMetaAccessToken" placeholder="Cole o token do seu usuário de sistema">
+            <div class="hint">Gere em: Business Suite → Configurações → Usuários do sistema → Gerar token → marque <em>ads_management</em>. Salve em local seguro — não é exibido novamente.</div>
+          </div>
+          <div style="background:var(--bg3);border-radius:10px;padding:14px 16px;font-size:12px;color:var(--text3);margin-bottom:8px;line-height:1.6;">
+            🔒 O token é armazenado de forma segura e usado apenas para enviar eventos ao <em>seu</em> pixel. A IPPMIFY nunca compartilha suas credenciais.
+          </div>
+
+          <!-- ── CAPI Proxy — Rastreamento de Funil Completo ── -->
+          <div class="card-title" style="margin-top:28px">🔗 CAPI Proxy — Rastreamento de Funil</div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6;">
+            Rastreie <strong>PageView, ViewContent, InitiateCheckout e Purchase</strong> server-side no seu Pixel via IPPMIFY. Cole o snippet JS nas páginas do seu funil — funciona em qualquer plataforma (ClickFunnels, WordPress, Hotmart Pages, Loja Integrada etc.)
+          </div>
+
+          <!-- Chave de API -->
+          <div class="form-group">
+            <label>Chave de API Pública (CAPI)</label>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input type="text" id="capiApiKeyInput" readonly placeholder="Clique em 'Gerar chave' para criar"
+                     style="flex:1;font-family:monospace;font-size:12px;background:var(--bg3);color:var(--text1);">
+              <button class="btn btn-ghost" onclick="copyCapiKey()" id="copyCapiKeyBtn"
+                      title="Copiar chave" style="padding:10px 14px;font-size:16px;">📋</button>
+              <button class="btn btn-ghost" onclick="generateCapiKey()" id="generateCapiKeyBtn"
+                      style="padding:10px 16px;white-space:nowrap;font-size:12px;">🔄 Gerar / Rotacionar</button>
+            </div>
+            <div class="hint">Esta chave é <strong>pública</strong> — pode ficar visível no código do site. Rotacione se suspeitar de abuso.</div>
+          </div>
+
+          <!-- Snippet JS -->
+          <div id="capiSnippetSection" style="display:none;margin-top:4px;">
+            <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;">
+              Snippet JS — Cole no <code style="background:var(--bg3);padding:1px 5px;border-radius:4px;">&lt;head&gt;</code> de todas as páginas do funil:
+            </div>
+            <div style="position:relative;">
+              <pre id="capiSnippetCode" style="background:var(--bg3);border-radius:8px;padding:14px 52px 14px 16px;
+                   font-size:10.5px;font-family:monospace;overflow-x:auto;white-space:pre-wrap;word-break:break-all;
+                   color:var(--text1);line-height:1.55;margin:0;border:1px solid var(--border);max-height:180px;overflow-y:auto;"></pre>
+              <button onclick="copySnippet()" style="position:absolute;top:8px;right:8px;background:var(--bg2);
+                      border:1px solid var(--border);border-radius:6px;padding:4px 10px;
+                      font-size:11px;color:var(--text2);cursor:pointer;">Copiar</button>
+            </div>
+
+            <!-- Exemplos de uso -->
+            <div style="font-size:12px;font-weight:600;color:var(--text2);margin:14px 0 8px;">Exemplos de disparo no seu funil:</div>
+            <pre style="background:var(--bg3);border-radius:8px;padding:12px 16px;font-size:10.5px;
+                 font-family:monospace;color:var(--text3);margin:0;border:1px solid var(--border);
+                 white-space:pre-wrap;line-height:1.65;">// Página de vendas (scroll ou tempo na página):
+window.ippmify('track', 'ViewContent', { content_name: 'Curso X', value: 97.00, currency: 'BRL' });
+
+// Clique no botão de compra / entrada no checkout:
+window.ippmify('track', 'InitiateCheckout', { value: 97.00, currency: 'BRL' });
+
+// Página de obrigado / confirmação de compra:
+window.ippmify('track', 'Purchase', { value: 97.00, currency: 'BRL', order_id: '12345' });
+
+// Capturar e-mail do lead (melhora o match rate no Meta):
+window.ippmify('setUser', { email: 'lead@email.com', phone: '5511999999999' });</pre>
+
+            <!-- API Direta (para devs) -->
+            <details style="margin-top:12px;">
+              <summary style="font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;user-select:none;">
+                🛠️ Uso via API direta (sem snippet JS)
+              </summary>
+              <pre id="capiApiExample" style="background:var(--bg3);border-radius:8px;padding:12px 16px;font-size:10.5px;
+                   font-family:monospace;color:var(--text3);margin:8px 0 0;border:1px solid var(--border);
+                   white-space:pre-wrap;line-height:1.65;">POST /api/s/SUA_CHAVE/event
+Content-Type: application/json
+
+{
+  "event_name": "Purchase",
+  "event_source_url": "https://seusite.com/obrigado",
+  "event_id": "purchase_12345",
+  "user_data": {
+    "em": "email-plaintext@ex.com",
+    "ph": "5511999999999",
+    "fbp": "_fbp cookie value",
+    "fbc": "_fbc cookie value"
+  },
+  "custom_data": {
+    "value": 97.00,
+    "currency": "BRL",
+    "content_name": "Curso X"
+  }
+}</pre>
+              <div class="hint" style="margin-top:6px;">O campo <code>em</code> e <code>ph</code> são enviados em texto plano — o servidor faz o hash SHA-256 antes de encaminhar ao Meta.</div>
+            </details>
+          </div>
+
+          <div id="settingsMsg" style="margin-bottom:8px;margin-top:16px;"></div>
           <div style="display:flex;gap:10px;">
             <button class="btn btn-ghost" onclick="toggleSettingsEdit()">Cancelar</button>
             <button class="btn btn-blue" onclick="saveSettings()" id="settingsSaveBtn" style="padding:11px 28px;">Salvar Configurações</button>
@@ -4967,10 +5065,27 @@ async function loadSettings() {
   try {
     const resp = await api('GET', '/api/auth/me');
     const user = resp.data || resp.user || resp;
-    document.getElementById('settingCpa').value          = user.cpa_target   || '';
-    document.getElementById('settingRoas').value         = user.roas_target  || '';
-    document.getElementById('settingWhatsapp').value     = user.whatsapp     || '';
-    document.getElementById('settingWhatsappKey').value  = user.whatsapp_key || '';
+    document.getElementById('settingCpa').value             = user.cpa_target         || '';
+    document.getElementById('settingRoas').value            = user.roas_target        || '';
+    document.getElementById('settingWhatsapp').value        = user.whatsapp           || '';
+    document.getElementById('settingWhatsappKey').value     = user.whatsapp_key       || '';
+    document.getElementById('settingMetaPixelId').value     = user.meta_pixel_id || '';
+    // Token não é retornado pelo servidor por segurança — só mostra placeholder se já configurado
+    const tokenField = document.getElementById('settingMetaAccessToken');
+    tokenField.value = '';
+    tokenField.placeholder = user.meta_capi_configured
+      ? '••••••••  (deixe em branco para manter o token atual)'
+      : 'Cole o token do seu usuário de sistema';
+    // CAPI Proxy key
+    if (user.capi_api_key) {
+      document.getElementById('capiApiKeyInput').value = user.capi_api_key;
+      document.getElementById('capiSnippetSection').style.display = '';
+      document.getElementById('capiSnippetCode').textContent = buildCapiSnippet(user.capi_api_key);
+      document.getElementById('capiApiExample').textContent = buildCapiApiExample(user.capi_api_key);
+    } else {
+      document.getElementById('capiApiKeyInput').value = '';
+      document.getElementById('capiSnippetSection').style.display = 'none';
+    }
     renderSettingsView(user);
   } catch(e) { console.error('loadSettings:', e.message); }
 }
@@ -4981,10 +5096,15 @@ async function saveSettings() {
   btn.disabled  = true;
   try {
     await api('PUT', '/api/auth/settings', {
-      cpa_target:   parseFloat(document.getElementById('settingCpa').value)         || null,
-      roas_target:  parseFloat(document.getElementById('settingRoas').value)        || null,
-      whatsapp:     document.getElementById('settingWhatsapp').value                || null,
-      whatsapp_key: document.getElementById('settingWhatsappKey').value             || null,
+      cpa_target:        parseFloat(document.getElementById('settingCpa').value)         || null,
+      roas_target:       parseFloat(document.getElementById('settingRoas').value)        || null,
+      whatsapp:          document.getElementById('settingWhatsapp').value                || null,
+      whatsapp_key:      document.getElementById('settingWhatsappKey').value             || null,
+      meta_pixel_id:     document.getElementById('settingMetaPixelId').value             || null,
+      // Só envia o token se o usuário preencheu um novo valor (não sobrescreve com vazio)
+      ...(document.getElementById('settingMetaAccessToken').value
+          ? { meta_access_token: document.getElementById('settingMetaAccessToken').value }
+          : {}),
     });
     showMsg('settingsMsg', '✅ Configurações salvas!', 'success');
     const resp2 = await api('GET', '/api/auth/me');
@@ -4996,6 +5116,98 @@ async function saveSettings() {
   } finally {
     btn.innerHTML = 'Salvar Configurações';
     btn.disabled  = false;
+  }
+}
+
+// ─── CAPI PROXY — FUNIL COMPLETO ─────────────────────────────────────────────
+function buildCapiSnippet(apiKey) {
+  var base = window.location.origin;
+  var endpoint = base + '/api/s/' + apiKey + '/event';
+  return '<script>\n' +
+'(function(w,d){\n' +
+'  var _u="' + endpoint + '";\n' +
+'  var _ud={};\n' +
+'  function _gc(n){var v=d.cookie.match("(^|;)\\\\s*"+n+"\\\\s*=\\\\s*([^;]+)");return v?v.pop():null;}\n' +
+'  function _fbc(){var p=new URLSearchParams(w.location.search);var f=p.get("fbclid");\n' +
+'    if(f){var v="fb.1."+Math.floor(Date.now()/1000)+"."+f;sessionStorage.setItem("_ifc",v);return v;}\n' +
+'    return sessionStorage.getItem("_ifc")||null;}\n' +
+'  function _utm(){["utm_source","utm_medium","utm_campaign","utm_content","utm_term"].forEach(function(k){\n' +
+'    var v=new URLSearchParams(w.location.search).get(k);if(v)sessionStorage.setItem("_i"+k,v);});}\n' +
+'  function _gutm(){var o={};["utm_source","utm_medium","utm_campaign","utm_content","utm_term"].forEach(\n' +
+'    function(k){var v=sessionStorage.getItem("_i"+k);if(v)o[k]=v;});return o;}\n' +
+'  function _s(en,cd){\n' +
+'    var p={event_name:en,event_source_url:w.location.href,\n' +
+'      event_id:en+"_"+Date.now()+"_"+Math.random().toString(36).slice(2,8),\n' +
+'      user_data:{fbp:_gc("_fbp")||undefined,fbc:_fbc()||undefined,client_user_agent:navigator.userAgent},\n' +
+'      custom_data:Object.assign({},cd,_gutm())};\n' +
+'    if(_ud.email)p.user_data.em=_ud.email;\n' +
+'    if(_ud.phone)p.user_data.ph=_ud.phone;\n' +
+'    Object.keys(p.user_data).forEach(function(k){if(p.user_data[k]===undefined)delete p.user_data[k];});\n' +
+'    fetch(_u,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p),keepalive:true}).catch(function(){});}\n' +
+'  _utm();\n' +
+'  w.ippmify=function(a,b,c){if(a==="track")_s(b,c||{});else if(a==="setUser")_ud=Object.assign(_ud,b||{});};\n' +
+'  w.ippmify("track","PageView");\n' +
+'})(window,document);\n' +
+'<\/script>';
+}
+
+function buildCapiApiExample(apiKey) {
+  var base = window.location.origin;
+  return 'POST ' + base + '/api/s/' + apiKey + '/event\n' +
+'Content-Type: application/json\n\n' +
+'{\n' +
+'  "event_name": "Purchase",\n' +
+'  "event_source_url": "https://seusite.com/obrigado",\n' +
+'  "event_id": "purchase_12345",\n' +
+'  "user_data": {\n' +
+'    "em": "email-plaintext@ex.com",\n' +
+'    "ph": "5511999999999",\n' +
+'    "fbp": "_fbp cookie value",\n' +
+'    "fbc": "_fbc cookie value"\n' +
+'  },\n' +
+'  "custom_data": {\n' +
+'    "value": 97.00,\n' +
+'    "currency": "BRL",\n' +
+'    "content_name": "Curso X"\n' +
+'  }\n' +
+'}';
+}
+
+function copyCapiKey() {
+  var key = document.getElementById('capiApiKeyInput').value;
+  if (!key) return;
+  navigator.clipboard.writeText(key).then(function() {
+    var btn = document.getElementById('copyCapiKeyBtn');
+    btn.textContent = '✅';
+    setTimeout(function() { btn.textContent = '📋'; }, 1500);
+  });
+}
+
+function copySnippet() {
+  var code = document.getElementById('capiSnippetCode').textContent;
+  navigator.clipboard.writeText(code).then(function() {
+    showMsg('settingsMsg', '📋 Snippet copiado para a área de transferência!', 'success');
+  });
+}
+
+async function generateCapiKey() {
+  var btn = document.getElementById('generateCapiKeyBtn');
+  var originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Gerando…';
+  try {
+    var data = await api('POST', '/api/auth/generate-capi-key');
+    var key = data.capi_api_key;
+    document.getElementById('capiApiKeyInput').value = key;
+    document.getElementById('capiSnippetSection').style.display = '';
+    document.getElementById('capiSnippetCode').textContent = buildCapiSnippet(key);
+    document.getElementById('capiApiExample').textContent = buildCapiApiExample(key);
+    showMsg('settingsMsg', '🔑 Chave gerada! Atualize o snippet em todas as páginas do funil.', 'success');
+  } catch(e) {
+    showMsg('settingsMsg', 'Erro ao gerar chave: ' + (e.message || 'tente novamente'), 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
   }
 }
 
