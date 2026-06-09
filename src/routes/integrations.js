@@ -7,6 +7,7 @@ const { getOAuthUrl, exchangeCodeForToken, exchangeForLongLivedToken, getAdAccou
 const { getAccessToken, runFullSync: hotmartSync, processWebhook: hotmartWebhook } = require('../services/hotmart');
 const { processWebhook: kirvanoWebhook } = require('../services/kirvano');
 const { sendCallMeBot } = require('../services/alertService');
+const { sendEvent: sendCapi } = require('../utils/metaCapi');
 
 const router = express.Router();
 
@@ -215,7 +216,6 @@ router.post('/hotmart/sync', requireAuth, async (req, res) => {
 // POST /api/webhooks/hotmart
 router.post('/webhook/hotmart', async (req, res) => {
   try {
-    const hottok = req.headers['x-hotmart-hottok'];
     const payload = req.body;
 
     if (!payload.data) return res.sendStatus(400);
@@ -226,7 +226,24 @@ router.post('/webhook/hotmart', async (req, res) => {
     );
 
     if (intResult.rows.length > 0) {
-      await hotmartWebhook(intResult.rows[0].user_id, intResult.rows[0].id, payload);
+      const { user_id, id } = intResult.rows[0];
+      await hotmartWebhook(user_id, id, payload);
+
+      // ── CAPI do assinante: dispara Purchase em vendas aprovadas ──────────
+      const hotmartApproved = ['PURCHASE_APPROVED', 'PURCHASE_COMPLETE', 'PURCHASE_CONFIRMED', 'PURCHASE_BILLET_PRINTED'];
+      const evtName = (payload.event || payload.data?.event || '').toUpperCase();
+      if (hotmartApproved.includes(evtName) || payload.data?.purchase?.status === 'APPROVED') {
+        const purchase = payload.data?.purchase || {};
+        const buyer    = payload.data?.buyer    || {};
+        fireSubscriberCapi(user_id, {
+          status:      'approved',
+          gross:       parseFloat(purchase.price?.value || 0),
+          currency:    purchase.price?.currency_value || 'BRL',
+          buyerEmail:  buyer.email || null,
+          productName: payload.data?.product?.name || null,
+          platform:    'hotmart',
+        }).catch(() => {});
+      }
     }
 
     res.sendStatus(200);
@@ -299,6 +316,28 @@ router.post('/webhook/kirvano', async (req, res) => {
     if (intResult.rows.length > 0) {
       const { user_id, id } = intResult.rows[0];
       await kirvanoWebhook(user_id, id, payload);
+
+      // ── CAPI do assinante: dispara Purchase em vendas aprovadas ──────────
+      const kirvanoApproved = new Set([
+        'SALE_APPROVED','SALE_COMPLETE','SALE_CONFIRMED',
+        'PURCHASE_APPROVED','PURCHASE_COMPLETE','PURCHASE_CONFIRMED',
+        'AFFILIATE_SALE_APPROVED','AFFILIATE_SALE_COMPLETE','AFFILIATE_SALE_CONFIRMED',
+        'AFFILIATE_PURCHASE_APPROVED','COMMISSION_APPROVED','COMMISSION_CONFIRMED',
+      ]);
+      if (kirvanoApproved.has((payload.event || '').toUpperCase())) {
+        const customer = payload.customer || {};
+        const product  = payload.products?.[0] || {};
+        let gross = parseFloat(payload.total_price || 0);
+        if (gross > 10000) gross = gross / 100; // centavos → reais
+        fireSubscriberCapi(user_id, {
+          status:      'approved',
+          gross,
+          currency:    'BRL',
+          buyerEmail:  customer.email || null,
+          productName: product.name   || payload.product_name || null,
+          platform:    'kirvano',
+        }).catch(() => {});
+      }
     }
 
     res.sendStatus(200);
@@ -362,6 +401,40 @@ const findIntegration = async (platform, webhookKey = null) => {
   return r.rows[0] || null;
 };
 
+// ─── CAPI POR ASSINANTE ───────────────────────────────────────────────────────
+// Dispara um evento Purchase no pixel Meta do assinante (se ele tiver configurado).
+// Fire-and-forget: nunca bloqueia nem propaga erro para o webhook principal.
+const fireSubscriberCapi = async (userId, { status, gross, currency = 'BRL', buyerEmail, productName, platform } = {}) => {
+  if (status !== 'approved') return; // só dispara em vendas aprovadas
+
+  try {
+    const r = await query(
+      'SELECT meta_pixel_id, meta_access_token FROM users WHERE id = $1',
+      [userId]
+    );
+    const user = r.rows[0];
+    if (!user?.meta_pixel_id || !user?.meta_access_token) return; // assinante não configurou
+
+    const customData = { currency };
+    if (gross  > 0)      customData.value        = gross;
+    if (productName)     customData.content_name  = productName;
+    if (platform)        customData.content_type  = platform;
+
+    await sendCapi({
+      eventName:    'Purchase',
+      email:        buyerEmail || undefined,
+      eventId:      `purchase_${userId}_${Date.now()}`,
+      actionSource: 'system_generated',  // evento vindo do webhook, sem browser
+      customData,
+      pixelId:      user.meta_pixel_id,
+      accessToken:  user.meta_access_token,
+    });
+  } catch (err) {
+    // Nunca deixa o CAPI quebrar o fluxo do webhook
+    console.error(`[CAPI Assinante] Erro ao disparar Purchase para user ${userId}: ${err.message}`);
+  }
+};
+
 // ═══════════════════════════════════════════════════════════════════════════
 // EDUZZ
 // ═══════════════════════════════════════════════════════════════════════════
@@ -398,14 +471,16 @@ router.post('/webhook/eduzz', async (req, res) => {
     const statusMap = { '3': 'approved', '8': 'refunded', '1': 'pending', '4': 'cancelled' };
     const status = statusMap[String(body.trans_status)] || 'pending';
 
+    const eduzzGross = parseFloat(body.price_total || body.price || 0);
     await insertSale(integ.user_id, integ.id, 'eduzz', transId, {
       status,
-      gross: parseFloat(body.price_total || body.price || 0),
-      fee:   parseFloat(body.price_total || 0) * 0.05, // ~5% Eduzz fee estimado
+      gross: eduzzGross,
+      fee:   eduzzGross * 0.05, // ~5% Eduzz fee estimado
       buyerEmail:  body.client_email || null,
       productName: body.pro_name || null,
       saleDate:    body.trans_createdate ? new Date(body.trans_createdate) : new Date(),
     });
+    fireSubscriberCapi(integ.user_id, { status, gross: eduzzGross, buyerEmail: body.client_email || null, productName: body.pro_name || null, platform: 'eduzz' }).catch(() => {});
 
     console.log(`[Eduzz Webhook] Venda ${transId} processada: ${status}`);
   } catch (error) {
@@ -447,14 +522,16 @@ router.post('/webhook/monetizze', async (req, res) => {
     const transId = venda.codigoMonetizze || venda.numero;
     if (!transId) return;
 
+    const mzGross = parseFloat(venda.valorTotal || 0);
     await insertSale(integ.user_id, integ.id, 'monetizze', transId, {
       status,
-      gross: parseFloat(venda.valorTotal || 0),
-      fee:   parseFloat(venda.valorTotal || 0) * 0.049, // ~4.9% Monetizze
+      gross: mzGross,
+      fee:   mzGross * 0.049, // ~4.9% Monetizze
       buyerEmail:  venda.comprador?.email || null,
       productName: venda.produto?.nome || null,
       saleDate:    venda.dataVenda ? new Date(venda.dataVenda) : new Date(),
     });
+    fireSubscriberCapi(integ.user_id, { status, gross: mzGross, buyerEmail: venda.comprador?.email || null, productName: venda.produto?.nome || null, platform: 'monetizze' }).catch(() => {});
 
     console.log(`[Monetizze Webhook] Venda ${transId} processada: ${status}`);
   } catch (error) {
@@ -495,14 +572,17 @@ router.post('/webhook/braip', async (req, res) => {
     };
     const status = statusMap[rawStatus] || 'pending';
 
+    const braipGross = parseFloat(body.price || body.sale_amount || 0);
+    const braipEmail = body.buyer_email || body.customer?.email || null;
     await insertSale(integ.user_id, integ.id, 'braip', transId, {
       status,
-      gross: parseFloat(body.price || body.sale_amount || 0),
-      fee:   parseFloat(body.price || 0) * 0.05,
-      buyerEmail:  body.buyer_email || body.customer?.email || null,
+      gross: braipGross,
+      fee:   braipGross * 0.05,
+      buyerEmail:  braipEmail,
       productName: body.product_name || null,
       saleDate:    body.date_created ? new Date(body.date_created) : new Date(),
     });
+    fireSubscriberCapi(integ.user_id, { status, gross: braipGross, buyerEmail: braipEmail, productName: body.product_name || null, platform: 'braip' }).catch(() => {});
 
     console.log(`[Braip Webhook] Venda ${transId} processada: ${status}`);
   } catch (error) {
@@ -543,14 +623,17 @@ router.post('/webhook/perfectpay', async (req, res) => {
     };
     const status = statusMap[rawStatus] || 'pending';
 
+    const ppGross = parseFloat(body.sale_amount || body.total || 0);
+    const ppEmail = body.buyer_email || body.customer?.email || null;
     await insertSale(integ.user_id, integ.id, 'perfectpay', transId, {
       status,
-      gross: parseFloat(body.sale_amount || body.total || 0),
-      fee:   parseFloat(body.sale_amount || 0) * 0.049,
-      buyerEmail:  body.buyer_email || body.customer?.email || null,
+      gross: ppGross,
+      fee:   ppGross * 0.049,
+      buyerEmail:  ppEmail,
       productName: body.product_name || null,
       saleDate:    body.created_at ? new Date(body.created_at) : new Date(),
     });
+    fireSubscriberCapi(integ.user_id, { status, gross: ppGross, buyerEmail: ppEmail, productName: body.product_name || null, platform: 'perfectpay' }).catch(() => {});
 
     console.log(`[PerfectPay Webhook] Venda ${transId} processada: ${status}`);
   } catch (error) {
@@ -594,14 +677,17 @@ router.post('/webhook/ticto', async (req, res) => {
     };
     const status = statusMap[evtStatus] || 'pending';
 
+    const tictoGross = parseFloat(order.total || order.amount || 0);
+    const tictoEmail = order.customer?.email || order.buyer_email || null;
     await insertSale(integ.user_id, integ.id, 'ticto', transId, {
       status,
-      gross: parseFloat(order.total || order.amount || 0),
-      fee:   parseFloat(order.total || 0) * 0.05,
-      buyerEmail:  order.customer?.email || order.buyer_email || null,
+      gross: tictoGross,
+      fee:   tictoGross * 0.05,
+      buyerEmail:  tictoEmail,
       productName: order.product?.name || null,
       saleDate:    order.created_at ? new Date(order.created_at) : new Date(),
     });
+    fireSubscriberCapi(integ.user_id, { status, gross: tictoGross, buyerEmail: tictoEmail, productName: order.product?.name || null, platform: 'ticto' }).catch(() => {});
 
     console.log(`[Ticto Webhook] Venda ${transId} processada: ${status}`);
   } catch (error) {
@@ -663,15 +749,18 @@ router.post('/webhook/mercadopago', async (req, res) => {
     const gross = parseFloat(payment.transaction_amount || 0);
     const fee   = parseFloat(payment.fee_details?.reduce((s, f) => s + (f.amount || 0), 0) || gross * 0.0399);
 
+    const mpStatus = statusMap[payment.status] || 'pending';
+    const mpEmail  = payment.payer?.email || null;
     await insertSale(integ.user_id, integ.id, 'mercadopago', paymentId, {
-      status:      statusMap[payment.status] || 'pending',
+      status:      mpStatus,
       gross,
       fee,
       currency:    payment.currency_id || 'BRL',
-      buyerEmail:  payment.payer?.email || null,
+      buyerEmail:  mpEmail,
       productName: payment.description || null,
       saleDate:    payment.date_approved ? new Date(payment.date_approved) : new Date(),
     });
+    fireSubscriberCapi(integ.user_id, { status: mpStatus, gross, currency: payment.currency_id || 'BRL', buyerEmail: mpEmail, productName: payment.description || null, platform: 'mercadopago' }).catch(() => {});
 
     console.log(`[MercadoPago Webhook] Pagamento ${paymentId} processado: ${payment.status}`);
   } catch (error) {
@@ -723,20 +812,25 @@ router.post('/webhook/stripe', async (req, res) => {
     const obj = event.data?.object;
     if (!obj) return;
 
-    const transId = obj.id;
-    const gross   = parseFloat((obj.amount || obj.amount_received || 0) / 100);
-    const fee     = parseFloat((obj.application_fee_amount || 0) / 100) || gross * 0.0399;
+    const integ = await findIntegration('stripe');
+    if (!integ) return;
+
+    const transId  = obj.id;
+    const gross    = parseFloat((obj.amount || obj.amount_received || 0) / 100);
+    const fee      = parseFloat((obj.application_fee_amount || 0) / 100) || gross * 0.0399;
     const currency = (obj.currency || 'brl').toUpperCase();
+    const stripeEmail = obj.receipt_email || obj.customer_email || null;
 
     await insertSale(integ.user_id, integ.id, 'stripe', transId, {
       status,
       gross,
       fee,
       currency,
-      buyerEmail:  obj.receipt_email || obj.customer_email || null,
+      buyerEmail:  stripeEmail,
       productName: obj.description || null,
       saleDate:    obj.created ? new Date(obj.created * 1000) : new Date(),
     });
+    fireSubscriberCapi(integ.user_id, { status, gross, currency, buyerEmail: stripeEmail, productName: obj.description || null, platform: 'stripe' }).catch(() => {});
 
     console.log(`[Stripe Webhook] ${event.type} ${transId} processado`);
   } catch (error) {
@@ -791,15 +885,17 @@ router.post('/webhook/asaas', async (req, res) => {
     const gross  = parseFloat(payment.value || 0);
     const net    = parseFloat(payment.netValue || gross * 0.97);
 
+    const asaasEmail = payment.customer?.email || null;
     await insertSale(integ.user_id, integ.id, 'asaas', payment.id, {
       status,
       gross,
       fee: gross - net,
       net,
-      buyerEmail:  payment.customer?.email || null,
+      buyerEmail:  asaasEmail,
       productName: payment.description || null,
       saleDate:    payment.paymentDate ? new Date(payment.paymentDate) : new Date(),
     });
+    fireSubscriberCapi(integ.user_id, { status, gross, buyerEmail: asaasEmail, productName: payment.description || null, platform: 'asaas' }).catch(() => {});
 
     console.log(`[Asaas Webhook] Pagamento ${payment.id} processado: ${status}`);
   } catch (error) {
@@ -869,6 +965,7 @@ router.post('/webhook/pagarme', async (req, res) => {
       productName: data.items?.[0]?.description || null,
       saleDate:    data.created_at ? new Date(data.created_at) : new Date(),
     });
+    fireSubscriberCapi(integ.user_id, { status, gross, currency: (data.currency || 'BRL').toUpperCase(), buyerEmail, productName: data.items?.[0]?.description || null, platform: 'pagarme' }).catch(() => {});
 
     console.log(`[Pagarme Webhook] Order ${data.id} processado: ${status}`);
   } catch (error) {
@@ -926,14 +1023,16 @@ router.post('/webhook/pagseguro', async (req, res) => {
     const gross      = parseFloat((amountObj.value || 0) / 100);
     const fee        = gross * 0.0399;
 
+    const psEmail = body.customer?.email || charge.customer?.email || null;
     await insertSale(integ.user_id, integ.id, 'pagseguro', chargeId, {
       status,
       gross,
       fee,
-      buyerEmail:  body.customer?.email || charge.customer?.email || null,
+      buyerEmail:  psEmail,
       productName: body.reference_id || null,
       saleDate:    body.created_at ? new Date(body.created_at) : new Date(),
     });
+    fireSubscriberCapi(integ.user_id, { status, gross, buyerEmail: psEmail, productName: body.reference_id || null, platform: 'pagseguro' }).catch(() => {});
 
     console.log(`[PagSeguro Webhook] Charge ${chargeId} processado: ${status}`);
   } catch (error) {
