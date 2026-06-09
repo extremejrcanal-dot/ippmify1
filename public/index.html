@@ -399,6 +399,7 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 /* Trial banner */
 .trial-banner{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:10px 20px;font-size:13px;gap:12px;}
 .trial-banner.tb-renew{background:#1a1500;border-bottom:1px solid #f5c84244;}
+.trial-banner.tb-trial{background:#001830;border-bottom:1px solid #146ef544;}
 .tb-left{display:flex;align-items:center;gap:10px;}
 .tb-icon{font-size:18px;flex-shrink:0;}
 .tb-text{color:var(--text2);line-height:1.4;}
@@ -780,39 +781,67 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
     </div>
     <div id="registerForm" style="display:none">
+      <!-- Banner de trial (visível apenas quando acessado via link demo) -->
+      <div id="trialRegBanner" style="display:none;background:#001830;border:1px solid #146ef555;border-radius:10px;padding:12px 14px;margin-bottom:16px;">
+        <div style="font-size:11px;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">🎯 Trial gratuito — 7 dias</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.5;">Crie sua conta e tenha acesso completo por 7 dias, sem precisar de cartão de crédito.</div>
+      </div>
       <div class="form-group"><label>Nome completo</label><input type="text" id="regName" placeholder="Seu nome"></div>
       <div class="form-group"><label>Email</label><input type="email" id="regEmail" placeholder="seu@email.com"></div>
       <div class="form-group"><label>Senha (mínimo 8 caracteres)</label><input type="password" id="regPassword" placeholder="••••••••"></div>
       <div id="registerMsg"></div>
-      <button class="btn btn-primary" onclick="register()">Criar Conta</button>
+      <button class="btn btn-primary" id="regSubmitBtn" onclick="register()">Criar Conta</button>
     </div>
 
-    <!-- Tela pós-cadastro: direciona para o checkout -->
+    <!-- Tela pós-cadastro: checkout OU trial direto -->
     <div id="registerSuccess" style="display:none;text-align:center;">
-      <div style="font-size:44px;margin-bottom:12px;">✅</div>
-      <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px;">Conta criada com sucesso!</div>
-      <div style="font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6;">
-        Agora finalize sua assinatura para liberar<br>o acesso completo à plataforma.
-      </div>
-
-      <!-- Aviso do email -->
-      <div style="background:#1a2e1a;border:1px solid #22C55E55;border-radius:12px;padding:14px 16px;margin-bottom:20px;text-align:left;">
-        <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">⚠️ Atenção — passo importante</div>
-        <div style="font-size:13px;color:var(--text2);line-height:1.6;">
-          No checkout, use <strong style="color:var(--text);">obrigatoriamente</strong> o mesmo email que você cadastrou aqui:
+      <!-- Versão TRIAL (vai direto pro app) -->
+      <div id="regSuccessTrial" style="display:none;">
+        <div style="font-size:44px;margin-bottom:12px;">🎯</div>
+        <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px;">Trial ativado!</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6;">
+          Você tem <strong style="color:#60a5fa;">7 dias de acesso completo</strong> ao IPPMIFY.<br>
+          Explore tudo sem limites. Sem necessidade de cartão.
         </div>
-        <div style="margin-top:8px;background:#0D1B2A;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-weight:700;color:var(--green);word-break:break-all;" id="regSuccessEmail">—</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:6px;">Emails diferentes = acesso não liberado automaticamente.</div>
+        <div style="background:#001830;border:1px solid #146ef544;border-radius:12px;padding:14px 16px;margin-bottom:20px;text-align:left;">
+          <div style="font-size:11px;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">📋 Próximos passos</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.8;">
+            1. Conecte sua conta do Meta Ads<br>
+            2. Conecte Hotmart ou Kiwify<br>
+            3. Configure seu CPA desejado<br>
+            4. Veja seu lucro real em tempo real
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="enterAppAfterRegister()" style="margin-bottom:14px;font-size:15px;padding:13px;">
+          🚀 Entrar no IPPMIFY agora
+        </button>
       </div>
 
-      <button class="btn btn-primary" onclick="window.open(_checkoutUrl,'_blank')" style="margin-bottom:14px;font-size:15px;padding:13px;">
-        🚀 Finalizar assinatura — R$ 97/mês
-      </button>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:16px;">Pagamento seguro via Kirvano · Pix ou cartão</div>
-      <div
-        onclick="enterAppAfterRegister()"
-        style="font-size:12px;color:var(--text3);cursor:pointer;text-decoration:underline;text-underline-offset:3px;">
-        Já assinei, entrar no app →
+      <!-- Versão NORMAL (direciona para checkout) -->
+      <div id="regSuccessNormal">
+        <div style="font-size:44px;margin-bottom:12px;">✅</div>
+        <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px;">Conta criada com sucesso!</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6;">
+          Agora finalize sua assinatura para liberar<br>o acesso completo à plataforma.
+        </div>
+        <!-- Aviso do email -->
+        <div style="background:#1a2e1a;border:1px solid #22C55E55;border-radius:12px;padding:14px 16px;margin-bottom:20px;text-align:left;">
+          <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">⚠️ Atenção — passo importante</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.6;">
+            No checkout, use <strong style="color:var(--text);">obrigatoriamente</strong> o mesmo email que você cadastrou aqui:
+          </div>
+          <div style="margin-top:8px;background:#0D1B2A;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-weight:700;color:var(--green);word-break:break-all;" id="regSuccessEmail">—</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:6px;">Emails diferentes = acesso não liberado automaticamente.</div>
+        </div>
+        <button class="btn btn-primary" onclick="window.open(_checkoutUrl,'_blank')" style="margin-bottom:14px;font-size:15px;padding:13px;">
+          🚀 Finalizar assinatura — R$ 97/mês
+        </button>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:16px;">Pagamento seguro via Kirvano · Pix ou cartão</div>
+        <div
+          onclick="enterAppAfterRegister()"
+          style="font-size:12px;color:var(--text3);cursor:pointer;text-decoration:underline;text-underline-offset:3px;">
+          Já assinei, entrar no app →
+        </div>
       </div>
     </div>
 
@@ -2786,6 +2815,66 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
     </div>
 
+    <!-- ─── ADMIN: Gerar link de trial por lead (visível só para admins) ─── -->
+    <div id="adminDemoSection" style="display:none;margin-top:24px;">
+
+      <!-- Bloco 1: Conceder trial a conta já cadastrada -->
+      <div style="background:var(--bg2);border:1px solid #146ef530;border-radius:16px;padding:24px;margin-bottom:16px;">
+        <div style="font-size:15px;font-weight:700;color:var(--accent);margin-bottom:4px;">⚡ Ativar trial em conta existente</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:18px;">Para leads que já se cadastraram mas ainda não têm acesso</div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+          <div style="flex:2;min-width:200px;">
+            <div style="font-size:11px;color:var(--text3);margin-bottom:5px;">Email da conta</div>
+            <input id="grantTrialEmail" type="email" placeholder="lead@exemplo.com"
+              style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:13px;outline:none;">
+          </div>
+          <div style="flex:0 0 90px;">
+            <div style="font-size:11px;color:var(--text3);margin-bottom:5px;">Dias de trial</div>
+            <input id="grantTrialDays" type="number" value="7" min="1" max="30"
+              style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:13px;outline:none;text-align:center;">
+          </div>
+          <button onclick="grantTrialToExisting()" id="btnGrantTrial"
+            style="background:#1a8f4e;color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+            Ativar trial
+          </button>
+        </div>
+        <div id="grantTrialMsg" style="margin-top:10px;font-size:12px;"></div>
+      </div>
+
+      <!-- Bloco 2: Gerar link para novo cadastro -->
+      <div style="background:var(--bg2);border:1px solid #146ef530;border-radius:16px;padding:24px;">
+        <div style="font-size:15px;font-weight:700;color:var(--accent);margin-bottom:4px;">🔑 Gerar link de trial para novo cadastro</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:18px;">Cada link é de uso único — expira assim que o lead se cadastra</div>
+
+        <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+          <input id="demoTokenLabel" type="text" placeholder="Nome do lead (ex: João Silva)" maxlength="100"
+            style="flex:1;min-width:180px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:13px;outline:none;">
+          <button onclick="generateDemoToken()" id="btnGenToken"
+            style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">
+            Gerar link
+          </button>
+        </div>
+
+        <!-- Resultado do link gerado -->
+        <div id="demoTokenResult" style="display:none;background:var(--bg3);border:1px solid #146ef530;border-radius:10px;padding:14px;margin-bottom:16px;">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:6px;">Link gerado — compartilhe com o lead:</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <code id="demoTokenLink" style="flex:1;font-size:12px;color:var(--accent);word-break:break-all;background:var(--bg);padding:8px 10px;border-radius:8px;border:1px solid var(--border);"></code>
+            <button onclick="copyDemoLink()" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text2);font-size:12px;cursor:pointer;white-space:nowrap;">Copiar</button>
+          </div>
+          <div id="demoTokenMeta" style="font-size:11px;color:var(--text3);margin-top:8px;"></div>
+        </div>
+
+        <!-- Histórico de tokens -->
+        <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;">Tokens gerados</div>
+        <div id="demoTokenList" style="display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto;">
+          <div style="font-size:12px;color:var(--text3);padding:10px;text-align:center;">Carregando...</div>
+        </div>
+      </div>
+
+    </div>
+
   </main>
 </div>
 
@@ -2822,10 +2911,25 @@ const fmtN = (v, d=2) => Number(v||0).toFixed(d);
 // ─── AUTH ────────────────────────────────────────────────────────────────────
 function switchAuthTab(tab) {
   document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
+  // event.target pode ser undefined quando chamado programaticamente (ex: link demo)
+  if (typeof event !== 'undefined' && event?.target) event.target.classList.add('active');
+  else {
+    const tabs = document.querySelectorAll('.auth-tab');
+    tabs.forEach(t => {
+      if ((tab === 'login' && t.textContent.includes('Entrar')) ||
+          (tab === 'register' && t.textContent.includes('Criar'))) {
+        t.classList.add('active');
+      }
+    });
+  }
   document.getElementById('loginForm').style.display          = tab === 'login'    ? 'block' : 'none';
   document.getElementById('registerForm').style.display       = tab === 'register' ? 'block' : 'none';
   document.getElementById('forgotPasswordForm').style.display = 'none';
+  // Se trocar de aba manualmente sem ser via link demo, ocultar o banner de trial
+  if (tab === 'login' && !window._demoTrialCode) {
+    const b = document.getElementById('trialRegBanner');
+    if (b) b.style.display = 'none';
+  }
 }
 
 function togglePasswordVisibility(inputId, btn) {
@@ -2932,22 +3036,34 @@ async function login() {
 
 async function register() {
   try {
-    const data = await api('POST', '/api/auth/register', {
+    const payload = {
       name:     document.getElementById('regName').value,
       email:    document.getElementById('regEmail').value,
       password: document.getElementById('regPassword').value,
-    });
+    };
+    // Se vier de link de trial, envia o código para o backend ativar
+    if (window._demoTrialCode) payload.trial_code = window._demoTrialCode;
+
+    const data = await api('POST', '/api/auth/register', payload);
     token = data.accessToken;
     localStorage.setItem('ippmify_token', token);
     localStorage.setItem('ippmify_user', JSON.stringify(data.user));
-    // Guarda o user para uso posterior no enterAppAfterRegister
     window._pendingUser = data.user;
-    // Preenche o email no aviso
-    const emailEl = document.getElementById('regSuccessEmail');
-    if (emailEl) emailEl.textContent = data.user.email || document.getElementById('regEmail').value;
-    // Mostra tela de sucesso → direciona para o checkout
+
     document.getElementById('registerForm').style.display    = 'none';
     document.getElementById('registerSuccess').style.display = 'block';
+
+    if (data.is_trial) {
+      // Trial: mostra tela de trial, vai direto ao app
+      document.getElementById('regSuccessTrial').style.display  = 'block';
+      document.getElementById('regSuccessNormal').style.display = 'none';
+    } else {
+      // Cadastro normal: mostra tela de checkout
+      document.getElementById('regSuccessNormal').style.display = 'block';
+      document.getElementById('regSuccessTrial').style.display  = 'none';
+      const emailEl = document.getElementById('regSuccessEmail');
+      if (emailEl) emailEl.textContent = data.user.email || document.getElementById('regEmail').value;
+    }
   } catch (e) { showMsg('registerMsg', e.message); }
 }
 
@@ -3019,40 +3135,62 @@ function updateSidebarPlan(status) {
   if (!el) return;
   const labels = {
     active:  '✅ Plano ativo',
+    trial:   '🎯 Trial gratuito',
     pending: '🔴 Sem assinatura',
-    expired: '🔴 Plano expirado',
+    expired: '🔴 Expirado',
   };
-  el.textContent = labels[status] || 'Trial';
+  el.textContent = labels[status] || status;
 }
 
 function showTrialBanner(data) {
-  const banner = document.getElementById('trialBanner');
+  const banner    = document.getElementById('trialBanner');
   if (!banner) return;
 
-  const status = data.plan_status;
+  const status    = data.plan_status;
+  const dismissed = sessionStorage.getItem('trial_banner_dismissed');
 
-  // Mostrar banner de renovação apenas quando faltam <= 7 dias e plano está ativo
+  // ── TRIAL: mostra banner com contagem regressiva ─────────────────────────
+  if (status === 'trial' && data.trial_expires_at && !dismissed) {
+    const exp      = new Date(data.trial_expires_at);
+    const now      = new Date();
+    const daysLeft = Math.max(0, Math.ceil((exp - now) / (1000 * 60 * 60 * 24)));
+    const label    = daysLeft === 1 ? '1 dia restante' : `${daysLeft} dias restantes`;
+
+    banner.style.display = 'flex';
+    banner.className     = 'trial-banner tb-trial';
+    banner.innerHTML     = `
+      <div class="tb-left">
+        <span class="tb-icon">🎯</span>
+        <div class="tb-text"><strong>Trial gratuito — ${label}.</strong> Assine agora para manter o acesso após o período de teste.</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
+        <button onclick="openUpgrade()" style="background:#146EF5;color:#fff;border:none;padding:6px 16px;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;">Assinar R$97/mês</button>
+        <span onclick="dismissTrialBanner()" style="cursor:pointer;color:var(--text3);font-size:20px;line-height:1;">✕</span>
+      </div>`;
+    return;
+  }
+
+  // ── PLANO ATIVO prestes a vencer: banner de renovação ────────────────────
   if (status === 'active' && data.plan_expires_at) {
-    const exp = new Date(data.plan_expires_at);
-    const now = new Date();
+    const exp      = new Date(data.plan_expires_at);
+    const now      = new Date();
     const daysLeft = Math.ceil((exp - now) / (1000 * 60 * 60 * 24));
     if (daysLeft <= 7 && daysLeft > 0) {
       banner.style.display = 'flex';
-      banner.className = 'trial-banner tb-renew';
-      banner.innerHTML = `
+      banner.className     = 'trial-banner tb-renew';
+      banner.innerHTML     = `
         <div class="tb-left">
           <span class="tb-icon">⚠️</span>
           <div class="tb-text"><strong>Seu plano renova em ${daysLeft} dia${daysLeft > 1 ? 's' : ''}.</strong> A renovação é automática via Pix ou cartão cadastrado.</div>
         </div>`;
-    } else {
-      banner.style.display = 'none';
+      return;
     }
-  } else {
-    banner.style.display = 'none';
   }
 
-  // Bloquear acesso se não tiver plano ativo
-  if (status !== 'active') {
+  banner.style.display = 'none';
+
+  // ── Bloquear acesso se não tiver plano ativo nem trial ───────────────────
+  if (status !== 'active' && status !== 'trial') {
     showPlanLock();
   }
 }
@@ -3074,7 +3212,26 @@ function dismissTrialBanner() {
 
 function openUpgrade() {
   const url = _checkoutUrl || 'https://ippmify.com/assinar';
+  // Tracking: InitiateCheckout server-side
+  track('InitiateCheckout', { content_name: 'IPPMIFY Mensal', value: 97, currency: 'BRL' });
   window.open(url, '_blank');
+}
+
+// ─── TRACKING META CAPI (server-side) ────────────────────────────────────────
+// Envia evento para o backend que repassa ao Meta Conversions API.
+// Fire-and-forget: nunca bloqueia a UX, nunca lança erro.
+function track(eventName, customData = {}) {
+  if (!token) return; // só rastreia usuários logados
+  fetch(`${API_URL}/api/track`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body:    JSON.stringify({
+      event_name:       eventName,
+      event_source_url: window.location.href,
+      custom_data:      customData,
+      event_id:         `${eventName}_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+    }),
+  }).catch(() => {}); // silencioso
 }
 
 function uploadAvatar(event) {
@@ -3229,8 +3386,9 @@ function showTab(name) {
   document.getElementById(`tab-${name}`)?.classList.add('active');
   document.getElementById(`nav-${name}`)?.classList.add('active');
 
-  // Controle de acesso: só "Meu Plano" é liberado sem assinatura
-  if (_planStatus !== 'active') {
+  // Controle de acesso: ativo e trial têm acesso completo; pending/expired só veem Meu Plano
+  const hasAccess = _planStatus === 'active' || _planStatus === 'trial';
+  if (!hasAccess) {
     if (name === 'plan') {
       hidePlanLock(); // permite ver Meu Plano para pagar
     } else {
@@ -3250,6 +3408,12 @@ function showTab(name) {
   if (name === 'plan')        loadPlanTab();
   if (name === 'reports')     loadReportSchedule();
   // creatives tab has no auto-load (it's a generator)
+
+  // Tracking: ViewContent em abas estratégicas
+  const trackableTabs = { dashboard: 'Dashboard', integrations: 'Integrações', campaigns: 'Campanhas', reports: 'Relatórios' };
+  if (trackableTabs[name]) {
+    track('ViewContent', { content_name: trackableTabs[name], content_category: 'app_tab' });
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -4916,8 +5080,19 @@ async function loadPlanTab() {
   try {
     const { data } = await api('GET', '/api/auth/me');
     if (!data) return;
-    const { plan_status, plan_expires_at } = data;
+    const { plan_status, plan_expires_at, is_admin } = data;
     const now = new Date();
+
+    // Seção admin: visível apenas para admins
+    const adminSection = document.getElementById('adminDemoSection');
+    if (adminSection) {
+      if (is_admin) {
+        adminSection.style.display = 'block';
+        loadDemoTokens();
+      } else {
+        adminSection.style.display = 'none';
+      }
+    }
 
     const hero     = document.getElementById('planHero');
     const icon     = document.getElementById('planHeroIcon');
@@ -4967,6 +5142,133 @@ async function loadPlanTab() {
     console.error('[Plan] Erro ao carregar plano:', e.message);
   }
 }
+
+// ─── ADMIN: Trial em conta já cadastrada ─────────────────────────────────────
+
+async function grantTrialToExisting() {
+  const email = (document.getElementById('grantTrialEmail')?.value || '').trim();
+  const days  = parseInt(document.getElementById('grantTrialDays')?.value) || 7;
+  const msg   = document.getElementById('grantTrialMsg');
+  const btn   = document.getElementById('btnGrantTrial');
+
+  if (!email || !email.includes('@')) {
+    if (msg) { msg.style.color = 'var(--red)'; msg.textContent = 'Informe um email válido.'; }
+    return;
+  }
+
+  if (btn) { btn.disabled = true; btn.textContent = 'Ativando...'; }
+  if (msg) msg.textContent = '';
+
+  try {
+    const data = await api('POST', '/api/admin/grant-trial', { email, days });
+    if (msg) {
+      msg.style.color = 'var(--green)';
+      const exp = new Date(data.trial_expires_at).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+      msg.textContent = `✓ ${data.message} — acesso expira em ${exp}`;
+    }
+    if (document.getElementById('grantTrialEmail')) document.getElementById('grantTrialEmail').value = '';
+  } catch(e) {
+    if (msg) { msg.style.color = 'var(--red)'; msg.textContent = '✗ ' + e.message; }
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Ativar trial'; }
+  }
+}
+
+// ─── ADMIN: Gerar / listar tokens demo ───────────────────────────────────────
+
+async function generateDemoToken() {
+  const label  = (document.getElementById('demoTokenLabel')?.value || '').trim();
+  const btn    = document.getElementById('btnGenToken');
+  if (btn) { btn.disabled = true; btn.textContent = 'Gerando...'; }
+
+  try {
+    const data = await api('POST', '/api/admin/demo-token', { label: label || undefined });
+    // Mostrar link gerado
+    const resultEl = document.getElementById('demoTokenResult');
+    const linkEl   = document.getElementById('demoTokenLink');
+    const metaEl   = document.getElementById('demoTokenMeta');
+    if (resultEl) resultEl.style.display = 'block';
+    if (linkEl)   linkEl.textContent = data.link;
+    if (metaEl) {
+      const exp = new Date(data.expires_at).toLocaleString('pt-BR');
+      const lbl = data.label ? `Lead: ${data.label} · ` : '';
+      metaEl.textContent = `${lbl}Expira em: ${exp}`;
+    }
+    // Limpar input e recarregar lista
+    if (document.getElementById('demoTokenLabel')) document.getElementById('demoTokenLabel').value = '';
+    loadDemoTokens();
+  } catch(e) {
+    alert('Erro ao gerar token: ' + e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Gerar link'; }
+  }
+}
+
+function copyDemoLink() {
+  const link = document.getElementById('demoTokenLink')?.textContent;
+  if (!link) return;
+  navigator.clipboard.writeText(link).then(() => {
+    const btn = event?.target;
+    if (btn) { const old = btn.textContent; btn.textContent = '✓ Copiado!'; setTimeout(() => btn.textContent = old, 2000); }
+  });
+}
+
+async function loadDemoTokens() {
+  const list = document.getElementById('demoTokenList');
+  if (!list) return;
+
+  try {
+    const { data } = await api('GET', '/api/admin/demo-tokens');
+    if (!data || data.length === 0) {
+      list.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:10px;text-align:center;">Nenhum token gerado ainda</div>';
+      return;
+    }
+
+    const statusInfo = {
+      active:  { color: 'var(--green)',  label: '🟢 Ativo' },
+      used:    { color: 'var(--text3)',  label: '✓ Usado' },
+      expired: { color: 'var(--red)',    label: '⏱ Expirado' },
+    };
+
+    list.innerHTML = data.map(t => {
+      const si      = statusInfo[t.status] || statusInfo.expired;
+      const lbl     = t.label ? `<strong>${t.label}</strong>` : '<em style="color:var(--text3)">sem label</em>';
+      const created = new Date(t.created_at).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+      const usedBy  = t.used_by_email ? `<span style="color:var(--text3)"> · usado por ${t.used_by_email}</span>` : '';
+      const copyBtn = t.status === 'active'
+        ? `<button onclick="navigator.clipboard.writeText('${t.link}').then(()=>{ this.textContent='✓'; setTimeout(()=>this.textContent='Copiar',1500); })"
+             style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--text2);cursor:pointer;flex-shrink:0;">Copiar</button>`
+        : '';
+      const revokeBtn = t.status === 'active'
+        ? `<button onclick="revokeDemoToken('${t.id}')"
+             style="background:transparent;border:none;font-size:11px;color:var(--red);cursor:pointer;flex-shrink:0;padding:4px 6px;">Revogar</button>`
+        : '';
+
+      return `<div style="display:flex;align-items:center;gap:8px;background:var(--bg3);border-radius:8px;padding:10px 12px;flex-wrap:wrap;">
+        <span style="color:${si.color};font-size:11px;font-weight:700;flex-shrink:0;">${si.label}</span>
+        <span style="font-size:12px;flex:1;min-width:100px;">${lbl}${usedBy}</span>
+        <span style="font-size:11px;color:var(--text3);flex-shrink:0;">${created}</span>
+        ${copyBtn}
+        ${revokeBtn}
+      </div>`;
+    }).join('');
+
+  } catch(e) {
+    list.innerHTML = `<div style="font-size:12px;color:var(--red);padding:10px;text-align:center;">Erro ao carregar tokens: ${e.message}</div>`;
+  }
+}
+
+async function revokeDemoToken(id) {
+  if (!confirm('Revogar este token? O lead não conseguirá mais usar este link.')) return;
+  try {
+    await api('DELETE', `/api/admin/demo-token/${id}`);
+    loadDemoTokens();
+  } catch(e) {
+    alert('Erro ao revogar: ' + e.message);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 function updateReportTimeSlots() {
   const freq = parseInt(document.getElementById('reportFreqSelect').value);
@@ -5034,76 +5336,68 @@ function selectReportDays(days) {
 function editReportSchedule() {
   document.getElementById('reportScheduleView').style.display = 'none';
   document.getElementById('reportScheduleForm').style.display = 'block';
-  document.getElementById('reportScheduleMsg').textContent    = '';
-  // Restaurar seleção salva
-  const savedDays = parseInt(document.getElementById('reportDaysValue')?.value || 7);
-  selectReportDays(savedDays);
-}
-
-function cancelReportScheduleEdit() {
-  document.getElementById('reportScheduleForm').style.display = 'none';
-  document.getElementById('reportScheduleView').style.display = 'block';
+  const resp  = window._lastReportData || {};
+  const freq  = parseInt(resp.report_freq  || 0);
+  const times = (resp.report_times || '').split(',').map(t => t.trim()).filter(Boolean);
+  const days  = parseInt(resp.report_days  || 7);
+  const sel = document.getElementById('reportFreqSelect');
+  if (sel) sel.value = freq;
+  updateReportTimeSlots();
+  setTimeout(() => {
+    times.forEach((t, i) => {
+      const inp = document.getElementById('reportTime' + i);
+      if (inp) inp.value = t;
+    });
+  }, 50);
+  selectReportDays(days);
 }
 
 async function saveReportSchedule() {
-  const freq = parseInt(document.getElementById('reportFreqSelect').value);
-  const days = parseInt(document.getElementById('reportDaysValue')?.value || 7);
-  const times = [];
-  for (let i = 0; i < freq; i++) {
-    const t = document.getElementById(`reportTime${i}`)?.value;
-    if (t) times.push(t);
-  }
-  const msg = document.getElementById('reportScheduleMsg');
   try {
-    await api('PUT', '/api/auth/settings', { report_freq: freq, report_times: times.join(','), report_days: days });
-    renderReportScheduleView(freq, times, days);
-    cancelReportScheduleEdit();
-    if (msg) { msg.style.color = 'var(--green)'; msg.textContent = '✅ Agendamento salvo!'; }
+    const freq  = parseInt(document.getElementById('reportFreqSelect').value);
+    const times = [];
+    for (let i = 0; i < freq; i++) {
+      const inp = document.getElementById('reportTime' + i);
+      if (inp) times.push(inp.value);
+    }
+    const days = parseInt(document.getElementById('reportDaysValue')?.value || 7);
+    await api('PUT', '/api/auth/settings', {
+      report_freq:  freq,
+      report_times: times.join(','),
+      report_days:  days,
+    });
+    window._lastReportData = { report_freq: freq, report_times: times.join(','), report_days: days };
+    const msg = document.getElementById('reportScheduleMsg');
+    if (msg) { msg.style.color = 'var(--green)'; msg.textContent = 'Agendamento salvo!'; }
+    setTimeout(() => {
+      cancelReportScheduleEdit();
+      renderReportScheduleView(freq, times, days);
+    }, 1000);
   } catch(e) {
-    if (msg) { msg.style.color = 'var(--red)'; msg.textContent = '❌ Erro ao salvar. Tente novamente.'; }
+    const msg = document.getElementById('reportScheduleMsg');
+    if (msg) { msg.style.color = 'var(--red)'; msg.textContent = 'Erro: ' + e.message; }
   }
 }
 
-function openCaktoPortal() {
-  window.open(_checkoutUrl, '_blank');
+function cancelReportScheduleEdit() {
+  document.getElementById('reportScheduleView').style.display = 'block';
+  document.getElementById('reportScheduleForm').style.display = 'none';
+  const msg = document.getElementById('reportScheduleMsg');
+  if (msg) msg.textContent = '';
 }
 
-// ─── INTEGRATION CATEGORY FILTER ─────────────────────────────────────────────
-function filterIntCategory(cat, btn) {
-  // Atualizar botões ativos
-  document.querySelectorAll('.int-cat-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-
-  // Mostrar/esconder cards e seções
-  const allCards    = document.querySelectorAll('#tab-integrations .int-pcard');
-  const allSections = document.querySelectorAll('#tab-integrations .int-cat-section');
-  const allGrids    = document.querySelectorAll('#tab-integrations .int-soon-grid');
-
-  if (cat === 'todos') {
-    allCards.forEach(el    => el.style.display = '');
-    allSections.forEach(el => el.style.display = '');
-    allGrids.forEach(el    => el.style.display = '');
-  } else {
-    allCards.forEach(el    => el.style.display = el.dataset.cat === cat ? '' : 'none');
-    allSections.forEach(el => el.style.display = el.dataset.cat === cat ? '' : 'none');
-    allGrids.forEach(el    => el.style.display = el.dataset.cat === cat ? '' : 'none');
-  }
-}
-
-// ─── MOBILE SIDEBAR ──────────────────────────────────────────────────────────
 function toggleMobileSidebar() {
-  const sidebar  = document.getElementById('mainSidebar');
-  const overlay  = document.getElementById('sidebarOverlay');
-  const btn      = document.getElementById('mobileMenuBtn');
-  const isOpen   = sidebar.classList.contains('open');
-  if (isOpen) {
+  const sidebar = document.getElementById('mainSidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const btn     = document.getElementById('mobileMenuBtn');
+  if (sidebar.classList.contains('open')) {
     sidebar.classList.remove('open');
     overlay.classList.remove('open');
-    btn.textContent = '☰';
+    if (btn) btn.textContent = String.fromCharCode(9776);
   } else {
     sidebar.classList.add('open');
     overlay.classList.add('open');
-    btn.textContent = '✕';
+    if (btn) btn.textContent = String.fromCharCode(10005);
   }
 }
 
@@ -5111,29 +5405,45 @@ function closeMobileSidebar() {
   document.getElementById('mainSidebar')?.classList.remove('open');
   document.getElementById('sidebarOverlay')?.classList.remove('open');
   const btn = document.getElementById('mobileMenuBtn');
-  if (btn) btn.textContent = '☰';
+  if (btn) btn.textContent = String.fromCharCode(9776);
 }
 
-// Fechar sidebar ao navegar (mobile)
 document.addEventListener('click', (e) => {
   if (e.target.closest('.nav-item')) closeMobileSidebar();
 });
 
 function openPlanSupport() {
-  const msg = encodeURIComponent('Olá! Preciso de ajuda com minha assinatura do IPPMIFY.');
+  const msg = encodeURIComponent('Ola! Preciso de ajuda com minha assinatura do IPPMIFY.');
   window.open('https://wa.me/5543996267951?text=' + msg, '_blank');
 }
 
-// ─── INICIALIZAR ─────────────────────────────────────────────────────────────
-// Detecta link de redefinição de senha (?reset=TOKEN)
+// INICIALIZAR
 const _urlParams     = new URLSearchParams(window.location.search);
 const _resetTokenUrl = _urlParams.get('reset');
+const _demoCodeUrl   = _urlParams.get('demo');
 
 if (_resetTokenUrl) {
-  // Mostra a tela de authPage com o formulário de nova senha
   document.getElementById('authPage').style.display = 'flex';
   document.getElementById('appPage').style.display  = 'none';
   showResetForm(_resetTokenUrl);
+
+} else if (_demoCodeUrl) {
+  window._demoTrialCode = _demoCodeUrl;
+  history.replaceState(null, '', window.location.pathname);
+
+  document.getElementById('authPage').style.display = 'flex';
+  document.getElementById('appPage').style.display  = 'none';
+  switchAuthTab('register');
+
+  const trialBannerReg = document.getElementById('trialRegBanner');
+  if (trialBannerReg) trialBannerReg.style.display = 'block';
+
+  const regBtn = document.getElementById('regSubmitBtn');
+  if (regBtn) regBtn.textContent = 'Ativar trial gratuito - 7 dias gratis';
+
+  const subtitle = document.querySelector('.auth-subtitle');
+  if (subtitle) subtitle.textContent = 'Trial gratuito por 7 dias - sem cartao';
+
 } else if (token) {
   const user = JSON.parse(localStorage.getItem('ippmify_user')||'{}');
   if (user.name || user.email) initApp(user);
