@@ -6,8 +6,15 @@ const axios    = require('axios');
 const { query }  = require('../config/database');
 const { setEx, get, del } = require('../config/redis');
 const { generateTokens, requireAuth } = require('../middleware/auth');
+const { sendEvent } = require('../utils/metaCapi');
 
 const router = express.Router();
+
+// Helper: extrai IP real passando por proxy Railway
+const getClientIp = (req) =>
+  req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+  req.headers['x-real-ip'] ||
+  req.ip;
 
 // ─── MAILER (Resend — HTTP API, funciona no Railway) ───────────────────────
 const sendResetEmail = async (toEmail, toName, resetUrl) => {
@@ -59,9 +66,11 @@ const sendResetEmail = async (toEmail, toName, resetUrl) => {
 
 // ─── REGISTRO ──────────────────────────────────────────────────────────────
 // POST /api/auth/register
+// Se trial_code for um UUID válido em demo_tokens → cria conta com plan='trial' por 7 dias
+// O token é de uso único: marcado como usado logo após o cadastro
 router.post('/register', async (req, res) => {
   try {
-    const { email, name, password } = req.body;
+    const { email, name, password, trial_code } = req.body;
 
     if (!email || !name || !password) {
       return res.status(400).json({ error: 'Email, nome e senha sao obrigatorios' });
@@ -78,13 +87,37 @@ router.post('/register', async (req, res) => {
       return res.status(409).json({ error: 'Este email ja esta cadastrado' });
     }
 
+    // ── Verificar token demo de uso único ─────────────────────────────────
+    let isTrial    = false;
+    let trialExpiry = null;
+    let tokenId    = null;
+
+    if (trial_code) {
+      // UUID format check (evita SQL injection e lookup desnecessário)
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (uuidRegex.test(trial_code)) {
+        const tokenResult = await query(
+          `SELECT id FROM demo_tokens
+           WHERE id = $1
+             AND used_at IS NULL
+             AND expires_at > NOW()`,
+          [trial_code]
+        );
+        if (tokenResult.rows.length > 0) {
+          isTrial     = true;
+          tokenId     = tokenResult.rows[0].id;
+          trialExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 dias
+        }
+      }
+    }
+
     const passwordHash = await bcrypt.hash(password, 12);
 
     const result = await query(
-      `INSERT INTO users (email, name, password_hash)
-       VALUES ($1, $2, $3)
+      `INSERT INTO users (email, name, password_hash, plan, trial_expires_at)
+       VALUES ($1, $2, $3, $4, $5)
        RETURNING id, email, name, plan, created_at`,
-      [email.toLowerCase(), name, passwordHash]
+      [email.toLowerCase(), name, passwordHash, isTrial ? 'trial' : 'starter', trialExpiry]
     );
 
     const user = result.rows[0];
@@ -92,11 +125,44 @@ router.post('/register', async (req, res) => {
 
     await setEx(`refresh:${user.id}`, refreshToken, 30 * 24 * 60 * 60);
 
-    console.log(`[Auth] Novo usuario registrado: ${email}`);
+    // ── Marcar token como usado (uso único) ───────────────────────────────
+    if (isTrial && tokenId) {
+      await query(
+        `UPDATE demo_tokens SET used_at = NOW(), used_by_email = $1 WHERE id = $2`,
+        [email.toLowerCase(), tokenId]
+      );
+      console.log(`[Auth] Novo trial ativado: ${email} | token: ${tokenId} | expira em: ${trialExpiry.toISOString()}`);
+    } else {
+      console.log(`[Auth] Novo usuario registrado: ${email}`);
+    }
+
+    // ── Tracking Meta CAPI ────────────────────────────────────────────────
+    const appUrl = process.env.APP_URL || 'https://ippmify1-production.up.railway.app';
+    sendEvent({
+      eventName:      'CompleteRegistration',
+      email:          email.toLowerCase(),
+      clientIp:       getClientIp(req),
+      userAgent:      req.headers['user-agent'],
+      eventSourceUrl: appUrl,
+      customData:     { status: isTrial ? 'trial' : 'starter' },
+    }).catch(() => {});
+
+    if (isTrial) {
+      sendEvent({
+        eventName:      'StartTrial',
+        email:          email.toLowerCase(),
+        clientIp:       getClientIp(req),
+        userAgent:      req.headers['user-agent'],
+        eventSourceUrl: appUrl,
+        customData:     { predicted_ltv: 97, currency: 'BRL' },
+      }).catch(() => {});
+    }
 
     res.status(201).json({
-      message: 'Conta criada com sucesso!',
-      user: { id: user.id, email: user.email, name: user.name, plan: user.plan },
+      message: isTrial ? 'Trial ativado! 7 dias de acesso completo liberados.' : 'Conta criada com sucesso!',
+      user:     { id: user.id, email: user.email, name: user.name, plan: user.plan },
+      is_trial: isTrial,
+      trial_expires_at: trialExpiry,
       accessToken,
       refreshToken
     });
@@ -142,6 +208,16 @@ router.post('/login', async (req, res) => {
     await setEx(`refresh:${user.id}`, refreshToken, 30 * 24 * 60 * 60);
 
     console.log(`[Auth] Login: ${email}`);
+
+    // ── Tracking Meta CAPI ────────────────────────────────────────────────
+    const appUrl = process.env.APP_URL || 'https://ippmify1-production.up.railway.app';
+    sendEvent({
+      eventName:      'Login',
+      email:          email.toLowerCase(),
+      clientIp:       getClientIp(req),
+      userAgent:      req.headers['user-agent'],
+      eventSourceUrl: appUrl,
+    }).catch(() => {});
 
     res.json({
       message: 'Login realizado com sucesso!',
@@ -282,14 +358,15 @@ router.get('/me', requireAuth, async (req, res) => {
     id, email, name, plan, plan_status,
     trial_expires_at, plan_expires_at,
     whatsapp, whatsapp_key, cpa_target, roas_target, timezone,
-    report_freq, report_times, report_days
+    report_freq, report_times, report_days, is_admin
   } = req.user;
   res.json({
     data: {
       id, email, name, plan, plan_status,
       trial_expires_at, plan_expires_at,
       whatsapp, whatsapp_key, cpa_target, roas_target, timezone,
-      report_freq, report_times, report_days
+      report_freq, report_times, report_days,
+      is_admin: !!is_admin
     }
   });
 });
