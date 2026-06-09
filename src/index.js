@@ -19,6 +19,7 @@ const benchmarksRoutes   = require('./routes/benchmarks');
 const offersRoutes       = require('./routes/offers');
 const creativesRoutes    = require('./routes/creatives');
 const webhookRoutes      = require('./routes/webhook');
+const capiProxyRoutes    = require('./routes/capiProxy');
 
 // Middleware de autenticacao e plano
 const { requireAuth, requireActivePlan } = require('./middleware/auth');
@@ -81,6 +82,12 @@ const runMigrations = async () => {
     await query("ALTER TABLE users ADD COLUMN IF NOT EXISTS report_times VARCHAR(100) DEFAULT NULL;");
     await query("ALTER TABLE users ADD COLUMN IF NOT EXISTS report_days INT DEFAULT 7;");
 
+    // ── Meta CAPI por assinante ───────────────────────────────────────────
+    await query("ALTER TABLE users ADD COLUMN IF NOT EXISTS meta_pixel_id VARCHAR(50) DEFAULT NULL;");
+    await query("ALTER TABLE users ADD COLUMN IF NOT EXISTS meta_access_token TEXT DEFAULT NULL;");
+    await query("ALTER TABLE users ADD COLUMN IF NOT EXISTS capi_api_key VARCHAR(64) DEFAULT NULL;");
+    await query("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_capi_api_key ON users (capi_api_key) WHERE capi_api_key IS NOT NULL;");
+
     // ── Tokens demo de uso único por lead ────────────────────────────────
     await query(`CREATE TABLE IF NOT EXISTS demo_tokens (
       id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -142,6 +149,7 @@ app.use('/api/admin',   requireAuth, adminRoutes);  // gerar/listar tokens demo 
 app.use('/api/track',   requireAuth, trackRoutes);  // tracking Meta CAPI server-side
 app.use('/api/webhook', webhookRoutes);             // Kirvano / Cakto (billing IPPMIFY)
 app.use('/api/hook',    integrationsRoutes);        // Webhooks publicos das plataformas (Stripe, MP, etc)
+app.use('/api/s',       capiProxyRoutes);           // Proxy CAPI publico para funis dos assinantes
 
 // ─── ROTAS PROTEGIDAS (exigem login + plano ativo) ───────────────────────────
 // requireAuth seta req.user; requireActivePlan bloqueia se plan_status !== 'active'
@@ -169,11 +177,7 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, async () => {
   console.log('');
-  console.log('╔══════════════════════════════════════════╗');
-  console.log('║         IPPMIFY - Profit Engine          ║');
-  console.log('║      Decisoes Automaticas de Lucro       ║');
-  console.log('╚══════════════════════════════════════════╝');
-  console.log('');
+  console.log('IPPMIFY - Profit Engine iniciado');
   console.log('[Server] Porta: ' + PORT);
   console.log('[Server] Ambiente: ' + (process.env.NODE_ENV || 'development'));
   console.log('');
