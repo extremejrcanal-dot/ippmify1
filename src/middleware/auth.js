@@ -19,7 +19,8 @@ const requireAuth = async (req, res, next) => {
     const result = await query(
       `SELECT id, email, name, plan, timezone, whatsapp, whatsapp_key,
               cpa_target, roas_target, report_freq, report_times, report_days,
-              trial_expires_at, plan_expires_at, is_admin
+              trial_expires_at, plan_expires_at, is_admin,
+              meta_pixel_id, meta_access_token, capi_api_key
        FROM users WHERE id = $1 AND is_active = true`,
       [decoded.userId]
     );
@@ -41,15 +42,29 @@ const requireAuth = async (req, res, next) => {
       return next();
     }
 
-    // Verificar se assinatura venceu
+    // ── Verificar expiracao do plano pago ──────────────────────────────────
     if (user.plan === 'active' && user.plan_expires_at && new Date(user.plan_expires_at) < now) {
       user.plan = 'expired';
       await query("UPDATE users SET plan='expired' WHERE id=$1", [user.id]);
     }
 
-    // Calcular plan_status — sem trial, so active ou pending
+    // ── Verificar expiracao do trial ───────────────────────────────────────
+    if (user.plan === 'trial' && user.trial_expires_at && new Date(user.trial_expires_at) < now) {
+      user.plan = 'expired';
+      await query("UPDATE users SET plan='expired' WHERE id=$1", [user.id]);
+    }
+
+    // ── Calcular plan_status ───────────────────────────────────────────────
+    // active  → assinatura paga ativa
+    // trial   → trial gratuito ainda vigente
+    // pending → sem assinatura nem trial (recém cadastrado)
+    // expired → assinatura ou trial vencido
     if (user.plan === 'active') {
       user.plan_status = 'active';
+    } else if (user.plan === 'trial') {
+      user.plan_status = 'trial';
+    } else if (user.plan === 'expired') {
+      user.plan_status = 'expired';
     } else {
       user.plan_status = 'pending';
     }
@@ -76,20 +91,26 @@ const requireAuth = async (req, res, next) => {
 };
 
 // ─── VERIFICACAO DE PLANO ATIVO ──────────────────────────────────────────────
+// Permite: assinatura paga (active) OU trial ainda vigente (trial)
+// Bloqueia: sem assinatura (pending), expirado (expired)
 const requireActivePlan = (req, res, next) => {
   // Admin sempre passa
   if (req.user?.is_admin) return next();
 
   const { plan_status } = req.user;
-  if (plan_status !== 'active') {
-    return res.status(402).json({
-      error: 'Assinatura necessaria',
-      message: 'Assine o IPPMIFY para acessar este recurso.',
-      plan_status,
-      upgrade_url: process.env.KIRVANO_CHECKOUT_URL || 'https://pay.kirvano.com/38e05652-22f6-494e-a97f-bd2e3f0aa034',
-    });
+
+  if (plan_status === 'active' || plan_status === 'trial') {
+    return next();
   }
-  next();
+
+  return res.status(402).json({
+    error: 'Assinatura necessaria',
+    message: plan_status === 'expired'
+      ? 'Seu trial ou assinatura expirou. Assine o IPPMIFY para continuar.'
+      : 'Assine o IPPMIFY para acessar este recurso.',
+    plan_status,
+    upgrade_url: process.env.KIRVANO_CHECKOUT_URL || 'https://pay.kirvano.com/38e05652-22f6-494e-a97f-bd2e3f0aa034',
+  });
 };
 
 // ─── GERAR TOKENS JWT ────────────────────────────────────────────────────────
