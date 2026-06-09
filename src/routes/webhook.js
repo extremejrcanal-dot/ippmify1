@@ -1,7 +1,10 @@
 const express = require('express');
 const { query } = require('../config/database');
+const { sendEvent } = require('../utils/metaCapi');
 
 const router = express.Router();
+
+const APP_URL = process.env.APP_URL || 'https://ippmify1-production.up.railway.app';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // KIRVANO WEBHOOK
@@ -107,6 +110,16 @@ router.post('/kirvano', async (req, res) => {
       [subscriberId, user.id]
     );
     console.log(`[Webhook/Kirvano] Plano ATIVADO para ${email}`);
+
+    // ── Tracking Meta CAPI: Purchase ─────────────────────────────────────
+    sendEvent({
+      eventName:      'Purchase',
+      email:          email.toLowerCase(),
+      eventSourceUrl: APP_URL,
+      actionSource:   'system_generated', // webhook — sem browser
+      customData:     { value: 97, currency: 'BRL', content_name: 'IPPMIFY Mensal' },
+    }).catch(() => {});
+
     return res.json({ ok: true, action: 'activated', email });
   }
 
