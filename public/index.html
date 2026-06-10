@@ -963,7 +963,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       <div class="nav-section">Inteligência</div>
       
       <div class="nav-item" id="nav-insights" onclick="showTab('insights')">
-        <span class="nav-icon">🤖</span> IA Insights
+        <span class="nav-icon">⚡</span> IPPMIFY AI
       </div>
       <div class="nav-item" id="nav-benchmarks" onclick="showTab('benchmarks')">
         <span class="nav-icon">📈</span> Benchmarks
@@ -1927,19 +1927,33 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
 
     <!-- ── IA INSIGHTS ── -->
     <div id="tab-insights" class="tab-page">
-      <div class="page-header">
+      <!-- ── HEADER ── -->
+      <div class="page-header" style="align-items:flex-start;">
         <div>
-          <div class="page-title">IA Insights</div>
-          <div class="page-subtitle">Análise inteligente das suas campanhas com GPT-4o</div>
+          <div class="page-title" style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:22px;">⚡</span> IPPMIFY AI
+          </div>
+          <div class="page-subtitle" id="aiLastUpdated">Análise automática de performance e lucro</div>
         </div>
-        <div class="page-actions">
-          <button class="btn btn-blue btn-sm" onclick="generateInsight()">✨ Gerar Análise</button>
+        <div class="page-actions" style="gap:10px;">
+          <select id="aiDaysSelect" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:10px;font-family:'Montserrat',sans-serif;font-size:13px;cursor:pointer;">
+            <option value="7">Últimos 7 dias</option>
+            <option value="14">Últimos 14 dias</option>
+            <option value="30">Últimos 30 dias</option>
+          </select>
+          <button class="btn btn-blue btn-sm" id="aiAnalyzeBtn" onclick="generateInsight(event)">
+            <span id="aiAnalyzeBtnLabel">⚡ Analisar Agora</span>
+          </button>
         </div>
       </div>
+
+      <!-- ── CONTEÚDO PRINCIPAL ── -->
       <div id="insightContent">
         <div class="empty-state">
-          <div class="cs-icon">🤖</div>
-          <p>Clique em "Gerar Análise" para analisar suas campanhas com inteligência artificial.</p>
+          <div class="cs-icon">⚡</div>
+          <div style="font-size:16px;font-weight:600;margin-bottom:8px;">IPPMIFY AI pronta</div>
+          <p>Clique em "Analisar Agora" para gerar o diagnóstico completo das suas campanhas.</p>
+          <p style="font-size:12px;color:var(--text3);margin-top:8px;">Análises são cacheadas por 2h para economizar tokens.</p>
         </div>
       </div>
     </div>
@@ -3502,6 +3516,7 @@ function showTab(name) {
   if (name === 'campaigns')   { loadCampAccountSelector().then(loadCampaigns); }
   if (name === 'alerts')      loadAlerts();
   if (name === 'benchmarks')  loadBenchmarks();
+  if (name === 'insights')    loadAIInsights();
   if (name === 'settings')    loadSettings();
   if (name === 'plan')        loadPlanTab();
   if (name === 'reports')     loadReportSchedule();
@@ -4983,35 +4998,184 @@ async function loadBenchmarks() {
 }
 
 // ─── IA INSIGHTS ─────────────────────────────────────────────────────────────
-async function generateInsight() {
-  const btn = event.target;
-  btn.innerHTML = '<span class="spinner"></span> Analisando...';
-  btn.disabled = true;
-  try {
-    const { data } = await api('POST', '/api/insights/generate', { days: 7 });
-    const typeIcon = { problem:'🔴', opportunity:'🟢', info:'🔵' };
-    const urgLabel = { immediate:'⚡ AGORA', today:'📅 Hoje', this_week:'📆 Esta semana' };
-    document.getElementById('insightContent').innerHTML = `
-      <div class="insight-card" style="margin-bottom:16px">
-        <div class="ins-badge">✨ Análise IA</div>
-        <div class="ins-text">"${data.summary}"</div>
-        <div class="ins-action"><strong>🎯 Ação Principal Agora</strong>${data.top_action}</div>
+// ─── IPPMIFY AI ──────────────────────────────────────────────────────────────
+
+function _aiScoreCor(score) {
+  if (score >= 81) return '#22C55E';
+  if (score >= 66) return '#146EF5';
+  if (score >= 51) return '#FFBA00';
+  if (score >= 31) return '#F97316';
+  return '#EF4444';
+}
+function _aiNivelBadge(nivel) {
+  const m = { alto:'#EF4444', medio:'#F97316', baixo:'#22C55E', critico:'#EF4444', aviso:'#F97316', info:'#146EF5' };
+  return m[nivel] || 'var(--text2)';
+}
+
+function renderAIAnalysis(data) {
+  const cor   = _aiScoreCor(data.score || 0);
+  const score = data.score || 0;
+  const cached = data._cached ? ' <span style="font-size:11px;color:var(--text3);">(cache)</span>' : '';
+
+  const alertsHtml = (data.alerts || []).map(a => {
+    const bg  = a.nivel === 'critico' ? 'rgba(239,68,68,.12)' : a.nivel === 'aviso' ? 'rgba(249,115,22,.10)' : 'rgba(20,110,245,.09)';
+    const col = a.nivel === 'critico' ? '#EF4444' : a.nivel === 'aviso' ? '#F97316' : '#146EF5';
+    const ic  = a.nivel === 'critico' ? '🔴' : a.nivel === 'aviso' ? '🟡' : 'ℹ️';
+    return `<div style="background:${bg};border-left:3px solid ${col};border-radius:8px;padding:10px 14px;font-size:13px;color:${col};font-weight:600;">${ic} ${a.mensagem}</div>`;
+  }).join('');
+
+  const otimHtml = (data.otimizacoes || []).map(o => {
+    const ic = o.impacto === 'alto' ? '#EF4444' : o.impacto === 'medio' ? '#F97316' : '#22C55E';
+    return `<div style="border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-weight:700;font-size:13px;">${o.area}</span>
+        <span style="font-size:11px;font-weight:700;color:${ic};text-transform:uppercase;">${o.impacto}</span>
       </div>
-      ${(data.insights||[]).map(i=>`
-        <div class="card" style="margin-bottom:12px;border-left:3px solid ${i.type==='problem'?'var(--red)':i.type==='opportunity'?'var(--green)':'var(--blue)'}">
-          <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-            <span style="font-weight:600">${typeIcon[i.type]||'🔵'} ${i.campaign_name}</span>
-            <span style="font-size:11px;color:var(--orange)">${urgLabel[i.urgency]||''}</span>
-          </div>
-          <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px">${i.finding}</div>
-          <div style="font-size:13px;color:var(--text2);margin-bottom:10px">${i.impact}</div>
-          <div style="background:var(--bg3);border-radius:8px;padding:10px;font-size:13px;color:var(--green)">→ ${i.action}</div>
-        </div>`).join('')}`;
-    // Atualizar insight no dashboard
-    document.getElementById('dashInsightText').textContent = data.summary;
+      <div style="font-size:13px;color:var(--text2);">${o.acao}</div>
+    </div>`;
+  }).join('');
+
+  const copiesHtml = (data.copies_sugeridas || []).map(c =>
+    `<div style="border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;">
+      <div style="font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;margin-bottom:8px;">${c.tipo}</div>
+      <div style="font-size:14px;line-height:1.6;font-style:italic;">"${c.texto}"</div>
+    </div>`
+  ).join('');
+
+  const pausarHtml = (data.campanhas_pausar || []).length > 0
+    ? (data.campanhas_pausar || []).map(c => `<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:#EF4444;margin-right:8px;">⏸</span>${c}</div>`).join('')
+    : '<div style="color:var(--text3);font-size:13px;">Nenhuma campanha para pausar</div>';
+
+  const escalarHtml = (data.campanhas_escalar || []).length > 0
+    ? (data.campanhas_escalar || []).map(c => `<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:#22C55E;margin-right:8px;">🚀</span>${c}</div>`).join('')
+    : '<div style="color:var(--text3);font-size:13px;">Nenhuma campanha para escalar agora</div>';
+
+  const urgColorMap = { agora:'#EF4444', hoje:'#F97316', esta_semana:'#FFBA00' };
+  const urgCor = urgColorMap[(data.acao_imediata || {}).urgencia] || '#FFBA00';
+  const urgLabel = { agora:'AGORA', hoje:'HOJE', esta_semana:'ESTA SEMANA' };
+  const urgText = urgLabel[(data.acao_imediata || {}).urgencia] || '';
+
+  document.getElementById('insightContent').innerHTML = `
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:20px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;align-items:center;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <div style="width:100px;height:100px;border-radius:50%;border:4px solid ${cor};display:flex;flex-direction:column;align-items:center;justify-content:center;background:${cor}18;flex-shrink:0;">
+          <span style="font-size:32px;font-weight:900;font-family:'Sora',sans-serif;color:${cor};">${score}</span>
+          <span style="font-size:11px;color:${cor};font-weight:700;">/100</span>
+        </div>
+        <span style="font-size:12px;font-weight:700;color:${cor};text-align:center;">${data.score_label || ''}</span>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">Resumo Executivo${cached}</div>
+        <div style="font-size:15px;line-height:1.6;color:var(--text);font-weight:500;">${data.resumo_executivo || ''}</div>
+      </div>
+    </div>
+
+    ${alertsHtml ? `<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">${alertsHtml}</div>` : ''}
+
+    ${data.acao_imediata ? `
+    <div style="background:${urgCor}15;border:1.5px solid ${urgCor};border-radius:14px;padding:20px;margin-bottom:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:${urgCor};">⚡ Ação Imediata</span>
+        <span style="font-size:11px;font-weight:700;color:${urgCor};background:${urgCor}25;padding:3px 10px;border-radius:20px;">${urgText}</span>
+      </div>
+      <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:10px;">${data.acao_imediata.ordem || ''}</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.5;">${data.acao_imediata.detalhes || ''}</div>
+    </div>` : ''}
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+      <div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;">🔍 Diagnóstico</div>
+          ${data.diagnostico ? `<div style="font-size:12px;background:var(--bg3);color:var(--text2);padding:4px 10px;border-radius:20px;display:inline-block;margin-bottom:10px;text-transform:capitalize;">${data.diagnostico.gargalo || ''}</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.6;">${data.diagnostico.explicacao || ''}</div>` : ''}
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;">💸 Impacto no Lucro</div>
+          ${data.impacto_lucro ? `<div style="font-size:12px;font-weight:700;color:${_aiNivelBadge(data.impacto_lucro.nivel)};text-transform:uppercase;margin-bottom:6px;">${data.impacto_lucro.nivel || ''} · ${data.impacto_lucro.valor_estimado || ''}</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.5;">${data.impacto_lucro.explicacao || ''}</div>` : ''}
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;">🧪 Teste Sugerido</div>
+          ${data.teste_sugerido ? `<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;">${data.teste_sugerido.hipotese || ''}</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.5;">${data.teste_sugerido.execucao || ''}</div>` : ''}
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;">🛠 Otimizações</div>
+          ${otimHtml || '<div style="color:var(--text3);font-size:13px;">Nenhuma otimização identificada</div>'}
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;">📈 Escala</div>
+          ${data.escala ? `<div style="font-size:12px;background:var(--bg3);color:#22C55E;padding:6px 10px;border-radius:8px;margin-bottom:10px;font-weight:600;">✅ ${data.escala.condicao || ''}</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.5;">${data.escala.como || ''}</div>` : ''}
+        </div>
+      </div>
+    </div>
+
+    ${copiesHtml ? `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;">
+      <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;">✍️ Copies Sugeridas</div>
+      ${copiesHtml}
+    </div>` : ''}
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+      <div style="background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.25);border-radius:14px;padding:20px;">
+        <div style="font-size:11px;font-weight:700;color:#EF4444;text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;">⏸ Pausar Agora</div>
+        ${pausarHtml}
+      </div>
+      <div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.25);border-radius:14px;padding:20px;">
+        <div style="font-size:11px;font-weight:700;color:#22C55E;text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;">🚀 Escalar Agora</div>
+        ${escalarHtml}
+      </div>
+    </div>
+
+    ${data.previsao ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">📊 Próximo mês (curso atual)</div>
+        <div style="font-size:20px;font-weight:800;font-family:'Sora',sans-serif;">${data.previsao.proximo_mes || '—'}</div>
+      </div>
+      <div style="background:rgba(20,110,245,.08);border:1px solid rgba(20,110,245,.25);border-radius:14px;padding:20px;">
+        <div style="font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">🚀 Com as recomendações</div>
+        <div style="font-size:20px;font-weight:800;font-family:'Sora',sans-serif;color:var(--blue);">${data.previsao.cenario_escala || '—'}</div>
+      </div>
+    </div>` : ''}
+  `;
+
+  const dashEl = document.getElementById('dashInsightText');
+  if (dashEl) dashEl.textContent = data.resumo_executivo || data.summary || '';
+}
+
+async function generateInsight(evt) {
+  const btn   = document.getElementById('aiAnalyzeBtn');
+  const label = document.getElementById('aiAnalyzeBtnLabel');
+  if (label) label.innerHTML = '<span class="spinner"></span> Analisando...';
+  if (btn)   btn.disabled = true;
+  try {
+    const days = parseInt(document.getElementById('aiDaysSelect')?.value || 7);
+    const { data } = await api('POST', '/api/insights/generate', { days });
+    renderAIAnalysis(data);
+    const updEl = document.getElementById('aiLastUpdated');
+    if (updEl) updEl.textContent = 'Última análise: agora' + (data._cached ? ' (cache)' : '');
   } catch (e) {
-    document.getElementById('insightContent').innerHTML = `<div class="alert alert-error">${e.message}</div>`;
-  } finally { btn.innerHTML = '✨ Gerar Análise'; btn.disabled = false; }
+    document.getElementById('insightContent').innerHTML =
+      `<div class="alert alert-error" style="border-radius:12px;padding:16px;">⚠️ ${e.message}</div>`;
+  } finally {
+    if (label) label.innerHTML = '⚡ Analisar Agora';
+    if (btn)   btn.disabled = false;
+  }
+}
+
+async function loadAIInsights() {
+  try {
+    const { data } = await api('GET', '/api/insights');
+    if (data && data.length > 0 && data[0].parsed) {
+      renderAIAnalysis(data[0].parsed);
+      const d   = new Date(data[0].created_at);
+      const ago = Math.round((Date.now() - d.getTime()) / 60000);
+      const updEl = document.getElementById('aiLastUpdated');
+      if (updEl) updEl.textContent = `Última análise: há ${ago < 60 ? ago + ' min' : Math.round(ago/60) + 'h'}`;
+    }
+  } catch (_) { /* sem histórico */ }
 }
 
 // ─── RELATÓRIOS ──────────────────────────────────────────────────────────────
