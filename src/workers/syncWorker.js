@@ -107,9 +107,9 @@ const startSyncScheduler = () => {
     }
   });
 
-  // ── A cada 2 horas: Meta Ads sync automatico ─────────────────────────────
-  cron.schedule('0 */2 * * *', async () => {
-    console.log('[Worker] Meta Ads — sync automatico a cada 2h');
+  // ── A cada 10 minutos: Meta Ads sync automatico ───────────────────────────
+  cron.schedule('*/10 * * * *', async () => {
+    console.log('[Worker] Meta Ads — sync automatico a cada 10min');
     const users = await getActiveUsers();
     for (const user of users) {
       try {
@@ -126,7 +126,7 @@ const startSyncScheduler = () => {
 
   console.log('[Worker] Schedulers iniciados:');
   console.log('  - Motor de decisao: a cada 15 minutos');
-  console.log('  - Meta Ads sync: a cada 2 horas');
+  console.log('  - Meta Ads sync: a cada 10 minutos');
   console.log('  - Relatorio IA: 06:00 BRT');
   console.log('  - Relatorio WhatsApp personalizado: verificacao a cada hora');
 };
