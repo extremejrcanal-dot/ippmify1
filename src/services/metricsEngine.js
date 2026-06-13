@@ -14,7 +14,6 @@ const calculateMetrics = (spend, revenue, conversions, impressions, clicks) => {
   const cpc       = clicks > 0 ? spend / clicks : 0;
   const roi       = spend > 0 ? ((profit / spend) * 100) : 0;
   const convRate  = clicks > 0 ? (conversions / clicks) * 100 : 0;
-
   return {
     spend:        parseFloat(spend.toFixed(2)),
     revenue:      parseFloat(revenue.toFixed(2)),
@@ -41,8 +40,10 @@ const getTodayBRT = () =>
 const calculateOverview = async (userId, days = 7) => {
   const cacheKey = `metrics:overview:${userId}:${days}d:${getTodayBRT()}`;
 
-  // Query que junta gastos do Meta Ads com vendas do Hotmart/Kiwify
-  // Esta e a magica do IPPMIFY: lucro REAL, nao o que o Meta reporta
+  // CORRECAO: usar (days - 1) para que days=1 retorne SÓ hoje,
+  // days=7 retorne exatamente 7 dias (hoje + 6 anteriores), etc.
+  const intervalDays = Math.max(0, days - 1);
+
   const result = await query(`
     WITH ad_data AS (
       SELECT
@@ -51,7 +52,7 @@ const calculateOverview = async (userId, days = 7) => {
         COALESCE(SUM(am.clicks), 0) AS total_clicks
       FROM ad_metrics am
       WHERE am.user_id = $1
-        AND am.date >= CURRENT_DATE - INTERVAL '${days} days'
+        AND am.date >= CURRENT_DATE - INTERVAL '${intervalDays} days'
     ),
     sales_data AS (
       SELECT
@@ -60,14 +61,14 @@ const calculateOverview = async (userId, days = 7) => {
       FROM sales s
       WHERE s.user_id = $1
         AND s.status = 'approved'
-        AND s.sale_date >= NOW() - INTERVAL '${days} days'
+        AND s.sale_date >= CURRENT_DATE - INTERVAL '${intervalDays} days'
     ),
     refund_data AS (
       SELECT COALESCE(SUM(s.gross_revenue), 0) AS total_refunds
       FROM sales s
       WHERE s.user_id = $1
         AND s.status = 'refunded'
-        AND s.sale_date >= NOW() - INTERVAL '${days} days'
+        AND s.sale_date >= CURRENT_DATE - INTERVAL '${intervalDays} days'
     )
     SELECT
       ad.total_spend,
@@ -96,12 +97,13 @@ const calculateOverview = async (userId, days = 7) => {
 
   // Cache por 15 minutos
   await setEx(cacheKey, metrics, 15 * 60);
-
   return metrics;
 };
 
 // Calcular metricas por campanha
 const calculateByCampaign = async (userId, days = 7) => {
+  const intervalDays = Math.max(0, days - 1);
+
   const result = await query(`
     SELECT
       c.id AS campaign_id,
@@ -117,12 +119,12 @@ const calculateByCampaign = async (userId, days = 7) => {
     FROM campaigns c
     LEFT JOIN ad_metrics am
       ON am.campaign_id = c.id
-      AND am.date >= CURRENT_DATE - INTERVAL '${days} days'
+      AND am.date >= CURRENT_DATE - INTERVAL '${intervalDays} days'
     LEFT JOIN sales s
       ON s.utm_campaign = c.external_id
       AND s.status = 'approved'
       AND s.user_id = c.user_id
-      AND s.sale_date >= NOW() - INTERVAL '${days} days'
+      AND s.sale_date >= CURRENT_DATE - INTERVAL '${intervalDays} days'
     WHERE c.user_id = $1
     GROUP BY c.id, c.name, c.external_id, c.status, c.daily_budget
     ORDER BY
@@ -148,6 +150,7 @@ const calculateByCampaign = async (userId, days = 7) => {
 
 // Calcular metricas historicas (ultimos N dias, agrupado por dia)
 const calculateDailyHistory = async (userId, campaignId = null, days = 30) => {
+  const intervalDays = Math.max(0, days - 1);
   const params = [userId];
   let campaignFilter = '';
 
@@ -172,7 +175,7 @@ const calculateDailyHistory = async (userId, campaignId = null, days = 30) => {
       AND s.status = 'approved'
       AND DATE(s.sale_date) = am.date
     WHERE am.user_id = $1
-      AND am.date >= CURRENT_DATE - INTERVAL '${days} days'
+      AND am.date >= CURRENT_DATE - INTERVAL '${intervalDays} days'
       ${campaignFilter}
     GROUP BY am.date
     ORDER BY am.date ASC
