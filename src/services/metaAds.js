@@ -219,16 +219,15 @@ const syncAdMetrics = async (userId, accessToken, adAccountId, integrationId, da
 
     await query(`
       INSERT INTO ad_metrics
-        (user_id, campaign_id, date, spend, impressions, clicks, cpm, ctr, cpc, updated_at)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())
+        (user_id, campaign_id, date, spend, impressions, clicks, cpm, ctr, cpc)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
       ON CONFLICT (user_id, campaign_id, date) DO UPDATE SET
         spend       = EXCLUDED.spend,
         impressions = EXCLUDED.impressions,
         clicks      = EXCLUDED.clicks,
         cpm         = EXCLUDED.cpm,
         ctr         = EXCLUDED.ctr,
-        cpc         = EXCLUDED.cpc,
-        updated_at  = NOW()
+        cpc         = EXCLUDED.cpc
     `, [
       userId,
       campResult.rows[0].id,
