@@ -50,7 +50,7 @@ const exchangeForLongLivedToken = async (shortToken) => {
     return longToken;
   } catch (err) {
     console.log('[Meta] Nao foi possivel obter token longa duracao:', err.response?.data?.error?.message || err.message);
-    return shortToken; // usa o original se falhar
+    return shortToken;
   }
 };
 
@@ -182,36 +182,74 @@ const syncAds = async (integrationId, userId, accessToken, adAccountId) => {
 
 // ═══════════════════════════════════════════════════════════════════════════
 // METRICAS NIVEL CAMPANHA
+// ✅ CORRIGIDO: ON CONFLICT DO NOTHING → ON CONFLICT DO UPDATE
+// Garante que cada sync do dia sobrescreve os dados anteriores com os mais recentes
 // ═══════════════════════════════════════════════════════════════════════════
 
 const syncAdMetrics = async (userId, accessToken, adAccountId, integrationId, daysBack = 7) => {
   const since = new Date(); since.setDate(since.getDate() - daysBack);
   const sinceStr = since.toISOString().split('T')[0];
   const untilStr = new Date().toISOString().split('T')[0];
-  const response = await axios.get(`${META_BASE_URL}/${adAccountId}/insights`, {
-    params: {
-      access_token: accessToken,
-      fields: 'campaign_id,spend,impressions,clicks,reach,cpm,ctr,cpc',
-      time_range: JSON.stringify({ since: sinceStr, until: untilStr }),
-      level: 'campaign', time_increment: 1, limit: 500,
-    }
-  });
-  const insights = response.data.data || [];
-  for (const insight of insights) {
-    const campResult = await query('SELECT id FROM campaigns WHERE user_id=$1 AND external_id=$2', [userId, insight.campaign_id]);
-    if (campResult.rows.length === 0) continue;
-    await query(`
-      INSERT INTO ad_metrics (user_id, campaign_id, date, spend, impressions, clicks, cpm, ctr, cpc)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ON CONFLICT DO NOTHING
-    `, [userId, campResult.rows[0].id, insight.date_start,
-        parseFloat(insight.spend||0), parseInt(insight.impressions||0), parseInt(insight.clicks||0),
-        parseFloat(insight.cpm||0), parseFloat(insight.ctr||0), parseFloat(insight.cpc||0)]).catch(()=>{});
+
+  let response;
+  try {
+    response = await axios.get(`${META_BASE_URL}/${adAccountId}/insights`, {
+      params: {
+        access_token: accessToken,
+        fields: 'campaign_id,spend,impressions,clicks,reach,cpm,ctr,cpc',
+        time_range: JSON.stringify({ since: sinceStr, until: untilStr }),
+        level: 'campaign', time_increment: 1, limit: 500,
+      }
+    });
+  } catch (err) {
+    const errData = err.response?.data?.error;
+    console.error(`[Meta] ERRO na API (${adAccountId}):`, errData?.message || err.message);
+    console.error(`[Meta] Código:`, errData?.code, '| Subcode:', errData?.error_subcode);
+    throw err;
   }
-  // Atualizar timestamp desta integracao especifica
+
+  const insights = response.data.data || [];
+
+  for (const insight of insights) {
+    const campResult = await query(
+      'SELECT id FROM campaigns WHERE user_id=$1 AND external_id=$2',
+      [userId, insight.campaign_id]
+    );
+    if (campResult.rows.length === 0) continue;
+
+    await query(`
+      INSERT INTO ad_metrics
+        (user_id, campaign_id, date, spend, impressions, clicks, cpm, ctr, cpc, updated_at)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())
+      ON CONFLICT (user_id, campaign_id, date) DO UPDATE SET
+        spend       = EXCLUDED.spend,
+        impressions = EXCLUDED.impressions,
+        clicks      = EXCLUDED.clicks,
+        cpm         = EXCLUDED.cpm,
+        ctr         = EXCLUDED.ctr,
+        cpc         = EXCLUDED.cpc,
+        updated_at  = NOW()
+    `, [
+      userId,
+      campResult.rows[0].id,
+      insight.date_start,
+      parseFloat(insight.spend||0),
+      parseInt(insight.impressions||0),
+      parseInt(insight.clicks||0),
+      parseFloat(insight.cpm||0),
+      parseFloat(insight.ctr||0),
+      parseFloat(insight.cpc||0),
+    ]).catch(err => {
+      console.error('[Meta] Erro ao salvar ad_metric:', err.message, '| campaign_id:', insight.campaign_id);
+    });
+  }
+
   if (integrationId) {
     await query('UPDATE integrations SET last_synced_at=NOW() WHERE id=$1', [integrationId]);
   }
-  console.log(`[Meta] ${insights.length} metricas de campanha sincronizadas`);
+
+  console.log(`[Meta] ${insights.length} metricas de campanha sincronizadas (${adAccountId})`);
+  return insights.length;
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -336,7 +374,6 @@ const runFullSync = async (userId) => {
     } catch (err) {
       errors++;
       console.error(`[Meta] Erro ao sincronizar conta ${integrationData.adAccountId}:`, err.message);
-      // Continua para a proxima conta mesmo com erro
     }
   }
 
