@@ -399,7 +399,6 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 /* Trial banner */
 .trial-banner{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:10px 20px;font-size:13px;gap:12px;}
 .trial-banner.tb-renew{background:#1a1500;border-bottom:1px solid #f5c84244;}
-.trial-banner.tb-trial{background:#001830;border-bottom:1px solid #146ef544;}
 .tb-left{display:flex;align-items:center;gap:10px;}
 .tb-icon{font-size:18px;flex-shrink:0;}
 .tb-text{color:var(--text2);line-height:1.4;}
@@ -520,11 +519,6 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .int-chevron.open{transform:rotate(180deg);}
 .int-pbody{padding:0 20px 20px;border-top:1px solid var(--border);}
 .int-guide{background:var(--bg3);border-radius:10px;padding:16px;margin-bottom:16px;}
-.int-msg{font-size:13px;padding:8px 12px;border-radius:8px;margin-bottom:10px;background:var(--bg3);}
-.int-msg.ok{background:rgba(34,197,94,.12);color:#4ade80;}
-.int-msg.err{background:rgba(239,68,68,.12);color:#f87171;}
-.int-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:13px;outline:none;}
-.int-input:focus{border-color:var(--blue);}
 .int-guide-title{font-size:12px;font-weight:700;color:var(--text2);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
 .int-guide-step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;}
 .int-guide-step:last-child{margin-bottom:0;}
@@ -592,147 +586,6 @@ details summary::-webkit-details-marker{display:none;}
 details[open] summary::before{content:'▼';}
 details summary::before{content:'▶';font-size:10px;}
 details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radius:10px;border:1px solid var(--border);}
-
-/* ── INTEGRATION CATEGORY FILTER ── */
-.int-cat-btn{padding:8px 16px;border-radius:8px;border:none;background:transparent;color:var(--text2);font-size:13px;font-weight:600;font-family:'Montserrat',sans-serif;cursor:pointer;transition:.2s;white-space:nowrap;}
-.int-cat-btn:hover{background:var(--bg3);color:var(--text);}
-.int-cat-btn.active{background:var(--blue);color:#fff;}
-
-/* ── SOON CARDS GRID ── */
-.int-soon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:8px;}
-.int-soon-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;opacity:.7;transition:.2s;}
-.int-soon-card:hover{opacity:1;border-color:var(--blue);}
-.int-soon-logo{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;}
-.int-soon-name{font-size:13px;font-weight:600;color:var(--text);line-height:1.3;}
-.int-soon-tag{font-size:10px;background:var(--bg3);color:var(--text3);padding:2px 8px;border-radius:20px;border:1px solid var(--border);font-weight:600;}
-
-/* ══════════════════════════════════════════════════════
-   MOBILE RESPONSIVO (≤ 768px) — nao afeta desktop
-══════════════════════════════════════════════════════ */
-
-/* Botao hamburguer — visivel so no mobile */
-#mobileMenuBtn{
-  display:none;
-  position:fixed;
-  top:14px;left:14px;
-  z-index:200;
-  background:var(--blue);
-  border:none;
-  border-radius:10px;
-  width:42px;height:42px;
-  cursor:pointer;
-  align-items:center;
-  justify-content:center;
-  font-size:20px;
-  color:#fff;
-  box-shadow:0 4px 16px #146ef540;
-}
-
-/* Overlay escuro ao abrir sidebar no mobile */
-#sidebarOverlay{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.6);
-  z-index:99;
-}
-
-@media (max-width: 768px) {
-
-  /* Botao hamburguer aparece */
-  #mobileMenuBtn { display:flex; }
-
-  /* Sidebar fica escondida por padrao e desliza da esquerda */
-  .sidebar {
-    transform: translateX(-100%);
-    transition: transform .3s ease;
-    z-index: 150;
-  }
-  .sidebar.open {
-    transform: translateX(0);
-  }
-
-  /* Overlay aparece quando sidebar esta aberta */
-  #sidebarOverlay.open { display:block; }
-
-  /* Conteudo principal ocupa a tela toda */
-  .main {
-    margin-left: 0 !important;
-    padding: 16px 12px;
-    padding-top: 70px; /* espaco para o botao hamburguer */
-  }
-
-  /* Auth box ocupa mais espaco */
-  .auth-box {
-    padding: 28px 20px;
-    margin: 16px;
-    max-width: 100%;
-  }
-
-  /* Metricas: 2 colunas no mobile */
-  .metrics-row {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 10px;
-  }
-
-  /* Grids dashboard: 1 coluna */
-  .dash-grid-2,
-  .dash-grid-3,
-  .dash-grid-bot {
-    grid-template-columns: 1fr !important;
-  }
-
-  /* Campanhas KPIs: 2 colunas */
-  .camp-kpis {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 10px;
-  }
-
-  /* Page header empilha em vez de lado a lado */
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  .page-actions {
-    width: 100%;
-    flex-wrap: wrap;
-  }
-
-  /* Cards com menos padding */
-  .card, .metric-card {
-    padding: 14px;
-  }
-
-  /* Titulos menores */
-  .page-title { font-size: 18px; }
-  .metric-card .mc-value { font-size: 18px; }
-
-  /* Tabela de campanhas: scroll horizontal */
-  .top-camp-table-wrap, .table-wrap {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* Fonte menor nas tabelas */
-  .top-camp-table th,
-  .top-camp-table td {
-    font-size: 11px;
-    padding: 8px 6px;
-  }
-
-  /* Trial banner mais compacto */
-  .trial-banner {
-    flex-direction: column;
-    gap: 8px;
-    padding: 10px 14px;
-    font-size: 12px;
-  }
-
-  /* Botoes menores */
-  .btn { font-size: 13px; padding: 10px 16px; }
-  .btn-sm { font-size: 11px; padding: 6px 12px; }
-}
 </style>
 </head>
 <body>
@@ -752,124 +605,17 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
     </div>
     <div id="loginForm">
       <div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="seu@email.com"></div>
-      <div class="form-group">
-        <label>Senha</label>
-        <div style="position:relative;">
-          <input type="password" id="loginPassword" placeholder="••••••••" style="padding-right:44px;width:100%;box-sizing:border-box;">
-          <button type="button" onclick="togglePasswordVisibility('loginPassword', this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;padding:0;line-height:1;">👁</button>
-        </div>
-      </div>
+      <div class="form-group"><label>Senha</label><input type="password" id="loginPassword" placeholder="••••••••"></div>
       <div id="loginMsg"></div>
       <button class="btn btn-primary" onclick="login()">Entrar</button>
-      <div style="text-align:center;margin-top:14px;">
-        <span onclick="showForgotPassword()" style="font-size:13px;color:var(--blue);cursor:pointer;text-decoration:underline;text-underline-offset:3px;">Esqueceu sua senha?</span>
-      </div>
-    </div>
-
-    <!-- Tela de redefinição de senha -->
-    <div id="forgotPasswordForm" style="display:none;">
-      <div style="text-align:center;margin-bottom:16px;">
-        <div style="font-size:28px;margin-bottom:8px;">🔑</div>
-        <div style="font-size:16px;font-weight:700;color:var(--text);">Redefinir senha</div>
-        <div style="font-size:13px;color:var(--text3);margin-top:6px;">Insira seu email e enviaremos as instruções.</div>
-      </div>
-      <div class="form-group"><label>Email cadastrado</label><input type="email" id="forgotEmail" placeholder="seu@email.com"></div>
-      <div id="forgotMsg"></div>
-      <button class="btn btn-primary" onclick="sendForgotPassword()">Enviar instruções</button>
-      <div style="text-align:center;margin-top:12px;">
-        <span onclick="showLoginForm()" style="font-size:13px;color:var(--text3);cursor:pointer;">← Voltar ao login</span>
-      </div>
     </div>
     <div id="registerForm" style="display:none">
-      <!-- Banner de trial (visível apenas quando acessado via link demo) -->
-      <div id="trialRegBanner" style="display:none;background:#001830;border:1px solid #146ef555;border-radius:10px;padding:12px 14px;margin-bottom:16px;">
-        <div style="font-size:11px;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">🎯 Trial gratuito — 7 dias</div>
-        <div style="font-size:13px;color:var(--text2);line-height:1.5;">Crie sua conta e tenha acesso completo por 7 dias, sem precisar de cartão de crédito.</div>
-      </div>
       <div class="form-group"><label>Nome completo</label><input type="text" id="regName" placeholder="Seu nome"></div>
       <div class="form-group"><label>Email</label><input type="email" id="regEmail" placeholder="seu@email.com"></div>
       <div class="form-group"><label>Senha (mínimo 8 caracteres)</label><input type="password" id="regPassword" placeholder="••••••••"></div>
       <div id="registerMsg"></div>
-      <button class="btn btn-primary" id="regSubmitBtn" onclick="register()">Criar Conta</button>
+      <button class="btn btn-primary" onclick="register()">Criar Conta</button>
     </div>
-
-    <!-- Tela pós-cadastro: checkout OU trial direto -->
-    <div id="registerSuccess" style="display:none;text-align:center;">
-      <!-- Versão TRIAL (vai direto pro app) -->
-      <div id="regSuccessTrial" style="display:none;">
-        <div style="font-size:44px;margin-bottom:12px;">🎯</div>
-        <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px;">Trial ativado!</div>
-        <div style="font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6;">
-          Você tem <strong style="color:#60a5fa;">7 dias de acesso completo</strong> ao IPPMIFY.<br>
-          Explore tudo sem limites. Sem necessidade de cartão.
-        </div>
-        <div style="background:#001830;border:1px solid #146ef544;border-radius:12px;padding:14px 16px;margin-bottom:20px;text-align:left;">
-          <div style="font-size:11px;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">📋 Próximos passos</div>
-          <div style="font-size:13px;color:var(--text2);line-height:1.8;">
-            1. Conecte sua conta do Meta Ads<br>
-            2. Conecte Hotmart ou Kiwify<br>
-            3. Configure seu CPA desejado<br>
-            4. Veja seu lucro real em tempo real
-          </div>
-        </div>
-        <button class="btn btn-primary" onclick="enterAppAfterRegister()" style="margin-bottom:14px;font-size:15px;padding:13px;">
-          🚀 Entrar no IPPMIFY agora
-        </button>
-      </div>
-
-      <!-- Versão NORMAL (direciona para checkout) -->
-      <div id="regSuccessNormal">
-        <div style="font-size:44px;margin-bottom:12px;">✅</div>
-        <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px;">Conta criada com sucesso!</div>
-        <div style="font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6;">
-          Agora finalize sua assinatura para liberar<br>o acesso completo à plataforma.
-        </div>
-        <!-- Aviso do email -->
-        <div style="background:#1a2e1a;border:1px solid #22C55E55;border-radius:12px;padding:14px 16px;margin-bottom:20px;text-align:left;">
-          <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">⚠️ Atenção — passo importante</div>
-          <div style="font-size:13px;color:var(--text2);line-height:1.6;">
-            No checkout, use <strong style="color:var(--text);">obrigatoriamente</strong> o mesmo email que você cadastrou aqui:
-          </div>
-          <div style="margin-top:8px;background:#0D1B2A;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-weight:700;color:var(--green);word-break:break-all;" id="regSuccessEmail">—</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:6px;">Emails diferentes = acesso não liberado automaticamente.</div>
-        </div>
-        <button class="btn btn-primary" onclick="window.open(_checkoutUrl,'_blank')" style="margin-bottom:14px;font-size:15px;padding:13px;">
-          🚀 Finalizar assinatura — R$ 97/mês
-        </button>
-        <div style="font-size:12px;color:var(--text3);margin-bottom:16px;">Pagamento seguro via Kirvano · Pix ou cartão</div>
-        <div
-          onclick="enterAppAfterRegister()"
-          style="font-size:12px;color:var(--text3);cursor:pointer;text-decoration:underline;text-underline-offset:3px;">
-          Já assinei, entrar no app →
-        </div>
-      </div>
-    </div>
-
-    <!-- Tela de nova senha (acessada pelo link do email ?reset=TOKEN) -->
-    <div id="resetPasswordForm" style="display:none;">
-      <div style="text-align:center;margin-bottom:16px;">
-        <div style="font-size:28px;margin-bottom:8px;">🔐</div>
-        <div style="font-size:16px;font-weight:700;color:var(--text);">Criar nova senha</div>
-        <div style="font-size:13px;color:var(--text3);margin-top:6px;">Digite sua nova senha abaixo.</div>
-      </div>
-      <div class="form-group">
-        <label>Nova senha (mínimo 8 caracteres)</label>
-        <div style="position:relative;">
-          <input type="password" id="resetNewPassword" placeholder="••••••••" style="padding-right:44px;width:100%;box-sizing:border-box;">
-          <button type="button" onclick="togglePasswordVisibility('resetNewPassword', this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;padding:0;line-height:1;">👁</button>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Confirmar nova senha</label>
-        <div style="position:relative;">
-          <input type="password" id="resetConfirmPassword" placeholder="••••••••" style="padding-right:44px;width:100%;box-sizing:border-box;">
-          <button type="button" onclick="togglePasswordVisibility('resetConfirmPassword', this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;padding:0;line-height:1;">👁</button>
-        </div>
-      </div>
-      <div id="resetMsg"></div>
-      <button class="btn btn-primary" onclick="submitResetPassword()">Salvar nova senha</button>
-    </div>
-
   </div>
 </div>
 
@@ -925,13 +671,8 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
 ══════════════════════════════════════════════════ -->
 <div id="appPage" style="display:none">
 
-  <!-- Botao hamburguer (mobile) -->
-  <button id="mobileMenuBtn" onclick="toggleMobileSidebar()" aria-label="Menu">☰</button>
-  <!-- Overlay escuro ao abrir sidebar no mobile -->
-  <div id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
-
   <!-- SIDEBAR -->
-  <aside class="sidebar" id="mainSidebar">
+  <aside class="sidebar">
     <div class="sidebar-logo">
       <div class="logo-wrap">
         <div class="logo-icon-wrap">📊</div>
@@ -963,7 +704,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       <div class="nav-section">Inteligência</div>
       
       <div class="nav-item" id="nav-insights" onclick="showTab('insights')">
-        <span class="nav-icon">⚡</span> IPPMIFY AI
+        <span class="nav-icon">🤖</span> IA Insights
       </div>
       <div class="nav-item" id="nav-benchmarks" onclick="showTab('benchmarks')">
         <span class="nav-icon">📈</span> Benchmarks
@@ -1292,7 +1033,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       <!-- Link para SE AFILIAR -->
       <div class="aff-link-box">
         <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">🤝 Entre para o programa de afiliados</div>
-        <div style="font-size:12px;color:var(--text3);margin-bottom:10px">Clique no link abaixo para se cadastrar como afiliado na Kirvano. Após o cadastro, você receberá seu link único de afiliado para compartilhar e ganhar comissão recorrente.</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:10px">Clique no link abaixo para se cadastrar como afiliado no Cakto. Após o cadastro, você receberá seu link único de afiliado para compartilhar e ganhar comissão recorrente.</div>
         <div class="aff-link-field">
           <span class="aff-link-url" id="affLinkUrl">https://app.kirvano.com/affiliate/99c3a5da-5919-4a64-b408-0b5b137d227c</span>
           <button class="btn btn-blue btn-xs" onclick="copyAffLink()">📋 Copiar</button>
@@ -1527,7 +1268,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         <div style="flex:1">
           <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:4px">Grupo VIP no WhatsApp</div>
           <div style="font-size:13px;color:var(--text3);margin-bottom:14px">Faça parte de uma comunidade de gestores e empreendedores. Compartilhe resultados, tire dúvidas e aprenda com quem está na prática.</div>
-          <a href="https://chat.whatsapp.com/CH2WSRPt8xH8B5YkcB4zfQ" target="_blank" class="btn btn-green btn-sm">📲 Entrar no grupo gratuito</a>
+          <a href="https://chat.whatsapp.com/SEUGRUPOAQUI" target="_blank" class="btn btn-green btn-sm">📲 Entrar no grupo gratuito</a>
         </div>
       </div>
 
@@ -1539,12 +1280,12 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div class="support-ch-title">WhatsApp Direto</div>
           <div class="support-ch-sub">Resposta em até 24h úteis</div>
         </div>
-        <div class="support-ch" onclick="window.open('mailto:ippmify@gmail.com?subject=Suporte+IPPMIFY','_blank')">
+        <div class="support-ch" onclick="window.open('mailto:suporte@ippmify.com?subject=Suporte+IPPMIFY','_blank')">
           <div class="support-ch-icon">✉️</div>
           <div class="support-ch-title">E-mail</div>
-          <div class="support-ch-sub">ippmify@gmail.com</div>
+          <div class="support-ch-sub">suporte@ippmify.com</div>
         </div>
-        <div class="support-ch" onclick="window.open('https://chat.whatsapp.com/CH2WSRPt8xH8B5YkcB4zfQ','_blank')">
+        <div class="support-ch" onclick="window.open('https://chat.whatsapp.com/SEUGRUPOAQUI','_blank')">
           <div class="support-ch-icon">👥</div>
           <div class="support-ch-title">Comunidade</div>
           <div class="support-ch-sub">Tire dúvidas com outros usuários</div>
@@ -1854,8 +1595,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div class="rac-title">Relatório em PDF</div>
           <div class="rac-desc">Gera um PDF profissional com todas as métricas, top campanhas e análise do período selecionado.</div>
           <select id="repDays" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;width:100%;margin-bottom:12px;font-family:'Montserrat',sans-serif;outline:none;">
-            <option value="1">Hoje (últimas 24h)</option>
-            <option value="7" selected>Últimos 7 dias</option>
+            <option value="7">Últimos 7 dias</option>
             <option value="14">Últimos 14 dias</option>
             <option value="30">Últimos 30 dias</option>
           </select>
@@ -1869,91 +1609,56 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <button class="btn btn-green" onclick="sendWhatsAppReport()">📲 Enviar Agora</button>
         </div>
       </div>
-      <!-- Agendamento de Relatório Automático WhatsApp -->
-      <div style="max-width:640px;margin-top:24px;">
-        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px;">📅 Relatório Automático via WhatsApp</div>
-        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;">
-
-          <!-- MODO VISUALIZAÇÃO -->
-          <div id="reportScheduleView">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-              <div style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;">Agendamento atual</div>
-              <button class="btn btn-ghost btn-sm" onclick="editReportSchedule()">✏️ Editar</button>
-            </div>
-            <div id="reportScheduleDisplay" style="font-size:14px;color:var(--text);line-height:1.7;">
-              <span style="color:var(--text3);">Carregando...</span>
-            </div>
-          </div>
-
-          <!-- MODO EDIÇÃO (oculto por padrão) -->
-          <div id="reportScheduleForm" style="display:none;">
-            <div style="font-size:13px;color:var(--text2);margin-bottom:16px;">Configure quantas vezes por dia você quer receber o relatório automático no WhatsApp.</div>
-
-            <div style="margin-bottom:16px;">
-              <label style="font-size:12px;color:var(--text2);font-weight:600;display:block;margin-bottom:8px;">Frequência diária</label>
-              <select id="reportFreqSelect" onchange="updateReportTimeSlots()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;width:100%;font-family:'Montserrat',sans-serif;outline:none;">
-                <option value="0">Desativado</option>
-                <option value="1">1x por dia</option>
-                <option value="2">2x por dia</option>
-                <option value="3">3x por dia</option>
-              </select>
-            </div>
-
-            <div id="reportTimeSlots" style="display:none;margin-bottom:16px;">
-              <label style="font-size:12px;color:var(--text2);font-weight:600;display:block;margin-bottom:8px;">Horários de envio</label>
-              <div id="reportTimeSlotsInputs" style="display:flex;flex-direction:column;gap:8px;"></div>
-            </div>
-
-            <div style="margin-bottom:16px;">
-              <label style="font-size:12px;color:var(--text2);font-weight:600;display:block;margin-bottom:8px;">📅 Período do relatório</label>
-              <div style="display:flex;gap:8px;">
-                <button id="rdBtn1" onclick="selectReportDays(1)" class="btn btn-ghost btn-sm" style="flex:1;padding:10px 6px;font-size:12px;border-radius:8px;">Hoje</button>
-                <button id="rdBtn7" onclick="selectReportDays(7)" class="btn btn-ghost btn-sm" style="flex:1;padding:10px 6px;font-size:12px;border-radius:8px;">Últimos 7 dias</button>
-                <button id="rdBtn30" onclick="selectReportDays(30)" class="btn btn-ghost btn-sm" style="flex:1;padding:10px 6px;font-size:12px;border-radius:8px;">Últimos 30 dias</button>
-              </div>
-              <input type="hidden" id="reportDaysValue" value="7">
-            </div>
-
-            <div style="display:flex;gap:8px;">
-              <button class="btn btn-blue" onclick="saveReportSchedule()" style="flex:1;padding:11px;">💾 Salvar agendamento</button>
-              <button class="btn btn-ghost" onclick="cancelReportScheduleEdit()" style="padding:11px 16px;">✕</button>
-            </div>
-            <div id="reportScheduleMsg" style="margin-top:8px;font-size:12px;text-align:center;"></div>
-          </div>
-
-        </div>
+      <div class="card">
+        <div class="card-title">⏰ Envio Automático</div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.7">
+          O IPPMIFY envia automaticamente o relatório de WhatsApp todo dia às <strong style="color:var(--text)">07:00 BRT</strong>.<br>
+          Para ativar, configure seu <strong style="color:var(--text)">número de WhatsApp</strong> e a <strong style="color:var(--text)">CallMeBot API Key</strong> nas Configurações.
+        </p>
       </div>
     </div>
 
-    <!-- ── IA INSIGHTS ── -->
-    <div id="tab-insights" class="tab-page">
-      <!-- ── HEADER ── -->
-      <div class="page-header" style="align-items:flex-start;">
-        <div>
-          <div class="page-title" style="display:flex;align-items:center;gap:10px;">
-            <span style="font-size:22px;">⚡</span> IPPMIFY AI
+      <!-- Agendamento de Relatório Automático WhatsApp -->
+      <div style="max-width:640px;margin-top:24px;">
+        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px;">📅 Relatório Automático via WhatsApp</div>
+        <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:20px;">
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Configure quantas vezes por dia você quer receber o relatório automático no WhatsApp.</div>
+          
+          <div style="margin-bottom:16px;">
+            <label style="font-size:12px;color:var(--text-muted);font-weight:600;display:block;margin-bottom:8px;">Frequência diária</label>
+            <select id="reportFreqSelect" onchange="updateReportTimeSlots()" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;width:100%;font-family:'Montserrat',sans-serif;">
+              <option value="0">Desativado</option>
+              <option value="1">1x por dia</option>
+              <option value="2">2x por dia</option>
+              <option value="3">3x por dia</option>
+            </select>
           </div>
-          <div class="page-subtitle" id="aiLastUpdated">Análise automática de performance e lucro</div>
-        </div>
-        <div class="page-actions" style="gap:10px;">
-          <select id="aiDaysSelect" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:10px;font-family:'Montserrat',sans-serif;font-size:13px;cursor:pointer;">
-            <option value="7">Últimos 7 dias</option>
-            <option value="14">Últimos 14 dias</option>
-            <option value="30">Últimos 30 dias</option>
-          </select>
-          <button class="btn btn-blue btn-sm" id="aiAnalyzeBtn" onclick="generateInsight(event)">
-            <span id="aiAnalyzeBtnLabel">⚡ Analisar Agora</span>
-          </button>
+
+          <div id="reportTimeSlots" style="display:none;margin-bottom:16px;">
+            <label style="font-size:12px;color:var(--text-muted);font-weight:600;display:block;margin-bottom:8px;">Horários de envio</label>
+            <div id="reportTimeSlotsInputs" style="display:flex;flex-direction:column;gap:8px;"></div>
+          </div>
+
+          <button class="btn btn-blue btn-sm" onclick="saveReportSchedule()" style="width:100%;padding:11px;">💾 Salvar agendamento</button>
+          <div id="reportScheduleMsg" style="margin-top:8px;font-size:12px;text-align:center;"></div>
         </div>
       </div>
-
-      <!-- ── CONTEÚDO PRINCIPAL ── -->
+    
+    <!-- ── IA INSIGHTS ── -->
+    <div id="tab-insights" class="tab-page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">IA Insights</div>
+          <div class="page-subtitle">Análise inteligente das suas campanhas com GPT-4o</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-blue btn-sm" onclick="generateInsight()">✨ Gerar Análise</button>
+        </div>
+      </div>
       <div id="insightContent">
         <div class="empty-state">
-          <div class="cs-icon">⚡</div>
-          <div style="font-size:16px;font-weight:600;margin-bottom:8px;">IPPMIFY AI pronta</div>
-          <p>Clique em "Analisar Agora" para gerar o diagnóstico completo das suas campanhas.</p>
-          <p style="font-size:12px;color:var(--text3);margin-top:8px;">Análises são cacheadas por 2h para economizar tokens.</p>
+          <div class="cs-icon">🤖</div>
+          <p>Clique em "Gerar Análise" para analisar suas campanhas com inteligência artificial.</p>
         </div>
       </div>
     </div>
@@ -2014,26 +1719,15 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       <div class="page-header">
         <div>
           <div class="page-title">Integrações</div>
-          <div class="page-subtitle">Conecte todas as suas plataformas em um só lugar</div>
+          <div class="page-subtitle">Conecte suas plataformas de anúncio e checkout</div>
         </div>
       </div>
 
-      <!-- ── FILTRO POR CATEGORIA ── -->
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;background:var(--bg2);padding:6px;border-radius:12px;border:1px solid var(--border);">
-        <button class="int-cat-btn active" onclick="filterIntCategory('todos', this)">🔗 Todos</button>
-        <button class="int-cat-btn" onclick="filterIntCategory('anuncios', this)">📣 Anúncios</button>
-        <button class="int-cat-btn" onclick="filterIntCategory('checkouts', this)">🛒 Checkouts</button>
-        <button class="int-cat-btn" onclick="filterIntCategory('gateways', this)">💳 Gateways</button>
-        <button class="int-cat-btn" onclick="filterIntCategory('ecommerce', this)">🏪 E-commerce</button>
-        <button class="int-cat-btn" onclick="filterIntCategory('crm', this)">🎯 CRM</button>
-        <button class="int-cat-btn" onclick="filterIntCategory('erp', this)">📊 ERP / Gestão</button>
-      </div>
-
       <!-- ── ANÚNCIOS ── -->
-      <div class="int-section-label int-cat-section" data-cat="anuncios">📣 Anúncios</div>
+      <div class="int-section-label">📣 Anúncios</div>
 
       <!-- Meta Ads -->
-      <div class="int-pcard" id="pcard-meta_ads" data-cat="anuncios">
+      <div class="int-pcard" id="pcard-meta_ads">
         <div class="int-pcard-header" onclick="togglePlatformCard('meta_ads')">
           <div style="display:flex;align-items:center;gap:12px">
             <div class="int-plogo" style="background:#1877f2;font-size:14px;">f</div>
@@ -2070,10 +1764,10 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
 
       <!-- ── CHECKOUTS ── -->
-      <div class="int-section-label int-cat-section" data-cat="checkouts" style="margin-top:24px">🛒 Checkouts</div>
+      <div class="int-section-label" style="margin-top:24px">🛒 Checkouts</div>
 
       <!-- Hotmart -->
-      <div class="int-pcard" id="pcard-hotmart" data-cat="checkouts">
+      <div class="int-pcard" id="pcard-hotmart">
         <div class="int-pcard-header" onclick="togglePlatformCard('hotmart')">
           <div style="display:flex;align-items:center;gap:12px">
             <div class="int-plogo" style="background:#e63929">🔥</div>
@@ -2107,7 +1801,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
 
       <!-- Kiwify -->
-      <div class="int-pcard" id="pcard-kiwify" data-cat="checkouts">
+      <div class="int-pcard" id="pcard-kiwify">
         <div class="int-pcard-header" onclick="togglePlatformCard('kiwify')">
           <div style="display:flex;align-items:center;gap:12px">
             <div class="int-plogo" style="background:#2563eb">K</div>
@@ -2137,7 +1831,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
 
       <!-- Kirvano -->
-      <div class="int-pcard" id="pcard-kirvano" data-cat="checkouts">
+      <div class="int-pcard" id="pcard-kirvano">
         <div class="int-pcard-header" onclick="togglePlatformCard('kirvano')">
           <div style="display:flex;align-items:center;gap:12px">
             <div class="int-plogo" style="background:#7c3aed">Ki</div>
@@ -2173,7 +1867,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
 
       <!-- Eduzz -->
-      <div class="int-pcard" id="pcard-eduzz" data-cat="checkouts">
+      <div class="int-pcard" id="pcard-eduzz">
         <div class="int-pcard-header" onclick="togglePlatformCard('eduzz')">
           <div style="display:flex;align-items:center;gap:12px">
             <div class="int-plogo" style="background:#0ea5e9">Ed</div>
@@ -2209,7 +1903,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
 
       <!-- Monetizze -->
-      <div class="int-pcard" id="pcard-monetizze" data-cat="checkouts">
+      <div class="int-pcard" id="pcard-monetizze">
         <div class="int-pcard-header" onclick="togglePlatformCard('monetizze')">
           <div style="display:flex;align-items:center;gap:12px">
             <div class="int-plogo" style="background:#16a34a">Mo</div>
@@ -2244,7 +1938,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
 
       <!-- Braip -->
-      <div class="int-pcard" id="pcard-braip" data-cat="checkouts">
+      <div class="int-pcard" id="pcard-braip">
         <div class="int-pcard-header" onclick="togglePlatformCard('braip')">
           <div style="display:flex;align-items:center;gap:12px">
             <div class="int-plogo" style="background:#dc2626">Br</div>
@@ -2279,7 +1973,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
 
       <!-- PerfectPay -->
-      <div class="int-pcard" id="pcard-perfectpay" data-cat="checkouts">
+      <div class="int-pcard" id="pcard-perfectpay">
         <div class="int-pcard-header" onclick="togglePlatformCard('perfectpay')">
           <div style="display:flex;align-items:center;gap:12px">
             <div class="int-plogo" style="background:#d97706">PP</div>
@@ -2314,7 +2008,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
 
       <!-- Ticto -->
-      <div class="int-pcard" id="pcard-ticto" data-cat="checkouts">
+      <div class="int-pcard" id="pcard-ticto">
         <div class="int-pcard-header" onclick="togglePlatformCard('ticto')">
           <div style="display:flex;align-items:center;gap:12px">
             <div class="int-plogo" style="background:#0f766e">Ti</div>
@@ -2348,255 +2042,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         </div>
       </div>
 
-      <!-- ── MAIS ANÚNCIOS (em breve) ── -->
-      <div class="int-soon-grid int-cat-section" data-cat="anuncios" style="margin-top:8px">
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#000">▶</div><div class="int-soon-name">TikTok Ads</div><span class="int-soon-tag">Em breve</span></div>
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#4285f4">G</div><div class="int-soon-name">Google Ads</div><span class="int-soon-tag">Em breve</span></div>
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#e60023">P</div><div class="int-soon-name">Pinterest Ads</div><span class="int-soon-tag">Em breve</span></div>
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#0077b5">in</div><div class="int-soon-name">LinkedIn Ads</div><span class="int-soon-tag">Em breve</span></div>
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#ff6600">T</div><div class="int-soon-name">Taboola Ads</div><span class="int-soon-tag">Em breve</span></div>
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#006699">O</div><div class="int-soon-name">Outbrain Ads</div><span class="int-soon-tag">Em breve</span></div>
-      </div>
-
-      <!-- ── GATEWAYS DE PAGAMENTO ── -->
-      <div class="int-section-label int-cat-section" data-cat="gateways" style="margin-top:28px">💳 Gateways de Pagamento</div>
-
-      <!-- Mercado Pago -->
-      <div class="int-pcard int-cat-section" id="pcard-mercadopago" data-cat="gateways">
-        <div class="int-pcard-header" onclick="togglePlatformCard('mercadopago')">
-          <div style="display:flex;align-items:center;gap:12px">
-            <div class="int-plogo" style="background:#009ee3">MP</div>
-            <div>
-              <div class="int-pname">Mercado Pago</div>
-              <div class="int-pdesc">Gateway via Access Token + Webhook</div>
-            </div>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px">
-            <span class="int-badge disconnected" id="badge-mercadopago">Não conectado</span>
-            <button class="int-toggle-btn" id="toggle-mercadopago" style="display:none" onclick="event.stopPropagation();toggleIntegration('mercadopago')"></button>
-            <span class="int-chevron" id="chev-mercadopago">▼</span>
-          </div>
-        </div>
-        <div class="int-pbody" id="body-mercadopago" style="display:none;padding-top:16px">
-          <div class="int-guide">
-            <div class="int-guide-title">📋 Como conectar</div>
-            <div class="int-guide-step"><div class="int-step-num">1</div><div class="int-step-text">No painel Mercado Pago, vá em <strong>Seu negócio → Credenciais</strong> e copie o <strong>Access Token de produção</strong>.</div></div>
-            <div class="int-guide-step"><div class="int-step-num">2</div><div class="int-step-text">Cole o token abaixo e clique em <strong>Conectar</strong>.</div></div>
-            <div class="int-guide-step"><div class="int-step-num">3</div><div class="int-step-text">Após conectar, copie a <strong>URL do Webhook</strong> e cadastre em <strong>Seu negócio → Notificações IPN/Webhooks</strong>.</div></div>
-          </div>
-          <div style="margin-bottom:12px">
-            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">Access Token de Produção</label>
-            <input class="int-input" id="mp-token" type="password" placeholder="APP_USR-...">
-          </div>
-          <div id="mpWebhookArea" style="display:none;margin-bottom:14px">
-            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">URL do Webhook (cadastre no MP)</label>
-            <div class="int-webhook-box">
-              <input class="int-webhook-input" id="mpWebhookUrl" readonly onclick="this.select()">
-              <button class="btn btn-ghost btn-sm" onclick="copyWebhook('mpWebhookUrl')">📋 Copiar</button>
-            </div>
-          </div>
-          <div id="mercadopagoMsg"></div>
-          <button class="btn btn-primary btn-sm" onclick="connectGateway('mercadopago', {access_token: document.getElementById('mp-token').value}, 'mercadopagoMsg', 'mpWebhookArea', 'mpWebhookUrl')">⚡ Conectar Mercado Pago</button>
-        </div>
-      </div>
-
-      <!-- Stripe -->
-      <div class="int-pcard int-cat-section" id="pcard-stripe" data-cat="gateways">
-        <div class="int-pcard-header" onclick="togglePlatformCard('stripe')">
-          <div style="display:flex;align-items:center;gap:12px">
-            <div class="int-plogo" style="background:#635bff">St</div>
-            <div>
-              <div class="int-pname">Stripe</div>
-              <div class="int-pdesc">Gateway via Secret Key + Webhook</div>
-            </div>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px">
-            <span class="int-badge disconnected" id="badge-stripe">Não conectado</span>
-            <button class="int-toggle-btn" id="toggle-stripe" style="display:none" onclick="event.stopPropagation();toggleIntegration('stripe')"></button>
-            <span class="int-chevron" id="chev-stripe">▼</span>
-          </div>
-        </div>
-        <div class="int-pbody" id="body-stripe" style="display:none;padding-top:16px">
-          <div class="int-guide">
-            <div class="int-guide-title">📋 Como conectar</div>
-            <div class="int-guide-step"><div class="int-step-num">1</div><div class="int-step-text">No <a href="https://dashboard.stripe.com/apikeys" target="_blank">Stripe Dashboard</a>, copie sua <strong>Secret Key</strong> (sk_live_...).</div></div>
-            <div class="int-guide-step"><div class="int-step-num">2</div><div class="int-step-text">Opcional: copie o <strong>Webhook Signing Secret</strong> (whsec_...) para maior segurança.</div></div>
-            <div class="int-guide-step"><div class="int-step-num">3</div><div class="int-step-text">Conecte e cadastre a URL do Webhook em <strong>Developers → Webhooks</strong> no Stripe.</div></div>
-          </div>
-          <div style="margin-bottom:12px">
-            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">Secret Key</label>
-            <input class="int-input" id="stripe-secret" type="password" placeholder="sk_live_...">
-          </div>
-          <div style="margin-bottom:12px">
-            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">Webhook Signing Secret (opcional)</label>
-            <input class="int-input" id="stripe-wsecret" type="password" placeholder="whsec_...">
-          </div>
-          <div id="stripeWebhookArea" style="display:none;margin-bottom:14px">
-            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">URL do Webhook (cadastre no Stripe)</label>
-            <div class="int-webhook-box">
-              <input class="int-webhook-input" id="stripeWebhookUrl" readonly onclick="this.select()">
-              <button class="btn btn-ghost btn-sm" onclick="copyWebhook('stripeWebhookUrl')">📋 Copiar</button>
-            </div>
-          </div>
-          <div id="stripeMsg"></div>
-          <button class="btn btn-primary btn-sm" onclick="connectGateway('stripe', {secret_key: document.getElementById('stripe-secret').value, webhook_secret: document.getElementById('stripe-wsecret').value}, 'stripeMsg', 'stripeWebhookArea', 'stripeWebhookUrl')">⚡ Conectar Stripe</button>
-        </div>
-      </div>
-
-      <!-- PagSeguro -->
-      <div class="int-pcard int-cat-section" id="pcard-pagseguro" data-cat="gateways">
-        <div class="int-pcard-header" onclick="togglePlatformCard('pagseguro')">
-          <div style="display:flex;align-items:center;gap:12px">
-            <div class="int-plogo" style="background:#009fe3">PS</div>
-            <div>
-              <div class="int-pname">PagSeguro</div>
-              <div class="int-pdesc">Gateway via Token + Webhook</div>
-            </div>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px">
-            <span class="int-badge disconnected" id="badge-pagseguro">Não conectado</span>
-            <button class="int-toggle-btn" id="toggle-pagseguro" style="display:none" onclick="event.stopPropagation();toggleIntegration('pagseguro')"></button>
-            <span class="int-chevron" id="chev-pagseguro">▼</span>
-          </div>
-        </div>
-        <div class="int-pbody" id="body-pagseguro" style="display:none;padding-top:16px">
-          <div class="int-guide">
-            <div class="int-guide-title">📋 Como conectar</div>
-            <div class="int-guide-step"><div class="int-step-num">1</div><div class="int-step-text">Acesse <a href="https://minha.conta.uol.com.br/myaccount/" target="_blank">PagSeguro → Minha Conta → Preferências → Integração</a> e copie seu <strong>Token de Acesso</strong>.</div></div>
-            <div class="int-guide-step"><div class="int-step-num">2</div><div class="int-step-text">Cole abaixo e conecte. Em seguida, cadastre a URL do Webhook em <strong>Notificações</strong>.</div></div>
-          </div>
-          <div style="margin-bottom:12px">
-            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">Token de Acesso</label>
-            <input class="int-input" id="ps-token" type="password" placeholder="Token PagSeguro...">
-          </div>
-          <div id="pagseguroWebhookArea" style="display:none;margin-bottom:14px">
-            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">URL do Webhook</label>
-            <div class="int-webhook-box">
-              <input class="int-webhook-input" id="pagseguroWebhookUrl" readonly onclick="this.select()">
-              <button class="btn btn-ghost btn-sm" onclick="copyWebhook('pagseguroWebhookUrl')">📋 Copiar</button>
-            </div>
-          </div>
-          <div id="pagseguroMsg"></div>
-          <button class="btn btn-primary btn-sm" onclick="connectGateway('pagseguro', {token: document.getElementById('ps-token').value}, 'pagseguroMsg', 'pagseguroWebhookArea', 'pagseguroWebhookUrl')">⚡ Conectar PagSeguro</button>
-        </div>
-      </div>
-
-      <!-- Asaas -->
-      <div class="int-pcard int-cat-section" id="pcard-asaas" data-cat="gateways">
-        <div class="int-pcard-header" onclick="togglePlatformCard('asaas')">
-          <div style="display:flex;align-items:center;gap:12px">
-            <div class="int-plogo" style="background:#00b5e2">As</div>
-            <div>
-              <div class="int-pname">Asaas</div>
-              <div class="int-pdesc">Gateway via API Key + Webhook</div>
-            </div>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px">
-            <span class="int-badge disconnected" id="badge-asaas">Não conectado</span>
-            <button class="int-toggle-btn" id="toggle-asaas" style="display:none" onclick="event.stopPropagation();toggleIntegration('asaas')"></button>
-            <span class="int-chevron" id="chev-asaas">▼</span>
-          </div>
-        </div>
-        <div class="int-pbody" id="body-asaas" style="display:none;padding-top:16px">
-          <div class="int-guide">
-            <div class="int-guide-title">📋 Como conectar</div>
-            <div class="int-guide-step"><div class="int-step-num">1</div><div class="int-step-text">No <a href="https://app.asaas.com/config/account/api" target="_blank">Asaas → Configurações → Integrações</a>, copie sua <strong>API Key</strong>.</div></div>
-            <div class="int-guide-step"><div class="int-step-num">2</div><div class="int-step-text">Cole abaixo, conecte e depois cadastre a URL do Webhook em <strong>Integrações → Webhooks</strong>.</div></div>
-          </div>
-          <div style="margin-bottom:12px">
-            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">API Key</label>
-            <input class="int-input" id="asaas-key" type="password" placeholder="$aact_...">
-          </div>
-          <div id="asaasWebhookArea" style="display:none;margin-bottom:14px">
-            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">URL do Webhook</label>
-            <div class="int-webhook-box">
-              <input class="int-webhook-input" id="asaasWebhookUrl" readonly onclick="this.select()">
-              <button class="btn btn-ghost btn-sm" onclick="copyWebhook('asaasWebhookUrl')">📋 Copiar</button>
-            </div>
-          </div>
-          <div id="asaasMsg"></div>
-          <button class="btn btn-primary btn-sm" onclick="connectGateway('asaas', {api_key: document.getElementById('asaas-key').value}, 'asaasMsg', 'asaasWebhookArea', 'asaasWebhookUrl')">⚡ Conectar Asaas</button>
-        </div>
-      </div>
-
-      <!-- Pagar.me -->
-      <div class="int-pcard int-cat-section" id="pcard-pagarme" data-cat="gateways">
-        <div class="int-pcard-header" onclick="togglePlatformCard('pagarme')">
-          <div style="display:flex;align-items:center;gap:12px">
-            <div class="int-plogo" style="background:#1a1a2e">Pg</div>
-            <div>
-              <div class="int-pname">Pagar.me</div>
-              <div class="int-pdesc">Gateway via Secret Key + Webhook</div>
-            </div>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px">
-            <span class="int-badge disconnected" id="badge-pagarme">Não conectado</span>
-            <button class="int-toggle-btn" id="toggle-pagarme" style="display:none" onclick="event.stopPropagation();toggleIntegration('pagarme')"></button>
-            <span class="int-chevron" id="chev-pagarme">▼</span>
-          </div>
-        </div>
-        <div class="int-pbody" id="body-pagarme" style="display:none;padding-top:16px">
-          <div class="int-guide">
-            <div class="int-guide-title">📋 Como conectar</div>
-            <div class="int-guide-step"><div class="int-step-num">1</div><div class="int-step-text">No <a href="https://dashboard.pagar.me" target="_blank">Pagar.me Dashboard</a>, vá em <strong>Configurações → Chaves de API</strong> e copie a <strong>Secret Key</strong>.</div></div>
-            <div class="int-guide-step"><div class="int-step-num">2</div><div class="int-step-text">Cole abaixo, conecte e cadastre a URL do Webhook em <strong>Configurações → Webhooks</strong>.</div></div>
-          </div>
-          <div style="margin-bottom:12px">
-            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">Secret Key</label>
-            <input class="int-input" id="pagarme-key" type="password" placeholder="sk_...">
-          </div>
-          <div id="pagarmeWebhookArea" style="display:none;margin-bottom:14px">
-            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">URL do Webhook</label>
-            <div class="int-webhook-box">
-              <input class="int-webhook-input" id="pagarmeWebhookUrl" readonly onclick="this.select()">
-              <button class="btn btn-ghost btn-sm" onclick="copyWebhook('pagarmeWebhookUrl')">📋 Copiar</button>
-            </div>
-          </div>
-          <div id="pagarmeMsg"></div>
-          <button class="btn btn-primary btn-sm" onclick="connectGateway('pagarme', {secret_key: document.getElementById('pagarme-key').value}, 'pagarmeMsg', 'pagarmeWebhookArea', 'pagarmeWebhookUrl')">⚡ Conectar Pagar.me</button>
-        </div>
-      </div>
-
-      <!-- Demais gateways em breve -->
-      <div class="int-soon-grid int-cat-section" data-cat="gateways" style="margin-top:8px">
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#003087">PP</div><div class="int-soon-name">PayPal</div><span class="int-soon-tag">Em breve</span></div>
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#00b14f">PF</div><div class="int-soon-name">PagBank</div><span class="int-soon-tag">Em breve</span></div>
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#142032">Sf</div><div class="int-soon-name">Safe2Pay</div><span class="int-soon-tag">Em breve</span></div>
-      </div>
-
-      <!-- ── E-COMMERCE ── -->
-      <div class="int-section-label int-cat-section" data-cat="ecommerce" style="margin-top:28px">🏪 E-commerce</div>
-      <div class="int-soon-grid int-cat-section" data-cat="ecommerce">
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#96bf48">Sh</div><div class="int-soon-name">Shopify</div><span class="int-soon-tag">Em breve</span></div>
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#7f54b3">Wc</div><div class="int-soon-name">WooCommerce</div><span class="int-soon-tag">Em breve</span></div>
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#f26522">VT</div><div class="int-soon-name">VTEX</div><span class="int-soon-tag">Em breve</span></div>
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#1e88e5">Nv</div><div class="int-soon-name">Nuvemshop</div><span class="int-soon-tag">Em breve</span></div>
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#f5a623">Tr</div><div class="int-soon-name">Tray</div><span class="int-soon-tag">Em breve</span></div>
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#00c6d7">Lj</div><div class="int-soon-name">Lojas Virtuais</div><span class="int-soon-tag">Em breve</span></div>
-      </div>
-
-      <!-- ── CRM / AUTOMAÇÃO ── -->
-      <div class="int-section-label int-cat-section" data-cat="crm" style="margin-top:28px">🎯 CRM e Automação</div>
-      <div class="int-soon-grid int-cat-section" data-cat="crm">
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#ff7a59">Hb</div><div class="int-soon-name">HubSpot</div><span class="int-soon-tag">Em breve</span></div>
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#004c97">RD</div><div class="int-soon-name">RD Station</div><span class="int-soon-tag">Em breve</span></div>
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#11a37f">AC</div><div class="int-soon-name">ActiveCampaign</div><span class="int-soon-tag">Em breve</span></div>
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#ffe01b;color:#000">Mc</div><div class="int-soon-name">Mailchimp</div><span class="int-soon-tag">Em breve</span></div>
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#5433ff">Kl</div><div class="int-soon-name">Klaviyo</div><span class="int-soon-tag">Em breve</span></div>
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#00a4ef">Br</div><div class="int-soon-name">Brevo</div><span class="int-soon-tag">Em breve</span></div>
-      </div>
-
-      <!-- ── ERP / GESTÃO ── -->
-      <div class="int-section-label int-cat-section" data-cat="erp" style="margin-top:28px">📊 ERP e Gestão Financeira</div>
-      <div class="int-soon-grid int-cat-section" data-cat="erp">
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#009bde">Nt</div><div class="int-soon-name">Netsuite</div><span class="int-soon-tag">Em breve</span></div>
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#00b0ea">Om</div><div class="int-soon-name">Bling</div><span class="int-soon-tag">Em breve</span></div>
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#f04e23">Tf</div><div class="int-soon-name">Tiny ERP</div><span class="int-soon-tag">Em breve</span></div>
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#2ea84f">Qb</div><div class="int-soon-name">QuickBooks</div><span class="int-soon-tag">Em breve</span></div>
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#1db954">Cx</div><div class="int-soon-name">Conta Azul</div><span class="int-soon-tag">Em breve</span></div>
-        <div class="int-soon-card"><div class="int-soon-logo" style="background:#0061a8">Zr</div><div class="int-soon-name">Zero Finance</div><span class="int-soon-tag">Em breve</span></div>
-      </div>
-
     </div>
 
     <!-- ── CONFIGURAÇÕES ── -->
@@ -2606,7 +2051,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div class="page-title">Configurações</div>
           <div class="page-subtitle">Targets, notificações e preferências</div>
         </div>
-        <div style="display:flex;gap:8px;"><button class="btn btn-blue" onclick="openSetupGuide()" style="font-size:12px;padding:9px 16px;">🚀 Guia de Conexão</button><button class="btn btn-ghost" onclick="toggleSettingsEdit()" id="settingsEditBtn">✏️ Editar</button></div>
+        <button class="btn btn-ghost" onclick="toggleSettingsEdit()" id="settingsEditBtn">✏️ Editar</button>
       </div>
 
       <!-- MODO VISUALIZAÇÃO -->
@@ -2698,105 +2143,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
             <div class="hint">Siga o guia acima para obter sua chave gratuita em 2 minutos.</div>
           </div>
 
-          <div class="card-title" style="margin-top:24px">📡 Meta CAPI — Rastreamento Server-Side</div>
-          <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6;">
-            Configure seu Pixel e Token de Acesso do Meta para que a IPPMIFY envie eventos de <strong>Purchase</strong> server-side ao seu pixel toda vez que uma venda for registrada nos seus webhooks (Kirvano, Hotmart, Eduzz, Stripe etc.)
-          </div>
-          <div class="form-group">
-            <label>Meta Pixel ID</label>
-            <input type="text" id="settingMetaPixelId" placeholder="Ex: 1234567890123456">
-            <div class="hint">Encontre em: Meta Business Suite → Gerenciador de Eventos → seu Pixel → Configurações.</div>
-          </div>
-          <div class="form-group">
-            <label>Meta Access Token (CAPI)</label>
-            <input type="text" id="settingMetaAccessToken" placeholder="Cole o token do seu usuário de sistema">
-            <div class="hint">Gere em: Business Suite → Configurações → Usuários do sistema → Gerar token → marque <em>ads_management</em>. Salve em local seguro — não é exibido novamente.</div>
-          </div>
-          <div style="background:var(--bg3);border-radius:10px;padding:14px 16px;font-size:12px;color:var(--text3);margin-bottom:8px;line-height:1.6;">
-            🔒 O token é armazenado de forma segura e usado apenas para enviar eventos ao <em>seu</em> pixel. A IPPMIFY nunca compartilha suas credenciais.
-          </div>
-
-          <!-- ── CAPI Proxy — Rastreamento de Funil Completo ── -->
-          <div class="card-title" style="margin-top:28px">🔗 CAPI Proxy — Rastreamento de Funil</div>
-          <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6;">
-            Rastreie <strong>PageView, ViewContent, InitiateCheckout e Purchase</strong> server-side no seu Pixel via IPPMIFY. Cole o snippet JS nas páginas do seu funil — funciona em qualquer plataforma (ClickFunnels, WordPress, Hotmart Pages, Loja Integrada etc.)
-          </div>
-
-          <!-- Chave de API -->
-          <div class="form-group">
-            <label>Chave de API Pública (CAPI)</label>
-            <div style="display:flex;gap:8px;align-items:center;">
-              <input type="text" id="capiApiKeyInput" readonly placeholder="Clique em 'Gerar chave' para criar"
-                     style="flex:1;font-family:monospace;font-size:12px;background:var(--bg3);color:var(--text1);">
-              <button class="btn btn-ghost" onclick="copyCapiKey()" id="copyCapiKeyBtn"
-                      title="Copiar chave" style="padding:10px 14px;font-size:16px;">📋</button>
-              <button class="btn btn-ghost" onclick="generateCapiKey()" id="generateCapiKeyBtn"
-                      style="padding:10px 16px;white-space:nowrap;font-size:12px;">🔄 Gerar / Rotacionar</button>
-            </div>
-            <div class="hint">Esta chave é <strong>pública</strong> — pode ficar visível no código do site. Rotacione se suspeitar de abuso.</div>
-          </div>
-
-          <!-- Snippet JS -->
-          <div id="capiSnippetSection" style="display:none;margin-top:4px;">
-            <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;">
-              Snippet JS — Cole no <code style="background:var(--bg3);padding:1px 5px;border-radius:4px;">&lt;head&gt;</code> de todas as páginas do funil:
-            </div>
-            <div style="position:relative;">
-              <pre id="capiSnippetCode" style="background:var(--bg3);border-radius:8px;padding:14px 52px 14px 16px;
-                   font-size:10.5px;font-family:monospace;overflow-x:auto;white-space:pre-wrap;word-break:break-all;
-                   color:var(--text1);line-height:1.55;margin:0;border:1px solid var(--border);max-height:180px;overflow-y:auto;"></pre>
-              <button onclick="copySnippet()" style="position:absolute;top:8px;right:8px;background:var(--bg2);
-                      border:1px solid var(--border);border-radius:6px;padding:4px 10px;
-                      font-size:11px;color:var(--text2);cursor:pointer;">Copiar</button>
-            </div>
-
-            <!-- Exemplos de uso -->
-            <div style="font-size:12px;font-weight:600;color:var(--text2);margin:14px 0 8px;">Exemplos de disparo no seu funil:</div>
-            <pre style="background:var(--bg3);border-radius:8px;padding:12px 16px;font-size:10.5px;
-                 font-family:monospace;color:var(--text3);margin:0;border:1px solid var(--border);
-                 white-space:pre-wrap;line-height:1.65;">// Página de vendas (scroll ou tempo na página):
-window.ippmify('track', 'ViewContent', { content_name: 'Curso X', value: 97.00, currency: 'BRL' });
-
-// Clique no botão de compra / entrada no checkout:
-window.ippmify('track', 'InitiateCheckout', { value: 97.00, currency: 'BRL' });
-
-// Página de obrigado / confirmação de compra:
-window.ippmify('track', 'Purchase', { value: 97.00, currency: 'BRL', order_id: '12345' });
-
-// Capturar e-mail do lead (melhora o match rate no Meta):
-window.ippmify('setUser', { email: 'lead@email.com', phone: '5511999999999' });</pre>
-
-            <!-- API Direta (para devs) -->
-            <details style="margin-top:12px;">
-              <summary style="font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;user-select:none;">
-                🛠️ Uso via API direta (sem snippet JS)
-              </summary>
-              <pre id="capiApiExample" style="background:var(--bg3);border-radius:8px;padding:12px 16px;font-size:10.5px;
-                   font-family:monospace;color:var(--text3);margin:8px 0 0;border:1px solid var(--border);
-                   white-space:pre-wrap;line-height:1.65;">POST /api/s/SUA_CHAVE/event
-Content-Type: application/json
-
-{
-  "event_name": "Purchase",
-  "event_source_url": "https://seusite.com/obrigado",
-  "event_id": "purchase_12345",
-  "user_data": {
-    "em": "email-plaintext@ex.com",
-    "ph": "5511999999999",
-    "fbp": "_fbp cookie value",
-    "fbc": "_fbc cookie value"
-  },
-  "custom_data": {
-    "value": 97.00,
-    "currency": "BRL",
-    "content_name": "Curso X"
-  }
-}</pre>
-              <div class="hint" style="margin-top:6px;">O campo <code>em</code> e <code>ph</code> são enviados em texto plano — o servidor faz o hash SHA-256 antes de encaminhar ao Meta.</div>
-            </details>
-          </div>
-
-          <div id="settingsMsg" style="margin-bottom:8px;margin-top:16px;"></div>
+          <div id="settingsMsg" style="margin-bottom:8px;"></div>
           <div style="display:flex;gap:10px;">
             <button class="btn btn-ghost" onclick="toggleSettingsEdit()">Cancelar</button>
             <button class="btn btn-blue" onclick="saveSettings()" id="settingsSaveBtn" style="padding:11px 28px;">Salvar Configurações</button>
@@ -2927,66 +2274,6 @@ Content-Type: application/json
       </div>
     </div>
 
-    <!-- ─── ADMIN: Gerar link de trial por lead (visível só para admins) ─── -->
-    <div id="adminDemoSection" style="display:none;margin-top:24px;">
-
-      <!-- Bloco 1: Conceder trial a conta já cadastrada -->
-      <div style="background:var(--bg2);border:1px solid #146ef530;border-radius:16px;padding:24px;margin-bottom:16px;">
-        <div style="font-size:15px;font-weight:700;color:var(--accent);margin-bottom:4px;">⚡ Ativar trial em conta existente</div>
-        <div style="font-size:12px;color:var(--text3);margin-bottom:18px;">Para leads que já se cadastraram mas ainda não têm acesso</div>
-
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
-          <div style="flex:2;min-width:200px;">
-            <div style="font-size:11px;color:var(--text3);margin-bottom:5px;">Email da conta</div>
-            <input id="grantTrialEmail" type="email" placeholder="lead@exemplo.com"
-              style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:13px;outline:none;">
-          </div>
-          <div style="flex:0 0 90px;">
-            <div style="font-size:11px;color:var(--text3);margin-bottom:5px;">Dias de trial</div>
-            <input id="grantTrialDays" type="number" value="7" min="1" max="30"
-              style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:13px;outline:none;text-align:center;">
-          </div>
-          <button onclick="grantTrialToExisting()" id="btnGrantTrial"
-            style="background:#1a8f4e;color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;">
-            Ativar trial
-          </button>
-        </div>
-        <div id="grantTrialMsg" style="margin-top:10px;font-size:12px;"></div>
-      </div>
-
-      <!-- Bloco 2: Gerar link para novo cadastro -->
-      <div style="background:var(--bg2);border:1px solid #146ef530;border-radius:16px;padding:24px;">
-        <div style="font-size:15px;font-weight:700;color:var(--accent);margin-bottom:4px;">🔑 Gerar link de trial para novo cadastro</div>
-        <div style="font-size:12px;color:var(--text3);margin-bottom:18px;">Cada link é de uso único — expira assim que o lead se cadastra</div>
-
-        <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
-          <input id="demoTokenLabel" type="text" placeholder="Nome do lead (ex: João Silva)" maxlength="100"
-            style="flex:1;min-width:180px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:13px;outline:none;">
-          <button onclick="generateDemoToken()" id="btnGenToken"
-            style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">
-            Gerar link
-          </button>
-        </div>
-
-        <!-- Resultado do link gerado -->
-        <div id="demoTokenResult" style="display:none;background:var(--bg3);border:1px solid #146ef530;border-radius:10px;padding:14px;margin-bottom:16px;">
-          <div style="font-size:11px;color:var(--text3);margin-bottom:6px;">Link gerado — compartilhe com o lead:</div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <code id="demoTokenLink" style="flex:1;font-size:12px;color:var(--accent);word-break:break-all;background:var(--bg);padding:8px 10px;border-radius:8px;border:1px solid var(--border);"></code>
-            <button onclick="copyDemoLink()" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text2);font-size:12px;cursor:pointer;white-space:nowrap;">Copiar</button>
-          </div>
-          <div id="demoTokenMeta" style="font-size:11px;color:var(--text3);margin-top:8px;"></div>
-        </div>
-
-        <!-- Histórico de tokens -->
-        <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;">Tokens gerados</div>
-        <div id="demoTokenList" style="display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto;">
-          <div style="font-size:12px;color:var(--text3);padding:10px;text-align:center;">Carregando...</div>
-        </div>
-      </div>
-
-    </div>
-
   </main>
 </div>
 
@@ -3023,114 +2310,9 @@ const fmtN = (v, d=2) => Number(v||0).toFixed(d);
 // ─── AUTH ────────────────────────────────────────────────────────────────────
 function switchAuthTab(tab) {
   document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-  // event.target pode ser undefined quando chamado programaticamente (ex: link demo)
-  if (typeof event !== 'undefined' && event?.target) event.target.classList.add('active');
-  else {
-    const tabs = document.querySelectorAll('.auth-tab');
-    tabs.forEach(t => {
-      if ((tab === 'login' && t.textContent.includes('Entrar')) ||
-          (tab === 'register' && t.textContent.includes('Criar'))) {
-        t.classList.add('active');
-      }
-    });
-  }
-  document.getElementById('loginForm').style.display          = tab === 'login'    ? 'block' : 'none';
-  document.getElementById('registerForm').style.display       = tab === 'register' ? 'block' : 'none';
-  document.getElementById('forgotPasswordForm').style.display = 'none';
-  // Se trocar de aba manualmente sem ser via link demo, ocultar o banner de trial
-  if (tab === 'login' && !window._demoTrialCode) {
-    const b = document.getElementById('trialRegBanner');
-    if (b) b.style.display = 'none';
-  }
-}
-
-function togglePasswordVisibility(inputId, btn) {
-  const input = document.getElementById(inputId);
-  if (input.type === 'password') {
-    input.type = 'text';
-    btn.textContent = '🙈';
-  } else {
-    input.type = 'password';
-    btn.textContent = '👁';
-  }
-}
-
-function showForgotPassword() {
-  document.getElementById('loginForm').style.display          = 'none';
-  document.getElementById('forgotPasswordForm').style.display = 'block';
-  document.getElementById('forgotMsg').innerHTML              = '';
-}
-
-function showLoginForm() {
-  document.getElementById('forgotPasswordForm').style.display = 'none';
-  document.getElementById('loginForm').style.display          = 'block';
-}
-
-// Token de reset lido da URL (?reset=TOKEN)
-let _resetToken = null;
-
-function showResetForm(token) {
-  _resetToken = token;
-  // Esconde tudo e mostra apenas o formulário de nova senha
-  document.getElementById('loginForm').style.display          = 'none';
-  document.getElementById('registerForm').style.display       = 'none';
-  document.getElementById('forgotPasswordForm').style.display = 'none';
-  document.getElementById('registerSuccess').style.display    = 'none';
-  document.getElementById('resetPasswordForm').style.display  = 'block';
-  // Esconde as abas de login/registro (ficam sem sentido neste estado)
-  const tabs = document.querySelector('.auth-tabs');
-  if (tabs) tabs.style.display = 'none';
-}
-
-async function submitResetPassword() {
-  const password  = document.getElementById('resetNewPassword').value;
-  const confirm   = document.getElementById('resetConfirmPassword').value;
-  const msgEl     = document.getElementById('resetMsg');
-
-  if (!password || password.length < 8) {
-    msgEl.innerHTML = '<div class="alert alert-error">A senha deve ter pelo menos 8 caracteres.</div>';
-    return;
-  }
-  if (password !== confirm) {
-    msgEl.innerHTML = '<div class="alert alert-error">As senhas não coincidem.</div>';
-    return;
-  }
-  if (!_resetToken) {
-    msgEl.innerHTML = '<div class="alert alert-error">Token inválido. Solicite um novo link.</div>';
-    return;
-  }
-
-  try {
-    await api('POST', '/api/auth/reset-password', { token: _resetToken, password });
-    msgEl.innerHTML = '<div class="alert alert-success">✅ Senha redefinida com sucesso! Redirecionando para o login...</div>';
-    // Limpa o token da URL e vai para login após 2s
-    setTimeout(() => {
-      history.replaceState(null, '', window.location.pathname);
-      _resetToken = null;
-      document.getElementById('resetPasswordForm').style.display = 'none';
-      const tabs = document.querySelector('.auth-tabs');
-      if (tabs) tabs.style.display = '';
-      document.getElementById('loginForm').style.display = 'block';
-    }, 2500);
-  } catch(e) {
-    msgEl.innerHTML = `<div class="alert alert-error">${e.message || 'Erro ao redefinir senha. Solicite um novo link.'}</div>`;
-  }
-}
-
-async function sendForgotPassword() {
-  const email = document.getElementById('forgotEmail').value.trim();
-  const msgEl = document.getElementById('forgotMsg');
-  if (!email) {
-    msgEl.innerHTML = '<div class="alert alert-error">Informe seu email.</div>';
-    return;
-  }
-  try {
-    await api('POST', '/api/auth/forgot-password', { email });
-    msgEl.innerHTML = '<div class="alert alert-success">✅ Se esse email estiver cadastrado, você receberá as instruções em breve.</div>';
-  } catch(e) {
-    // Sempre mostra mensagem genérica por segurança
-    msgEl.innerHTML = '<div class="alert alert-success">✅ Se esse email estiver cadastrado, você receberá as instruções em breve.</div>';
-  }
+  event.target.classList.add('active');
+  document.getElementById('loginForm').style.display    = tab === 'login'    ? 'block' : 'none';
+  document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
 }
 
 async function login() {
@@ -3148,40 +2330,17 @@ async function login() {
 
 async function register() {
   try {
-    const payload = {
+    const data = await api('POST', '/api/auth/register', {
       name:     document.getElementById('regName').value,
       email:    document.getElementById('regEmail').value,
       password: document.getElementById('regPassword').value,
-    };
-    // Se vier de link de trial, envia o código para o backend ativar
-    if (window._demoTrialCode) payload.trial_code = window._demoTrialCode;
-
-    const data = await api('POST', '/api/auth/register', payload);
+    });
     token = data.accessToken;
     localStorage.setItem('ippmify_token', token);
     localStorage.setItem('ippmify_user', JSON.stringify(data.user));
-    window._pendingUser = data.user;
-
-    document.getElementById('registerForm').style.display    = 'none';
-    document.getElementById('registerSuccess').style.display = 'block';
-
-    if (data.is_trial) {
-      // Trial: mostra tela de trial, vai direto ao app
-      document.getElementById('regSuccessTrial').style.display  = 'block';
-      document.getElementById('regSuccessNormal').style.display = 'none';
-    } else {
-      // Cadastro normal: mostra tela de checkout
-      document.getElementById('regSuccessNormal').style.display = 'block';
-      document.getElementById('regSuccessTrial').style.display  = 'none';
-      const emailEl = document.getElementById('regSuccessEmail');
-      if (emailEl) emailEl.textContent = data.user.email || document.getElementById('regEmail').value;
-    }
+    showMsg('registerMsg', 'Conta criada! Entrando...', 'success');
+    setTimeout(() => initApp(data.user), 800);
   } catch (e) { showMsg('registerMsg', e.message); }
-}
-
-function enterAppAfterRegister() {
-  const user = window._pendingUser || JSON.parse(localStorage.getItem('ippmify_user') || '{}');
-  initApp(user);
 }
 
 function logout() {
@@ -3247,62 +2406,40 @@ function updateSidebarPlan(status) {
   if (!el) return;
   const labels = {
     active:  '✅ Plano ativo',
-    trial:   '🎯 Trial gratuito',
     pending: '🔴 Sem assinatura',
-    expired: '🔴 Expirado',
+    expired: '🔴 Plano expirado',
   };
-  el.textContent = labels[status] || status;
+  el.textContent = labels[status] || 'Trial';
 }
 
 function showTrialBanner(data) {
-  const banner    = document.getElementById('trialBanner');
+  const banner = document.getElementById('trialBanner');
   if (!banner) return;
 
-  const status    = data.plan_status;
-  const dismissed = sessionStorage.getItem('trial_banner_dismissed');
+  const status = data.plan_status;
 
-  // ── TRIAL: mostra banner com contagem regressiva ─────────────────────────
-  if (status === 'trial' && data.trial_expires_at && !dismissed) {
-    const exp      = new Date(data.trial_expires_at);
-    const now      = new Date();
-    const daysLeft = Math.max(0, Math.ceil((exp - now) / (1000 * 60 * 60 * 24)));
-    const label    = daysLeft === 1 ? '1 dia restante' : `${daysLeft} dias restantes`;
-
-    banner.style.display = 'flex';
-    banner.className     = 'trial-banner tb-trial';
-    banner.innerHTML     = `
-      <div class="tb-left">
-        <span class="tb-icon">🎯</span>
-        <div class="tb-text"><strong>Trial gratuito — ${label}.</strong> Assine agora para manter o acesso após o período de teste.</div>
-      </div>
-      <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
-        <button onclick="openUpgrade()" style="background:#146EF5;color:#fff;border:none;padding:6px 16px;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;">Assinar R$97/mês</button>
-        <span onclick="dismissTrialBanner()" style="cursor:pointer;color:var(--text3);font-size:20px;line-height:1;">✕</span>
-      </div>`;
-    return;
-  }
-
-  // ── PLANO ATIVO prestes a vencer: banner de renovação ────────────────────
+  // Mostrar banner de renovação apenas quando faltam <= 7 dias e plano está ativo
   if (status === 'active' && data.plan_expires_at) {
-    const exp      = new Date(data.plan_expires_at);
-    const now      = new Date();
+    const exp = new Date(data.plan_expires_at);
+    const now = new Date();
     const daysLeft = Math.ceil((exp - now) / (1000 * 60 * 60 * 24));
     if (daysLeft <= 7 && daysLeft > 0) {
       banner.style.display = 'flex';
-      banner.className     = 'trial-banner tb-renew';
-      banner.innerHTML     = `
+      banner.className = 'trial-banner tb-renew';
+      banner.innerHTML = `
         <div class="tb-left">
           <span class="tb-icon">⚠️</span>
           <div class="tb-text"><strong>Seu plano renova em ${daysLeft} dia${daysLeft > 1 ? 's' : ''}.</strong> A renovação é automática via Pix ou cartão cadastrado.</div>
         </div>`;
-      return;
+    } else {
+      banner.style.display = 'none';
     }
+  } else {
+    banner.style.display = 'none';
   }
 
-  banner.style.display = 'none';
-
-  // ── Bloquear acesso se não tiver plano ativo nem trial ───────────────────
-  if (status !== 'active' && status !== 'trial') {
+  // Bloquear acesso se não tiver plano ativo
+  if (status !== 'active') {
     showPlanLock();
   }
 }
@@ -3324,26 +2461,7 @@ function dismissTrialBanner() {
 
 function openUpgrade() {
   const url = _checkoutUrl || 'https://ippmify.com/assinar';
-  // Tracking: InitiateCheckout server-side
-  track('InitiateCheckout', { content_name: 'IPPMIFY Mensal', value: 97, currency: 'BRL' });
   window.open(url, '_blank');
-}
-
-// ─── TRACKING META CAPI (server-side) ────────────────────────────────────────
-// Envia evento para o backend que repassa ao Meta Conversions API.
-// Fire-and-forget: nunca bloqueia a UX, nunca lança erro.
-function track(eventName, customData = {}) {
-  if (!token) return; // só rastreia usuários logados
-  fetch(`${API_URL}/api/track`, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-    body:    JSON.stringify({
-      event_name:       eventName,
-      event_source_url: window.location.href,
-      custom_data:      customData,
-      event_id:         `${eventName}_${Date.now()}_${Math.random().toString(36).slice(2)}`,
-    }),
-  }).catch(() => {}); // silencioso
 }
 
 function uploadAvatar(event) {
@@ -3498,9 +2616,8 @@ function showTab(name) {
   document.getElementById(`tab-${name}`)?.classList.add('active');
   document.getElementById(`nav-${name}`)?.classList.add('active');
 
-  // Controle de acesso: ativo e trial têm acesso completo; pending/expired só veem Meu Plano
-  const hasAccess = _planStatus === 'active' || _planStatus === 'trial';
-  if (!hasAccess) {
+  // Controle de acesso: só "Meu Plano" é liberado sem assinatura
+  if (_planStatus !== 'active') {
     if (name === 'plan') {
       hidePlanLock(); // permite ver Meu Plano para pagar
     } else {
@@ -3516,17 +2633,10 @@ function showTab(name) {
   if (name === 'campaigns')   { loadCampAccountSelector().then(loadCampaigns); }
   if (name === 'alerts')      loadAlerts();
   if (name === 'benchmarks')  loadBenchmarks();
-  if (name === 'insights')    loadAIInsights();
   if (name === 'settings')    loadSettings();
   if (name === 'plan')        loadPlanTab();
   if (name === 'reports')     loadReportSchedule();
   // creatives tab has no auto-load (it's a generator)
-
-  // Tracking: ViewContent em abas estratégicas
-  const trackableTabs = { dashboard: 'Dashboard', integrations: 'Integrações', campaigns: 'Campanhas', reports: 'Relatórios' };
-  if (trackableTabs[name]) {
-    track('ViewContent', { content_name: trackableTabs[name], content_category: 'app_tab' });
-  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -3570,10 +2680,8 @@ function updatePlatformUI(platform, integrations) {
           <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${i.account_name || i.account_id || 'Conta Meta'}</div>
           <div style="font-size:11px;color:${i.is_active ? 'var(--green)' : 'var(--orange)'};">● ${i.is_active ? 'ATIVA' : 'INATIVA'}</div>
         </div>
-        ${!i.is_active
-          ? `<button class="btn btn-green btn-xs" onclick="toggleMetaAccount('${i.id}')">▶ Reativar</button>`
-          : `<button class="btn btn-ghost btn-xs" onclick="toggleMetaAccount('${i.id}')">⏸ Desativar</button>`}
-        <button class="btn btn-red btn-xs" onclick="removeIntegration('${i.id}')">✕</button>
+        ${!i.is_active ? `<button class="btn btn-green btn-xs" onclick="toggleMetaAccount(${i.id})">▶ Reativar</button>` : `<button class="btn btn-ghost btn-xs" onclick="toggleMetaAccount(${i.id})">⏸ Desativar</button>`}
+        <button class="btn btn-red btn-xs" onclick="removeIntegration(${i.id})">✕</button>
       </div>`).join('');
     return;
   }
@@ -3601,7 +2709,7 @@ function updatePlatformUI(platform, integrations) {
   // Webhook URL for webhook-based platforms
   if (WEBHOOK_PLATFORMS.includes(platform)) {
     const input = document.getElementById(`${platform}WebhookUrl`);
-    if (input) input.value = `${window.location.origin}/api/hook/webhook/${platform}`;
+    if (input) input.value = `${API_URL}/api/integrations/webhook/${platform}`;
   }
 }
 
@@ -3618,8 +2726,7 @@ async function loadIntegrations() {
     });
 
     // Update UI for all platforms
-    const allPlatforms = ['meta_ads','hotmart','kiwify','kirvano','eduzz','monetizze','braip','perfectpay','ticto',
-                          'mercadopago','stripe','pagseguro','asaas','pagarme'];
+    const allPlatforms = ['meta_ads','hotmart','kiwify','kirvano','eduzz','monetizze','braip','perfectpay','ticto'];
     allPlatforms.forEach(p => updatePlatformUI(p, grouped[p] || []));
 
     // Store for account selector usage elsewhere
@@ -3670,44 +2777,13 @@ async function removeIntegration(id) {
 async function connectWebhookPlatform(platform) {
   try {
     const { message } = await api('POST', `/api/integrations/${platform}/connect`);
+    alert(message);
     loadIntegrations();
-    // Exibir URL do webhook
-    const apiBase = window.location.origin;
-    const webhookUrl = `${apiBase}/api/hook/webhook/${platform}`;
-    const inputEl = document.getElementById(`${platform}WebhookUrl`);
-    const areaEl  = document.getElementById(`${platform}WebhookArea`);
-    if (inputEl) inputEl.value = webhookUrl;
-    if (areaEl)  areaEl.style.display = 'block';
+    // Show webhook URL section
     const body = document.getElementById(`body-${platform}`);
     if (body) body.style.display = 'block';
-    alert(message);
   } catch(e) {
     alert('Erro: ' + e.message);
-  }
-}
-
-// Conectar gateway de pagamento (Mercado Pago, Stripe, Asaas, etc)
-async function connectGateway(platform, body, msgId, webhookAreaId, webhookInputId) {
-  const msgEl = document.getElementById(msgId);
-  // Validar que pelo menos um campo obrigatório foi preenchido
-  const firstVal = Object.values(body)[0];
-  if (!firstVal || !firstVal.trim()) {
-    if (msgEl) msgEl.innerHTML = '<div class="int-msg err">Preencha as credenciais antes de conectar.</div>';
-    return;
-  }
-  if (msgEl) msgEl.innerHTML = '<div class="int-msg">Conectando...</div>';
-  try {
-    const resp = await api('POST', `/api/integrations/${platform}/connect`, body);
-    if (msgEl) msgEl.innerHTML = `<div class="int-msg ok">✅ ${resp.message}</div>`;
-    // Mostrar URL do webhook
-    const apiBase = window.location.origin;
-    const webhookArea = document.getElementById(webhookAreaId);
-    const webhookInput = document.getElementById(webhookInputId);
-    if (webhookArea) webhookArea.style.display = 'block';
-    if (webhookInput) webhookInput.value = `${apiBase}/api/hook/webhook/${platform}`;
-    loadIntegrations();
-  } catch(e) {
-    if (msgEl) msgEl.innerHTML = `<div class="int-msg err">❌ ${e.message}</div>`;
   }
 }
 
@@ -3734,56 +2810,12 @@ async function connectMetaToken() {
     alert(message);
     document.getElementById('metaAccessToken').value = '';
     document.getElementById('metaAdAccountId').value = '';
-    // Após conectar, disparar sync em background e aguardar antes de recarregar
-    const msgEl = document.getElementById('metaMsg');
-    try {
-      await api('POST', '/api/integrations/meta-ads/sync');
-      let secs = 15;
-      const interval = setInterval(() => {
-        secs--;
-        if (msgEl) msgEl.innerHTML = `<div class="int-msg ok">✅ Conta conectada! Sincronizando dados... (${secs}s)</div>`;
-        if (secs <= 0) {
-          clearInterval(interval);
-          if (msgEl) msgEl.innerHTML = '<div class="int-msg ok">✅ Conta conectada e dados sincronizados!</div>';
-          loadDashboard();
-          setTimeout(() => { if (msgEl) msgEl.innerHTML = ''; }, 4000);
-        }
-      }, 1000);
-    } catch(syncErr) {
-      if (msgEl) msgEl.innerHTML = '<div class="int-msg ok">✅ Conta conectada. Use o botão ↻ Sincronizar para carregar os dados.</div>';
-    }
     loadIntegrations();
   } catch(e) {
     alert('Erro: ' + e.message);
   } finally {
     btn.innerHTML = '⚡ Conectar Conta';
     btn.disabled = false;
-  }
-}
-
-async function syncMeta() {
-  const msgEl = document.getElementById('metaMsg');
-  const btn = event?.target;
-  if (btn) { btn.innerHTML = '<span class="spinner"></span> Sincronizando...'; btn.disabled = true; }
-  if (msgEl) msgEl.innerHTML = '<div class="int-msg">⏳ Iniciando sincronização com Meta Ads...</div>';
-  try {
-    await api('POST', '/api/integrations/meta-ads/sync');
-    // Sync roda em background no servidor — aguarda 15s antes de recarregar
-    let secs = 15;
-    const interval = setInterval(() => {
-      secs--;
-      if (msgEl) msgEl.innerHTML = `<div class="int-msg">⏳ Sincronizando campanhas e métricas... (${secs}s)</div>`;
-      if (secs <= 0) {
-        clearInterval(interval);
-        if (msgEl) msgEl.innerHTML = '<div class="int-msg ok">✅ Sincronização concluída! Recarregando dashboard...</div>';
-        loadDashboard();
-        if (btn) { btn.innerHTML = '↻ Sincronizar'; btn.disabled = false; }
-        setTimeout(() => { if (msgEl) msgEl.innerHTML = ''; }, 4000);
-      }
-    }, 1000);
-  } catch(e) {
-    if (msgEl) msgEl.innerHTML = `<div class="int-msg err">❌ Erro ao sincronizar: ${e.message}</div>`;
-    if (btn) { btn.innerHTML = '↻ Sincronizar'; btn.disabled = false; }
   }
 }
 
@@ -3830,15 +2862,10 @@ async function connectKiwify() {
 async function connectKirvano() {
   try {
     const { message } = await api('POST', '/api/integrations/kirvano/connect');
+    alert(message);
     loadIntegrations();
-    const apiBase = window.location.origin;
-    const inputEl = document.getElementById('kirvanoWebhookUrl');
-    const areaEl  = document.getElementById('kirvanoWebhookArea');
-    if (inputEl) inputEl.value = `${apiBase}/api/hook/webhook/kirvano`;
-    if (areaEl)  areaEl.style.display = 'block';
     const body = document.getElementById('body-kirvano');
     if (body) body.style.display = 'block';
-    alert(message);
   } catch(e) {
     alert('Erro: ' + e.message);
   }
@@ -4328,18 +3355,6 @@ async function applyBatchBudget() {
 }
 
 // ─── DASHBOARD ───────────────────────────────────────────────────────────────
-async function triggerMetaSyncFromDash() {
-  const btn = event?.target;
-  if (btn) { btn.innerHTML = '<span class="spinner"></span> Sincronizando...'; btn.disabled = true; }
-  try {
-    await api('POST', '/api/integrations/meta-ads/sync');
-    loadDashboard();
-  } catch(e) {
-    alert('Erro ao sincronizar: ' + e.message);
-    if (btn) { btn.innerHTML = '↻ Sincronizar Meta Ads Agora'; btn.disabled = false; }
-  }
-}
-
 async function loadDashboard() {
   const days = document.getElementById('dashDays')?.value || 7;
   document.getElementById('dashDateLabel').textContent = `Últimos ${days} dias`;
@@ -4427,33 +3442,15 @@ async function loadCharts() {
 async function loadTopCampaigns(days = 7) {
   try {
     const { data: camps } = await api('GET', `/api/metrics/campaigns?days=${days}`);
-    if (!camps || !camps.length) {
-      document.getElementById('topCampsContent').innerHTML = `
-        <div class="empty-state" style="padding:24px;text-align:center">
-          <div style="font-size:32px;margin-bottom:8px">📡</div>
-          <p style="margin-bottom:12px;color:var(--text-muted)">Nenhuma campanha encontrada. Sincronize o Meta Ads para carregar os dados.</p>
-          <button class="btn btn-blue btn-sm" onclick="triggerMetaSyncFromDash()">↻ Sincronizar Meta Ads Agora</button>
-        </div>`;
-      return;
-    }
+    if (!camps || !camps.length) { document.getElementById('topCampsContent').innerHTML = '<div class="empty-state" style="padding:20px"><p>Sem dados de campanhas.</p></div>'; return; }
 
     // Normalizar campos: backend retorna campaign_name/campaign_id
-    // Ativas primeiro (backend já ordena, mas garantir no front também)
-    const allNorm = camps.map(c => ({
+    const top = camps.slice(0, 5).map(c => ({
       ...c,
       name: c.campaign_name || c.name || 'Campanha',
       id:   c.campaign_id   || c.id,
-    })).sort((a, b) => {
-      const aActive = (a.status === 'ACTIVE') ? 0 : 1;
-      const bActive = (b.status === 'ACTIVE') ? 0 : 1;
-      if (aActive !== bActive) return aActive - bActive;
-      return (b.spend || 0) - (a.spend || 0);
-    });
-
-    // Donut: usar top 5 com gasto > 0, ou top 5 geral
-    const withSpend = allNorm.filter(c => (c.spend||0) > 0);
-    const top5 = (withSpend.length > 0 ? withSpend : allNorm).slice(0, 5);
-    const totalRev = allNorm.reduce((s,c)=>s+(c.revenue||0),0);
+    }));
+    const totalRev = camps.reduce((s,c)=>s+(c.revenue||0),0);
 
     // Donut
     if (chartDonut) chartDonut.destroy();
@@ -4461,13 +3458,13 @@ async function loadTopCampaigns(days = 7) {
     chartDonut = new Chart(document.getElementById('chartDonut'), {
       type:'doughnut',
       data:{
-        labels: top5.map(c=>c.name.substring(0,20)),
-        datasets:[{ data:top5.map(c=>c.revenue||c.spend||0), backgroundColor:colors, borderWidth:0 }],
+        labels: top.map(c=>c.name.substring(0,20)),
+        datasets:[{ data:top.map(c=>c.revenue||0), backgroundColor:colors, borderWidth:0 }],
       },
       options:{ responsive:true, cutout:'72%', plugins:{legend:{display:false}} }
     });
     document.getElementById('donutCenter').textContent = fmt(totalRev).replace('R$ ','R$\n');
-    document.getElementById('donutLegend').innerHTML = top5.map((c,i)=>`
+    document.getElementById('donutLegend').innerHTML = top.map((c,i)=>`
       <div class="dl-item">
         <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0">
           <div class="dl-dot" style="background:${colors[i]}"></div>
@@ -4476,32 +3473,27 @@ async function loadTopCampaigns(days = 7) {
         <span class="dl-pct">${totalRev>0?(((c.revenue||0)/totalRev)*100).toFixed(1):0}%</span>
       </div>`).join('');
 
-    // Tabela: mostrar TODAS as campanhas (ativas primeiro, máx 10)
-    const tableRows = allNorm.slice(0, 10);
+    // Top Camps Table
     document.getElementById('topCampsContent').innerHTML = `
       <table class="top-camp-table">
         <thead><tr>
-          <th>Campanha</th><th>Status</th><th>Gasto</th><th>Receita</th><th>Lucro</th><th>ROAS</th><th>CPA</th>
+          <th>Campanha</th><th>Gasto</th><th>Receita</th><th>Lucro</th><th>ROAS</th><th>CPA</th>
         </tr></thead>
         <tbody>
-          ${tableRows.map(c => {
+          ${top.map(c => {
             const p = (c.revenue||0) - (c.spend||0);
             const rc = c.roas>=2?'roas-high':c.roas>=1?'roas-mid':'roas-low';
-            const isActive = c.status === 'ACTIVE';
-            const noData = (c.spend||0) === 0 && isActive;
-            return `<tr style="${isActive?'border-left:3px solid #22C55E;':''}" >
-              <td title="${c.name}" style="${isActive?'font-weight:600;':''}">${c.name.substring(0,30)}${isActive?' <span style="color:#22C55E;font-size:10px">●</span>':''}</td>
-              <td><span style="font-size:11px;padding:2px 6px;border-radius:4px;background:${isActive?'#14532d':'#1E3A5F'};color:${isActive?'#22C55E':'#8BA3BC'}">${isActive?'Ativa':'Pausada'}</span></td>
-              <td>${noData?'<span style="color:#4A6580;font-size:11px">aguardando...</span>':fmt(c.spend)}</td>
-              <td style="color:var(--green)">${noData?'—':fmt(c.revenue)}</td>
-              <td style="color:${p>=0?'var(--green)':'var(--red)'}">${noData?'—':(p>=0?'+':'')+fmt(p)}</td>
-              <td><span class="roas-badge ${rc}">${noData?'—':fmtN(c.roas)+'x'}</span></td>
-              <td>${noData?'—':c.cpa>0?fmt(c.cpa):'—'}</td>
+            return `<tr>
+              <td title="${c.name}">${c.name.substring(0,32)}</td>
+              <td>${fmt(c.spend)}</td>
+              <td style="color:var(--green)">${fmt(c.revenue)}</td>
+              <td style="color:${p>=0?'var(--green)':'var(--red)'}">${p>=0?'+':''}${fmt(p)}</td>
+              <td><span class="roas-badge ${rc}">${fmtN(c.roas)}x</span></td>
+              <td>${c.cpa>0?fmt(c.cpa):'—'}</td>
             </tr>`;
           }).join('')}
         </tbody>
-      </table>
-      ${allNorm.length > 10 ? `<div style="text-align:center;padding:8px;color:var(--text-muted);font-size:12px">+ ${allNorm.length - 10} campanhas — veja mais na aba Campanhas</div>` : ''}`;
+      </table>`;
   } catch(e) {}
 }
 
@@ -4998,184 +3990,35 @@ async function loadBenchmarks() {
 }
 
 // ─── IA INSIGHTS ─────────────────────────────────────────────────────────────
-// ─── IPPMIFY AI ──────────────────────────────────────────────────────────────
-
-function _aiScoreCor(score) {
-  if (score >= 81) return '#22C55E';
-  if (score >= 66) return '#146EF5';
-  if (score >= 51) return '#FFBA00';
-  if (score >= 31) return '#F97316';
-  return '#EF4444';
-}
-function _aiNivelBadge(nivel) {
-  const m = { alto:'#EF4444', medio:'#F97316', baixo:'#22C55E', critico:'#EF4444', aviso:'#F97316', info:'#146EF5' };
-  return m[nivel] || 'var(--text2)';
-}
-
-function renderAIAnalysis(data) {
-  const cor   = _aiScoreCor(data.score || 0);
-  const score = data.score || 0;
-  const cached = data._cached ? ' <span style="font-size:11px;color:var(--text3);">(cache)</span>' : '';
-
-  const alertsHtml = (data.alerts || []).map(a => {
-    const bg  = a.nivel === 'critico' ? 'rgba(239,68,68,.12)' : a.nivel === 'aviso' ? 'rgba(249,115,22,.10)' : 'rgba(20,110,245,.09)';
-    const col = a.nivel === 'critico' ? '#EF4444' : a.nivel === 'aviso' ? '#F97316' : '#146EF5';
-    const ic  = a.nivel === 'critico' ? '🔴' : a.nivel === 'aviso' ? '🟡' : 'ℹ️';
-    return `<div style="background:${bg};border-left:3px solid ${col};border-radius:8px;padding:10px 14px;font-size:13px;color:${col};font-weight:600;">${ic} ${a.mensagem}</div>`;
-  }).join('');
-
-  const otimHtml = (data.otimizacoes || []).map(o => {
-    const ic = o.impacto === 'alto' ? '#EF4444' : o.impacto === 'medio' ? '#F97316' : '#22C55E';
-    return `<div style="border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;">
-      <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-        <span style="font-weight:700;font-size:13px;">${o.area}</span>
-        <span style="font-size:11px;font-weight:700;color:${ic};text-transform:uppercase;">${o.impacto}</span>
-      </div>
-      <div style="font-size:13px;color:var(--text2);">${o.acao}</div>
-    </div>`;
-  }).join('');
-
-  const copiesHtml = (data.copies_sugeridas || []).map(c =>
-    `<div style="border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;">
-      <div style="font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;margin-bottom:8px;">${c.tipo}</div>
-      <div style="font-size:14px;line-height:1.6;font-style:italic;">"${c.texto}"</div>
-    </div>`
-  ).join('');
-
-  const pausarHtml = (data.campanhas_pausar || []).length > 0
-    ? (data.campanhas_pausar || []).map(c => `<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:#EF4444;margin-right:8px;">⏸</span>${c}</div>`).join('')
-    : '<div style="color:var(--text3);font-size:13px;">Nenhuma campanha para pausar</div>';
-
-  const escalarHtml = (data.campanhas_escalar || []).length > 0
-    ? (data.campanhas_escalar || []).map(c => `<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:#22C55E;margin-right:8px;">🚀</span>${c}</div>`).join('')
-    : '<div style="color:var(--text3);font-size:13px;">Nenhuma campanha para escalar agora</div>';
-
-  const urgColorMap = { agora:'#EF4444', hoje:'#F97316', esta_semana:'#FFBA00' };
-  const urgCor = urgColorMap[(data.acao_imediata || {}).urgencia] || '#FFBA00';
-  const urgLabel = { agora:'AGORA', hoje:'HOJE', esta_semana:'ESTA SEMANA' };
-  const urgText = urgLabel[(data.acao_imediata || {}).urgencia] || '';
-
-  document.getElementById('insightContent').innerHTML = `
-    <div style="display:grid;grid-template-columns:auto 1fr;gap:20px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;align-items:center;">
-      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
-        <div style="width:100px;height:100px;border-radius:50%;border:4px solid ${cor};display:flex;flex-direction:column;align-items:center;justify-content:center;background:${cor}18;flex-shrink:0;">
-          <span style="font-size:32px;font-weight:900;font-family:'Sora',sans-serif;color:${cor};">${score}</span>
-          <span style="font-size:11px;color:${cor};font-weight:700;">/100</span>
-        </div>
-        <span style="font-size:12px;font-weight:700;color:${cor};text-align:center;">${data.score_label || ''}</span>
-      </div>
-      <div>
-        <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">Resumo Executivo${cached}</div>
-        <div style="font-size:15px;line-height:1.6;color:var(--text);font-weight:500;">${data.resumo_executivo || ''}</div>
-      </div>
-    </div>
-
-    ${alertsHtml ? `<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">${alertsHtml}</div>` : ''}
-
-    ${data.acao_imediata ? `
-    <div style="background:${urgCor}15;border:1.5px solid ${urgCor};border-radius:14px;padding:20px;margin-bottom:20px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:${urgCor};">⚡ Ação Imediata</span>
-        <span style="font-size:11px;font-weight:700;color:${urgCor};background:${urgCor}25;padding:3px 10px;border-radius:20px;">${urgText}</span>
-      </div>
-      <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:10px;">${data.acao_imediata.ordem || ''}</div>
-      <div style="font-size:13px;color:var(--text2);line-height:1.5;">${data.acao_imediata.detalhes || ''}</div>
-    </div>` : ''}
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
-      <div>
-        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;">
-          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;">🔍 Diagnóstico</div>
-          ${data.diagnostico ? `<div style="font-size:12px;background:var(--bg3);color:var(--text2);padding:4px 10px;border-radius:20px;display:inline-block;margin-bottom:10px;text-transform:capitalize;">${data.diagnostico.gargalo || ''}</div>
-          <div style="font-size:13px;color:var(--text2);line-height:1.6;">${data.diagnostico.explicacao || ''}</div>` : ''}
-        </div>
-        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;">
-          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;">💸 Impacto no Lucro</div>
-          ${data.impacto_lucro ? `<div style="font-size:12px;font-weight:700;color:${_aiNivelBadge(data.impacto_lucro.nivel)};text-transform:uppercase;margin-bottom:6px;">${data.impacto_lucro.nivel || ''} · ${data.impacto_lucro.valor_estimado || ''}</div>
-          <div style="font-size:13px;color:var(--text2);line-height:1.5;">${data.impacto_lucro.explicacao || ''}</div>` : ''}
-        </div>
-        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;">
-          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;">🧪 Teste Sugerido</div>
-          ${data.teste_sugerido ? `<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;">${data.teste_sugerido.hipotese || ''}</div>
-          <div style="font-size:13px;color:var(--text2);line-height:1.5;">${data.teste_sugerido.execucao || ''}</div>` : ''}
-        </div>
-      </div>
-      <div>
-        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;">
-          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;">🛠 Otimizações</div>
-          ${otimHtml || '<div style="color:var(--text3);font-size:13px;">Nenhuma otimização identificada</div>'}
-        </div>
-        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;">
-          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;">📈 Escala</div>
-          ${data.escala ? `<div style="font-size:12px;background:var(--bg3);color:#22C55E;padding:6px 10px;border-radius:8px;margin-bottom:10px;font-weight:600;">✅ ${data.escala.condicao || ''}</div>
-          <div style="font-size:13px;color:var(--text2);line-height:1.5;">${data.escala.como || ''}</div>` : ''}
-        </div>
-      </div>
-    </div>
-
-    ${copiesHtml ? `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;">
-      <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;">✍️ Copies Sugeridas</div>
-      ${copiesHtml}
-    </div>` : ''}
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
-      <div style="background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.25);border-radius:14px;padding:20px;">
-        <div style="font-size:11px;font-weight:700;color:#EF4444;text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;">⏸ Pausar Agora</div>
-        ${pausarHtml}
-      </div>
-      <div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.25);border-radius:14px;padding:20px;">
-        <div style="font-size:11px;font-weight:700;color:#22C55E;text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;">🚀 Escalar Agora</div>
-        ${escalarHtml}
-      </div>
-    </div>
-
-    ${data.previsao ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;">
-        <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">📊 Próximo mês (curso atual)</div>
-        <div style="font-size:20px;font-weight:800;font-family:'Sora',sans-serif;">${data.previsao.proximo_mes || '—'}</div>
-      </div>
-      <div style="background:rgba(20,110,245,.08);border:1px solid rgba(20,110,245,.25);border-radius:14px;padding:20px;">
-        <div style="font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">🚀 Com as recomendações</div>
-        <div style="font-size:20px;font-weight:800;font-family:'Sora',sans-serif;color:var(--blue);">${data.previsao.cenario_escala || '—'}</div>
-      </div>
-    </div>` : ''}
-  `;
-
-  const dashEl = document.getElementById('dashInsightText');
-  if (dashEl) dashEl.textContent = data.resumo_executivo || data.summary || '';
-}
-
-async function generateInsight(evt) {
-  const btn   = document.getElementById('aiAnalyzeBtn');
-  const label = document.getElementById('aiAnalyzeBtnLabel');
-  if (label) label.innerHTML = '<span class="spinner"></span> Analisando...';
-  if (btn)   btn.disabled = true;
+async function generateInsight() {
+  const btn = event.target;
+  btn.innerHTML = '<span class="spinner"></span> Analisando...';
+  btn.disabled = true;
   try {
-    const days = parseInt(document.getElementById('aiDaysSelect')?.value || 7);
-    const { data } = await api('POST', '/api/insights/generate', { days });
-    renderAIAnalysis(data);
-    const updEl = document.getElementById('aiLastUpdated');
-    if (updEl) updEl.textContent = 'Última análise: agora' + (data._cached ? ' (cache)' : '');
+    const { data } = await api('POST', '/api/insights/generate', { days: 7 });
+    const typeIcon = { problem:'🔴', opportunity:'🟢', info:'🔵' };
+    const urgLabel = { immediate:'⚡ AGORA', today:'📅 Hoje', this_week:'📆 Esta semana' };
+    document.getElementById('insightContent').innerHTML = `
+      <div class="insight-card" style="margin-bottom:16px">
+        <div class="ins-badge">✨ Análise IA</div>
+        <div class="ins-text">"${data.summary}"</div>
+        <div class="ins-action"><strong>🎯 Ação Principal Agora</strong>${data.top_action}</div>
+      </div>
+      ${(data.insights||[]).map(i=>`
+        <div class="card" style="margin-bottom:12px;border-left:3px solid ${i.type==='problem'?'var(--red)':i.type==='opportunity'?'var(--green)':'var(--blue)'}">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+            <span style="font-weight:600">${typeIcon[i.type]||'🔵'} ${i.campaign_name}</span>
+            <span style="font-size:11px;color:var(--orange)">${urgLabel[i.urgency]||''}</span>
+          </div>
+          <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px">${i.finding}</div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:10px">${i.impact}</div>
+          <div style="background:var(--bg3);border-radius:8px;padding:10px;font-size:13px;color:var(--green)">→ ${i.action}</div>
+        </div>`).join('')}`;
+    // Atualizar insight no dashboard
+    document.getElementById('dashInsightText').textContent = data.summary;
   } catch (e) {
-    document.getElementById('insightContent').innerHTML =
-      `<div class="alert alert-error" style="border-radius:12px;padding:16px;">⚠️ ${e.message}</div>`;
-  } finally {
-    if (label) label.innerHTML = '⚡ Analisar Agora';
-    if (btn)   btn.disabled = false;
-  }
-}
-
-async function loadAIInsights() {
-  try {
-    const { data } = await api('GET', '/api/insights');
-    if (data && data.length > 0 && data[0].parsed) {
-      renderAIAnalysis(data[0].parsed);
-      const d   = new Date(data[0].created_at);
-      const ago = Math.round((Date.now() - d.getTime()) / 60000);
-      const updEl = document.getElementById('aiLastUpdated');
-      if (updEl) updEl.textContent = `Última análise: há ${ago < 60 ? ago + ' min' : Math.round(ago/60) + 'h'}`;
-    }
-  } catch (_) { /* sem histórico */ }
+    document.getElementById('insightContent').innerHTML = `<div class="alert alert-error">${e.message}</div>`;
+  } finally { btn.innerHTML = '✨ Gerar Análise'; btn.disabled = false; }
 }
 
 // ─── RELATÓRIOS ──────────────────────────────────────────────────────────────
@@ -5227,29 +4070,11 @@ function renderSettingsView(u) {
 
 async function loadSettings() {
   try {
-    const resp = await api('GET', '/api/auth/me');
-    const user = resp.data || resp.user || resp;
-    document.getElementById('settingCpa').value             = user.cpa_target         || '';
-    document.getElementById('settingRoas').value            = user.roas_target        || '';
-    document.getElementById('settingWhatsapp').value        = user.whatsapp           || '';
-    document.getElementById('settingWhatsappKey').value     = user.whatsapp_key       || '';
-    document.getElementById('settingMetaPixelId').value     = user.meta_pixel_id || '';
-    // Token não é retornado pelo servidor por segurança — só mostra placeholder se já configurado
-    const tokenField = document.getElementById('settingMetaAccessToken');
-    tokenField.value = '';
-    tokenField.placeholder = user.meta_capi_configured
-      ? '••••••••  (deixe em branco para manter o token atual)'
-      : 'Cole o token do seu usuário de sistema';
-    // CAPI Proxy key
-    if (user.capi_api_key) {
-      document.getElementById('capiApiKeyInput').value = user.capi_api_key;
-      document.getElementById('capiSnippetSection').style.display = '';
-      document.getElementById('capiSnippetCode').textContent = buildCapiSnippet(user.capi_api_key);
-      document.getElementById('capiApiExample').textContent = buildCapiApiExample(user.capi_api_key);
-    } else {
-      document.getElementById('capiApiKeyInput').value = '';
-      document.getElementById('capiSnippetSection').style.display = 'none';
-    }
+    const { user } = await api('GET', '/api/auth/me');
+    document.getElementById('settingCpa').value          = user.cpa_target   || '';
+    document.getElementById('settingRoas').value         = user.roas_target  || '';
+    document.getElementById('settingWhatsapp').value     = user.whatsapp     || '';
+    document.getElementById('settingWhatsappKey').value  = user.whatsapp_key || '';
     renderSettingsView(user);
   } catch(e) { console.error('loadSettings:', e.message); }
 }
@@ -5260,19 +4085,13 @@ async function saveSettings() {
   btn.disabled  = true;
   try {
     await api('PUT', '/api/auth/settings', {
-      cpa_target:        parseFloat(document.getElementById('settingCpa').value)         || null,
-      roas_target:       parseFloat(document.getElementById('settingRoas').value)        || null,
-      whatsapp:          document.getElementById('settingWhatsapp').value                || null,
-      whatsapp_key:      document.getElementById('settingWhatsappKey').value             || null,
-      meta_pixel_id:     document.getElementById('settingMetaPixelId').value             || null,
-      // Só envia o token se o usuário preencheu um novo valor (não sobrescreve com vazio)
-      ...(document.getElementById('settingMetaAccessToken').value
-          ? { meta_access_token: document.getElementById('settingMetaAccessToken').value }
-          : {}),
+      cpa_target:   parseFloat(document.getElementById('settingCpa').value)         || null,
+      roas_target:  parseFloat(document.getElementById('settingRoas').value)        || null,
+      whatsapp:     document.getElementById('settingWhatsapp').value                || null,
+      whatsapp_key: document.getElementById('settingWhatsappKey').value             || null,
     });
     showMsg('settingsMsg', '✅ Configurações salvas!', 'success');
-    const resp2 = await api('GET', '/api/auth/me');
-    const user = resp2.data || resp2.user || resp2;
+    const { user } = await api('GET', '/api/auth/me');
     renderSettingsView(user);
     setTimeout(() => { toggleSettingsEdit(); }, 1200);
   } catch(e) {
@@ -5280,98 +4099,6 @@ async function saveSettings() {
   } finally {
     btn.innerHTML = 'Salvar Configurações';
     btn.disabled  = false;
-  }
-}
-
-// ─── CAPI PROXY — FUNIL COMPLETO ─────────────────────────────────────────────
-function buildCapiSnippet(apiKey) {
-  var base = window.location.origin;
-  var endpoint = base + '/api/s/' + apiKey + '/event';
-  return '<script>\n' +
-'(function(w,d){\n' +
-'  var _u="' + endpoint + '";\n' +
-'  var _ud={};\n' +
-'  function _gc(n){var v=d.cookie.match("(^|;)\\\\s*"+n+"\\\\s*=\\\\s*([^;]+)");return v?v.pop():null;}\n' +
-'  function _fbc(){var p=new URLSearchParams(w.location.search);var f=p.get("fbclid");\n' +
-'    if(f){var v="fb.1."+Math.floor(Date.now()/1000)+"."+f;sessionStorage.setItem("_ifc",v);return v;}\n' +
-'    return sessionStorage.getItem("_ifc")||null;}\n' +
-'  function _utm(){["utm_source","utm_medium","utm_campaign","utm_content","utm_term"].forEach(function(k){\n' +
-'    var v=new URLSearchParams(w.location.search).get(k);if(v)sessionStorage.setItem("_i"+k,v);});}\n' +
-'  function _gutm(){var o={};["utm_source","utm_medium","utm_campaign","utm_content","utm_term"].forEach(\n' +
-'    function(k){var v=sessionStorage.getItem("_i"+k);if(v)o[k]=v;});return o;}\n' +
-'  function _s(en,cd){\n' +
-'    var p={event_name:en,event_source_url:w.location.href,\n' +
-'      event_id:en+"_"+Date.now()+"_"+Math.random().toString(36).slice(2,8),\n' +
-'      user_data:{fbp:_gc("_fbp")||undefined,fbc:_fbc()||undefined,client_user_agent:navigator.userAgent},\n' +
-'      custom_data:Object.assign({},cd,_gutm())};\n' +
-'    if(_ud.email)p.user_data.em=_ud.email;\n' +
-'    if(_ud.phone)p.user_data.ph=_ud.phone;\n' +
-'    Object.keys(p.user_data).forEach(function(k){if(p.user_data[k]===undefined)delete p.user_data[k];});\n' +
-'    fetch(_u,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p),keepalive:true}).catch(function(){});}\n' +
-'  _utm();\n' +
-'  w.ippmify=function(a,b,c){if(a==="track")_s(b,c||{});else if(a==="setUser")_ud=Object.assign(_ud,b||{});};\n' +
-'  w.ippmify("track","PageView");\n' +
-'})(window,document);\n' +
-'<\/script>';
-}
-
-function buildCapiApiExample(apiKey) {
-  var base = window.location.origin;
-  return 'POST ' + base + '/api/s/' + apiKey + '/event\n' +
-'Content-Type: application/json\n\n' +
-'{\n' +
-'  "event_name": "Purchase",\n' +
-'  "event_source_url": "https://seusite.com/obrigado",\n' +
-'  "event_id": "purchase_12345",\n' +
-'  "user_data": {\n' +
-'    "em": "email-plaintext@ex.com",\n' +
-'    "ph": "5511999999999",\n' +
-'    "fbp": "_fbp cookie value",\n' +
-'    "fbc": "_fbc cookie value"\n' +
-'  },\n' +
-'  "custom_data": {\n' +
-'    "value": 97.00,\n' +
-'    "currency": "BRL",\n' +
-'    "content_name": "Curso X"\n' +
-'  }\n' +
-'}';
-}
-
-function copyCapiKey() {
-  var key = document.getElementById('capiApiKeyInput').value;
-  if (!key) return;
-  navigator.clipboard.writeText(key).then(function() {
-    var btn = document.getElementById('copyCapiKeyBtn');
-    btn.textContent = '✅';
-    setTimeout(function() { btn.textContent = '📋'; }, 1500);
-  });
-}
-
-function copySnippet() {
-  var code = document.getElementById('capiSnippetCode').textContent;
-  navigator.clipboard.writeText(code).then(function() {
-    showMsg('settingsMsg', '📋 Snippet copiado para a área de transferência!', 'success');
-  });
-}
-
-async function generateCapiKey() {
-  var btn = document.getElementById('generateCapiKeyBtn');
-  var originalText = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = 'Gerando…';
-  try {
-    var data = await api('POST', '/api/auth/generate-capi-key');
-    var key = data.capi_api_key;
-    document.getElementById('capiApiKeyInput').value = key;
-    document.getElementById('capiSnippetSection').style.display = '';
-    document.getElementById('capiSnippetCode').textContent = buildCapiSnippet(key);
-    document.getElementById('capiApiExample').textContent = buildCapiApiExample(key);
-    showMsg('settingsMsg', '🔑 Chave gerada! Atualize o snippet em todas as páginas do funil.', 'success');
-  } catch(e) {
-    showMsg('settingsMsg', 'Erro ao gerar chave: ' + (e.message || 'tente novamente'), 'error');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = originalText;
   }
 }
 
@@ -5456,19 +4183,8 @@ async function loadPlanTab() {
   try {
     const { data } = await api('GET', '/api/auth/me');
     if (!data) return;
-    const { plan_status, plan_expires_at, is_admin } = data;
+    const { plan_status, plan_expires_at } = data;
     const now = new Date();
-
-    // Seção admin: visível apenas para admins
-    const adminSection = document.getElementById('adminDemoSection');
-    if (adminSection) {
-      if (is_admin) {
-        adminSection.style.display = 'block';
-        loadDemoTokens();
-      } else {
-        adminSection.style.display = 'none';
-      }
-    }
 
     const hero     = document.getElementById('planHero');
     const icon     = document.getElementById('planHeroIcon');
@@ -5492,7 +4208,7 @@ async function loadPlanTab() {
       title.textContent = 'Assinatura ativa';
       const days = daysLeft(plan_expires_at);
       sub.textContent = `Seu plano renova automaticamente via Pix ou cartão. Próxima cobrança em ${days} dia${days!==1?'s':''} (${fmtDate(plan_expires_at)}).`;
-      actions.innerHTML = `<button class="btn btn-ghost" onclick="window.open(_checkoutUrl,'_blank')" style="padding:11px 24px;">Gerenciar assinatura →</button>`;
+      actions.innerHTML = `<button class="btn btn-ghost" onclick="openCaktoPortal()" style="padding:11px 24px;">Gerenciar assinatura →</button>`;
       cStatus.textContent = 'Ativo';
       cStatus.style.color = 'var(--green)';
       cStatusS.textContent = 'renovação automática';
@@ -5519,390 +4235,151 @@ async function loadPlanTab() {
   }
 }
 
-</script>
-<!-- =====================================================================
-     SETUP GUIDE WIZARD - Guia de Conexao Completo
-     ===================================================================== -->
-<div id="setupGuideOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2000;align-items:center;justify-content:center;padding:16px;">
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;width:100%;max-width:620px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.5);">
-
-    <!-- Header -->
-    <div style="padding:24px 28px 0;flex-shrink:0;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-        <div style="font-size:17px;font-weight:800;font-family:'Sora',sans-serif;color:var(--text1);">Guia de Conexao</div>
-        <button onclick="closeSetupGuide()" style="background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:4px 8px;line-height:1;">x</button>
-      </div>
-      <div style="display:flex;gap:6px;margin-bottom:0;">
-        <div id="sgBar1" style="height:4px;flex:1;border-radius:99px;background:var(--blue);transition:background .3s;"></div>
-        <div id="sgBar2" style="height:4px;flex:1;border-radius:99px;background:var(--border);transition:background .3s;"></div>
-        <div id="sgBar3" style="height:4px;flex:1;border-radius:99px;background:var(--border);transition:background .3s;"></div>
-        <div id="sgBar4" style="height:4px;flex:1;border-radius:99px;background:var(--border);transition:background .3s;"></div>
-      </div>
-      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--text3);">
-        <span id="sgLabel1" style="color:var(--blue);font-weight:700;">1. Pixel + Token</span>
-        <span id="sgLabel2">2. Conta de Anuncios</span>
-        <span id="sgLabel3">3. Snippet no funil</span>
-        <span id="sgLabel4">4. Webhooks</span>
-      </div>
-    </div>
-
-    <!-- Steps container -->
-    <div style="flex:1;overflow-y:auto;padding:28px;">
-
-      <!-- STEP 1: Meta Pixel + Token CAPI -->
-      <div id="sg-step-1">
-        <div style="font-size:32px;margin-bottom:12px;">📡</div>
-        <div style="font-size:18px;font-weight:800;font-family:'Sora',sans-serif;color:var(--text1);margin-bottom:8px;">Passo 1 — Meta Pixel e Token CAPI</div>
-        <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px;">
-          O rastreamento server-side (CAPI) envia dados de conversao diretamente para o Meta, sem depender do navegador. Isso garante muito mais precisao e nao e afetado por bloqueadores de anuncio.
-        </div>
-
-        <div style="background:var(--bg3);border-radius:12px;padding:16px;margin-bottom:16px;">
-          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;">Como obter o Pixel ID</div>
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            <div style="display:flex;gap:12px;align-items:flex-start;">
-              <div style="background:var(--blue);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;">1</div>
-              <div style="font-size:13px;color:var(--text2);line-height:1.5;">Acesse <a href="https://business.facebook.com" target="_blank" style="color:var(--blue);">business.facebook.com</a> e clique em <strong>Gerenciador de Eventos</strong>.</div>
-            </div>
-            <div style="display:flex;gap:12px;align-items:flex-start;">
-              <div style="background:var(--blue);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;">2</div>
-              <div style="font-size:13px;color:var(--text2);line-height:1.5;">Selecione seu Pixel > clique em <strong>Configuracoes</strong>. O numero de 15-16 digitos no topo e o seu <strong>Pixel ID</strong>. Copie.</div>
-            </div>
-          </div>
-        </div>
-
-        <div style="background:var(--bg3);border-radius:12px;padding:16px;margin-bottom:20px;">
-          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;">Como gerar o Token de Acesso (CAPI)</div>
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            <div style="display:flex;gap:12px;align-items:flex-start;">
-              <div style="background:var(--orange);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;">1</div>
-              <div style="font-size:13px;color:var(--text2);line-height:1.5;">Em <a href="https://business.facebook.com/settings" target="_blank" style="color:var(--blue);">Configuracoes do Negocio</a>, va em <strong>Usuarios > Usuarios do Sistema</strong>.</div>
-            </div>
-            <div style="display:flex;gap:12px;align-items:flex-start;">
-              <div style="background:var(--orange);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;">2</div>
-              <div style="font-size:13px;color:var(--text2);line-height:1.5;">Crie um <strong>Usuario do Sistema</strong> com a funcao <strong>Administrador</strong> (ou use um existente).</div>
-            </div>
-            <div style="display:flex;gap:12px;align-items:flex-start;">
-              <div style="background:var(--orange);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;">3</div>
-              <div style="font-size:13px;color:var(--text2);line-height:1.5;">Clique em <strong>Gerar novo token</strong>. Selecione o seu Pixel, marque <strong>ads_management</strong> e gere. Copie o token.</div>
-            </div>
-            <div style="display:flex;gap:12px;align-items:flex-start;">
-              <div style="background:var(--orange);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;">4</div>
-              <div style="font-size:13px;color:var(--text2);line-height:1.5;">Salve o token em local seguro — o Meta nao exibe novamente.</div>
-            </div>
-          </div>
-        </div>
-
-        <div style="display:flex;flex-direction:column;gap:12px;">
-          <div>
-            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">Meta Pixel ID</label>
-            <input type="text" id="sg-pixel-id" placeholder="Ex: 1234567890123456"
-                   style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text1);font-size:13px;">
-          </div>
-          <div>
-            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">Token de Acesso (CAPI)</label>
-            <input type="password" id="sg-token" placeholder="Cole o token do seu usuario de sistema"
-                   style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text1);font-size:13px;">
-          </div>
-          <div id="sg-step1-msg" style="font-size:12px;min-height:18px;"></div>
-        </div>
-      </div>
-
-      <!-- STEP 2: Conta de Anuncios -->
-      <div id="sg-step-2" style="display:none;">
-        <div style="font-size:32px;margin-bottom:12px;">📊</div>
-        <div style="font-size:18px;font-weight:800;font-family:'Sora',sans-serif;color:var(--text1);margin-bottom:8px;">Passo 2 — Conta de Anuncios no Pixel</div>
-        <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px;">
-          Para o Meta saber quais anuncios geraram cada venda, sua <strong>Conta de Anuncios</strong> precisa estar vinculada ao mesmo Pixel que voce configurou.
-        </div>
-
-        <div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:12px;padding:16px;margin-bottom:20px;">
-          <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:4px;">Por que isso importa?</div>
-          <div style="font-size:13px;color:var(--text2);line-height:1.6;">Sem essa vinculacao o Meta recebe os eventos mas nao consegue atribuir aos seus anuncios. CPA parece alto, ROAS parece baixo — tudo distorcido.</div>
-        </div>
-
-        <div style="background:var(--bg3);border-radius:12px;padding:16px;margin-bottom:16px;">
-          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;">Passo a passo</div>
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            <div style="display:flex;gap:12px;align-items:flex-start;">
-              <div style="background:var(--blue);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;">1</div>
-              <div style="font-size:13px;color:var(--text2);line-height:1.5;">Acesse <a href="https://business.facebook.com/settings" target="_blank" style="color:var(--blue);">Configuracoes do Negocio</a>.</div>
-            </div>
-            <div style="display:flex;gap:12px;align-items:flex-start;">
-              <div style="background:var(--blue);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;">2</div>
-              <div style="font-size:13px;color:var(--text2);line-height:1.5;">No menu lateral, va em <strong>Fontes de Dados &gt; Pixels</strong>.</div>
-            </div>
-            <div style="display:flex;gap:12px;align-items:flex-start;">
-              <div style="background:var(--blue);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;">3</div>
-              <div style="font-size:13px;color:var(--text2);line-height:1.5;">Clique no seu Pixel e depois em <strong>Adicionar ativos</strong>.</div>
-            </div>
-            <div style="display:flex;gap:12px;align-items:flex-start;">
-              <div style="background:var(--blue);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;">4</div>
-              <div style="font-size:13px;color:var(--text2);line-height:1.5;">Selecione <strong>Contas de Anuncios</strong> e marque a conta que voce usa para veicular. Confirme.</div>
-            </div>
-          </div>
-        </div>
-
-        <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:14px;">
-          <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:4px;">Dica</div>
-          <div style="font-size:13px;color:var(--text2);line-height:1.6;">Apos vincular, confirme no <strong>Gerenciador de Eventos</strong> que os eventos aparecem na aba <em>Atividade de Eventos</em>. Pode demorar alguns minutos apos a primeira venda.</div>
-        </div>
-      </div>
-
-      <!-- STEP 3: Snippet JS no funil -->
-      <div id="sg-step-3" style="display:none;">
-        <div style="font-size:32px;margin-bottom:12px;">🔗</div>
-        <div style="font-size:18px;font-weight:800;font-family:'Sora',sans-serif;color:var(--text1);margin-bottom:8px;">Passo 3 — Snippet JS nas Paginas do Funil</div>
-        <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px;">
-          Cole esse codigo em <strong>todas as paginas do seu funil</strong> (venda, checkout, obrigado). Ele rastreia automaticamente PageView, ViewContent, InitiateCheckout e Purchase via CAPI.
-        </div>
-
-        <div style="margin-bottom:16px;">
-          <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;">Seu snippet personalizado:</div>
-          <div style="position:relative;">
-            <pre id="sg-snippet-code" style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 48px 14px 14px;font-size:10px;font-family:monospace;color:var(--text1);white-space:pre-wrap;word-break:break-all;line-height:1.55;margin:0;max-height:140px;overflow-y:auto;"></pre>
-            <button onclick="sgCopySnippet()" id="sg-copy-btn" style="position:absolute;top:8px;right:8px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--text2);cursor:pointer;">Copiar</button>
-          </div>
-        </div>
-
-        <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:10px;">Como colar por plataforma:</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
-          <button onclick="sgShowPlatform('wp')"      id="sgpt-wp"      class="sg-ptab active-ptab">WordPress</button>
-          <button onclick="sgShowPlatform('cf')"      id="sgpt-cf"      class="sg-ptab">ClickFunnels</button>
-          <button onclick="sgShowPlatform('hp')"      id="sgpt-hp"      class="sg-ptab">Hotmart Pages</button>
-          <button onclick="sgShowPlatform('generic')" id="sgpt-generic" class="sg-ptab">Outra plat.</button>
-        </div>
-
-        <div id="sg-platform-wp" style="background:var(--bg3);border-radius:10px;padding:14px;font-size:13px;color:var(--text2);line-height:1.65;">
-          <strong>WordPress / Elementor / WooCommerce</strong><br><br>
-          1. Instale o plugin gratuito <strong>Insert Headers and Footers</strong>.<br>
-          2. Va em <em>Configuracoes &gt; Insert Headers and Footers &gt; Scripts no Header</em>.<br>
-          3. Cole o snippet e salve. Ele aparece em todas as paginas automaticamente.
-        </div>
-        <div id="sg-platform-cf" style="display:none;background:var(--bg3);border-radius:10px;padding:14px;font-size:13px;color:var(--text2);line-height:1.65;">
-          <strong>ClickFunnels 2.0</strong><br><br>
-          1. Dentro do seu funil, clique em <strong>Configuracoes</strong> (engrenagem).<br>
-          2. Va em <em>Tracking Codes &gt; Head Tracking Code</em>.<br>
-          3. Cole o snippet e salve. Repita em cada passo do funil.
-        </div>
-        <div id="sg-platform-hp" style="display:none;background:var(--bg3);border-radius:10px;padding:14px;font-size:13px;color:var(--text2);line-height:1.65;">
-          <strong>Hotmart Pages</strong><br><br>
-          1. Abra sua pagina no editor da Hotmart Pages.<br>
-          2. Clique em <strong>Configuracoes da Pagina</strong> &gt; <em>Scripts personalizados</em>.<br>
-          3. Cole o snippet na secao <strong>Head</strong> e salve.
-        </div>
-        <div id="sg-platform-generic" style="display:none;background:var(--bg3);border-radius:10px;padding:14px;font-size:13px;color:var(--text2);line-height:1.65;">
-          <strong>Qualquer outra plataforma</strong><br><br>
-          Cole o snippet dentro da tag <code style="background:var(--bg2);padding:2px 5px;border-radius:4px;">&lt;head&gt;</code> do HTML das suas paginas — ou no campo de "Scripts personalizados" que a plataforma oferece.
-        </div>
-
-        <div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:14px;margin-top:14px;">
-          <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:6px;">Capturar e-mail do lead (melhora o match rate)</div>
-          <pre style="font-size:10.5px;font-family:monospace;color:var(--text2);margin:0;white-space:pre-wrap;">// Quando o lead preenche o formulario:
-window.ippmify('setUser', { email: 'lead@email.com' });
-
-// Na pagina de checkout:
-window.ippmify('track', 'InitiateCheckout', { value: 97, currency: 'BRL' });</pre>
-        </div>
-      </div>
-
-      <!-- STEP 4: Webhooks das plataformas -->
-      <div id="sg-step-4" style="display:none;">
-        <div style="font-size:32px;margin-bottom:12px;">🔔</div>
-        <div style="font-size:18px;font-weight:800;font-family:'Sora',sans-serif;color:var(--text1);margin-bottom:8px;">Passo 4 — Conectar Plataforma de Vendas</div>
-        <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px;">
-          Sempre que uma venda e aprovada, a plataforma envia uma notificacao (webhook) para o IPPMIFY. Registramos a venda e disparamos um evento <strong>Purchase</strong> server-side no seu Pixel automaticamente.
-        </div>
-
-        <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:10px;">Selecione sua plataforma:</div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
-          <button onclick="sgShowWebhook('kirvano')"    id="sgwh-kirvano"    class="sg-ptab active-ptab">Kirvano</button>
-          <button onclick="sgShowWebhook('hotmart')"    id="sgwh-hotmart"    class="sg-ptab">Hotmart</button>
-          <button onclick="sgShowWebhook('eduzz')"      id="sgwh-eduzz"      class="sg-ptab">Eduzz</button>
-          <button onclick="sgShowWebhook('monetizze')"  id="sgwh-monetizze"  class="sg-ptab">Monetizze</button>
-          <button onclick="sgShowWebhook('braip')"      id="sgwh-braip"      class="sg-ptab">Braip</button>
-          <button onclick="sgShowWebhook('perfectpay')" id="sgwh-perfectpay" class="sg-ptab">PerfectPay</button>
-          <button onclick="sgShowWebhook('ticto')"      id="sgwh-ticto"      class="sg-ptab">Ticto</button>
-          <button onclick="sgShowWebhook('mercadopago')" id="sgwh-mercadopago" class="sg-ptab">Mercado Pago</button>
-          <button onclick="sgShowWebhook('stripe')"     id="sgwh-stripe"     class="sg-ptab">Stripe</button>
-          <button onclick="sgShowWebhook('asaas')"      id="sgwh-asaas"      class="sg-ptab">Asaas</button>
-          <button onclick="sgShowWebhook('pagarme')"    id="sgwh-pagarme"    class="sg-ptab">Pagar.me</button>
-          <button onclick="sgShowWebhook('pagseguro')"  id="sgwh-pagseguro"  class="sg-ptab">PagSeguro</button>
-        </div>
-
-        <div style="margin-bottom:16px;">
-          <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;">URL do Webhook — cole na sua plataforma:</div>
-          <div style="display:flex;gap:8px;">
-            <input type="text" id="sg-webhook-url" readonly
-                   style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text1);font-size:12px;font-family:monospace;">
-            <button onclick="sgCopyWebhook()" id="sg-copy-wh-btn" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 16px;color:var(--text2);font-size:13px;cursor:pointer;white-space:nowrap;font-weight:600;">Copiar</button>
-          </div>
-        </div>
-
-        <div id="sg-wh-instructions" style="background:var(--bg3);border-radius:10px;padding:14px;font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:14px;"></div>
-
-        <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:14px;">
-          <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:4px;">Tudo pronto!</div>
-          <div style="font-size:13px;color:var(--text2);line-height:1.6;">Faca uma venda teste. Em segundos ela aparece no IPPMIFY e um evento <strong>Purchase</strong> e enviado ao seu Pixel automaticamente.</div>
-        </div>
-      </div>
-
-    </div><!-- /steps container -->
-
-    <!-- Footer navigation -->
-    <div style="padding:16px 28px 24px;flex-shrink:0;border-top:1px solid var(--border);display:flex;align-items:center;gap:12px;">
-      <button id="sg-btn-prev" onclick="sgPrev()" style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 22px;color:var(--text2);font-size:13px;cursor:pointer;font-weight:600;display:none;">Anterior</button>
-      <div style="flex:1;text-align:center;font-size:12px;color:var(--text3);" id="sg-step-counter">Passo 1 de 4</div>
-      <button id="sg-btn-next" onclick="sgNext()" style="background:var(--blue);color:#fff;border:none;border-radius:10px;padding:11px 28px;font-size:13px;cursor:pointer;font-weight:700;">Proximo</button>
-    </div>
-
-  </div>
-</div>
-
-<style>
-.sg-ptab{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:5px 12px;font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s;}
-.sg-ptab:hover{border-color:var(--blue);color:var(--blue);}
-.sg-ptab.active-ptab{background:var(--blue)!important;border-color:var(--blue)!important;color:#fff!important;}
-</style>
-
-<script>
-var _sgStep = 1;
-var _sgCurrentPlatform = 'kirvano';
-var _sgWebhookInstructions = {
-  kirvano:     '<strong>Kirvano:</strong> Painel Kirvano &gt; <em>Configuracoes &gt; Webhooks</em> &gt; cole a URL e ative eventos de venda aprovada.',
-  hotmart:     '<strong>Hotmart:</strong> <em>Ferramentas &gt; Webhooks &gt; Adicionar webhook</em>. Cole a URL e selecione os eventos <em>PURCHASE_APPROVED</em> e <em>PURCHASE_COMPLETE</em>.',
-  eduzz:       '<strong>Eduzz:</strong> <em>Minha Conta &gt; Postback / Webhook</em>. Cole a URL no campo de postback e salve.',
-  monetizze:   '<strong>Monetizze:</strong> <em>Configuracoes &gt; IPN / Postback</em>. Cole a URL e ative as notificacoes de venda.',
-  braip:       '<strong>Braip:</strong> <em>Ferramentas &gt; Webhook &gt; Adicionar</em>. Cole a URL e escolha eventos de compra aprovada.',
-  perfectpay:  '<strong>PerfectPay:</strong> <em>Configuracoes &gt; Webhooks &gt; Adicionar</em>. Cole a URL e ative eventos de venda.',
-  ticto:       '<strong>Ticto:</strong> <em>Configuracoes &gt; Webhooks</em>. Cole a URL e ative eventos de compra aprovada.',
-  mercadopago: '<strong>Mercado Pago:</strong> <em>Seu Perfil &gt; Configuracoes &gt; Notificacoes de pagamento (IPN/Webhook)</em>. Cole a URL e salve.',
-  stripe:      '<strong>Stripe:</strong> <a href="https://dashboard.stripe.com/webhooks" target="_blank" style="color:var(--blue);">Dashboard Stripe</a> &gt; <em>Developers &gt; Webhooks &gt; Add endpoint</em>. Cole a URL e selecione <em>checkout.session.completed</em>.',
-  asaas:       '<strong>Asaas:</strong> <em>Configuracoes &gt; Integracoes</em> — copie sua API Key. Depois em <em>Webhooks</em>, cole a URL acima.',
-  pagarme:     '<strong>Pagar.me:</strong> <em>Configuracoes &gt; Webhooks &gt; Adicionar webhook</em>. Cole a URL e selecione eventos de pagamento aprovado.',
-  pagseguro:   '<strong>PagSeguro:</strong> <em>Minha Conta &gt; Preferencias de IPN</em>. Cole a URL de notificacao e salve.',
-};
-
-function openSetupGuide() {
-  _sgStep = 1;
-  document.getElementById('setupGuideOverlay').style.display = 'flex';
-  sgUpdateUI();
-  var mainPixel = document.getElementById('settingMetaPixelId');
-  if (mainPixel && mainPixel.value) document.getElementById('sg-pixel-id').value = mainPixel.value;
-  document.getElementById('sg-token').value = '';
-  document.getElementById('sg-step1-msg').textContent = '';
+function updateReportTimeSlots() {
+  const freq = parseInt(document.getElementById('reportFreqSelect').value);
+  const container = document.getElementById('reportTimeSlots');
+  const inputs = document.getElementById('reportTimeSlotsInputs');
+  if (freq === 0) { container.style.display = 'none'; return; }
+  container.style.display = 'block';
+  const defaults = ['08:00', '14:00', '20:00'];
+  inputs.innerHTML = Array.from({length: freq}, (_, i) => `
+    <input type="time" id="reportTime${i}" value="${defaults[i]}"
+      style="background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;width:100%;font-family:'Montserrat',sans-serif;">
+  `).join('');
 }
 
-function closeSetupGuide() {
-  document.getElementById('setupGuideOverlay').style.display = 'none';
-}
-
-function sgUpdateUI() {
-  for (var i = 1; i <= 4; i++) {
-    document.getElementById('sg-step-' + i).style.display = (i === _sgStep) ? '' : 'none';
-  }
-  ['sgBar1','sgBar2','sgBar3','sgBar4'].forEach(function(id, idx) {
-    document.getElementById(id).style.background = (idx < _sgStep) ? 'var(--blue)' : 'var(--border)';
-  });
-  ['sgLabel1','sgLabel2','sgLabel3','sgLabel4'].forEach(function(id, idx) {
-    var el = document.getElementById(id);
-    el.style.color = (idx + 1 === _sgStep) ? 'var(--blue)' : 'var(--text3)';
-    el.style.fontWeight = (idx + 1 === _sgStep) ? '700' : '400';
-  });
-  document.getElementById('sg-btn-prev').style.display = (_sgStep > 1) ? '' : 'none';
-  document.getElementById('sg-btn-next').textContent = (_sgStep === 4) ? 'Concluir!' : 'Proximo';
-  document.getElementById('sg-step-counter').textContent = 'Passo ' + _sgStep + ' de 4';
-  if (_sgStep === 3) sgEnsureSnippet();
-  if (_sgStep === 4) sgShowWebhook(_sgCurrentPlatform);
-}
-
-async function sgNext() {
-  if (_sgStep === 1) {
-    var pixelId = document.getElementById('sg-pixel-id').value.trim();
-    var token   = document.getElementById('sg-token').value.trim();
-    var msg     = document.getElementById('sg-step1-msg');
-    if (pixelId || token) {
-      try {
-        var body = {};
-        if (pixelId) body.meta_pixel_id = pixelId;
-        if (token)   body.meta_access_token = token;
-        await api('PUT', '/api/auth/settings', body);
-        if (pixelId) {
-          var mainPixel = document.getElementById('settingMetaPixelId');
-          if (mainPixel) mainPixel.value = pixelId;
-        }
-        msg.style.color = 'var(--green)';
-        msg.textContent = 'Salvo!';
-      } catch(e) {
-        msg.style.color = 'var(--red)';
-        msg.textContent = 'Erro ao salvar: ' + (e.message || 'tente novamente');
-        return;
-      }
-    }
-  }
-  if (_sgStep < 4) { _sgStep++; sgUpdateUI(); }
-  else { closeSetupGuide(); if (typeof loadSettings === 'function') loadSettings(); }
-}
-
-function sgPrev() {
-  if (_sgStep > 1) { _sgStep--; sgUpdateUI(); }
-}
-
-async function sgEnsureSnippet() {
-  var snipEl = document.getElementById('sg-snippet-code');
+async function saveReportSchedule() {
+  const msgEl = document.getElementById('reportScheduleMsg');
   try {
-    var resp = await api('GET', '/api/auth/me');
-    var user = resp.data || resp.user || resp;
-    var key  = user.capi_api_key;
-    if (!key) {
-      var r = await api('POST', '/api/auth/generate-capi-key');
-      key = r.capi_api_key;
-      var inp = document.getElementById('capiApiKeyInput');
-      if (inp) {
-        inp.value = key;
-        document.getElementById('capiSnippetSection').style.display = '';
-        document.getElementById('capiSnippetCode').textContent = buildCapiSnippet(key);
-        document.getElementById('capiApiExample').textContent  = buildCapiApiExample(key);
-      }
+    if (!token) { if (msgEl) { msgEl.style.color='var(--red)'; msgEl.textContent='Sessão expirada.'; } return; }
+    const freq = parseInt(document.getElementById('reportFreqSelect')?.value) || 0;
+    const timeInputs = document.querySelectorAll('#reportTimeSlotsInputs input[type="time"]');
+    const report_times = [...timeInputs].map(i => i.value).filter(Boolean).join(', ') || '';
+    const report_days = parseInt(document.getElementById('reportDaysValue')?.value) || 7;
+    if (msgEl) { msgEl.style.color='var(--text3)'; msgEl.textContent='Salvando...'; }
+    const res = await fetch('/api/reports/schedule', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ report_freq: freq, report_times, report_days }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      if (msgEl) { msgEl.style.color='var(--red)'; msgEl.textContent=`❌ ${data.error||'Erro ao salvar.'}`; }
+      return;
     }
-    snipEl.textContent = buildCapiSnippet(key);
+    if (msgEl) { msgEl.style.color='var(--green)'; msgEl.textContent=freq===0?'✅ Relatório desativado':'✅ Agendamento salvo!'; }
+    setTimeout(() => { loadReportSchedule(); if(msgEl) msgEl.textContent=''; }, 1500);
   } catch(e) {
-    snipEl.textContent = '// Erro ao carregar snippet. Verifique sua conexao.';
+    console.error('[Reports] saveReportSchedule:', e);
+    if (msgEl) { msgEl.style.color='var(--red)'; msgEl.textContent='Erro inesperado. Tente novamente.'; }
   }
 }
 
-function sgCopySnippet() {
-  navigator.clipboard.writeText(document.getElementById('sg-snippet-code').textContent).then(function() {
-    var btn = document.getElementById('sg-copy-btn');
-    btn.textContent = 'Copiado!';
-    setTimeout(function(){ btn.textContent = 'Copiar'; }, 1800);
+function openCaktoPortal() {
+  window.open('https://app.cakto.com.br', '_blank');
+}
+
+function openPlanSupport() {
+  const msg = encodeURIComponent('Olá! Preciso de ajuda com minha assinatura do IPPMIFY.');
+  window.open('https://wa.me/5543996267951?text=' + msg, '_blank');
+}
+
+
+// ─── RELATÓRIOS — FUNÇÕES FALTANDO ————————————————————————————————————————————
+
+function selectReportDays(days) {
+  const hidden = document.getElementById('reportDaysValue');
+  if (hidden) hidden.value = days;
+  ['rdBtn1','rdBtn7','rdBtn30'].forEach(function(id) {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    const d      = parseInt(id.replace('rdBtn',''));
+    const active = d === days;
+    btn.style.background  = active ? 'var(--blue)' : 'transparent';
+    btn.style.color       = active ? '#fff' : 'var(--text2)';
+    btn.style.borderColor = active ? 'var(--blue)' : 'var(--border)';
+    btn.style.fontWeight  = active ? '700' : '600';
   });
 }
 
-function sgShowPlatform(p) {
-  ['wp','cf','hp','generic'].forEach(function(k) {
-    document.getElementById('sg-platform-' + k).style.display = (k === p) ? '' : 'none';
-    var btn = document.getElementById('sgpt-' + k);
-    if (btn) btn.className = (k === p) ? 'sg-ptab active-ptab' : 'sg-ptab';
-  });
+async function loadReportSchedule() {
+  const displayEl = document.getElementById('reportScheduleDisplay');
+  if (displayEl) displayEl.innerHTML = '<span style="color:var(--text3);">Carregando...</span>';
+  try {
+    if (!token) {
+      if (displayEl) displayEl.innerHTML = '<span style="color:var(--text3);">Sessão expirada.</span>';
+      return;
+    }
+    const res = await fetch('/api/reports/schedule', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) {
+      if (displayEl) displayEl.innerHTML = '<span style="color:var(--text3);">Erro ao carregar.</span>';
+      return;
+    }
+    const data = await res.json();
+    const freqMap = { 0:'Desativado', 1:'1x por dia', 2:'2x por dia', 3:'3x por dia' };
+    const daysStr = function(d) { return d <= 1 ? 'Hoje' : d <= 7 ? 'Últimos 7 dias' : 'Últimos 30 dias'; };
+
+    if (displayEl) {
+      if (!data.report_freq || data.report_freq === 0) {
+        displayEl.innerHTML = '<span style="color:var(--text3);">Desativado — clique em Editar para configurar.</span>';
+      } else {
+        const th = data.report_times ? '<br>🕐 <strong>Horários:</strong> ' + data.report_times : '';
+        displayEl.innerHTML = '📊 <strong>' + (freqMap[data.report_freq]||'Desativado') + '</strong>' + th + '<br>📅 <strong>Período:</strong> ' + daysStr(data.report_days||7);
+      }
+    }
+
+    const freqSel = document.getElementById('reportFreqSelect');
+    if (freqSel) { freqSel.value = data.report_freq != null ? data.report_freq : 0; updateReportTimeSlots(); }
+
+    if (data.report_times && data.report_freq > 0) {
+      const parts = data.report_times.split(',').map(function(t){ return t.trim(); });
+      setTimeout(function() {
+        parts.forEach(function(t, i) {
+          const el = document.getElementById('reportTime' + i);
+          if (el) el.value = t;
+        });
+      }, 80);
+    }
+
+    selectReportDays(data.report_days != null ? data.report_days : 7);
+
+    const formEl = document.getElementById('reportScheduleForm');
+    if (formEl) formEl.style.display = 'none';
+    const viewEl = document.getElementById('reportScheduleView');
+    if (viewEl) viewEl.style.display = '';
+
+  } catch(err) {
+    console.error('[Reports] loadReportSchedule:', err);
+    if (displayEl) displayEl.innerHTML = '<span style="color:var(--text3);">Erro ao carregar configurações.</span>';
+  }
 }
 
-function sgShowWebhook(platform) {
-  _sgCurrentPlatform = platform;
-  document.getElementById('sg-webhook-url').value = window.location.origin + '/api/hook/webhook/' + platform;
-  document.getElementById('sg-wh-instructions').innerHTML = _sgWebhookInstructions[platform] || '';
-  ['kirvano','hotmart','eduzz','monetizze','braip','perfectpay','ticto','mercadopago','stripe','asaas','pagarme','pagseguro'].forEach(function(p) {
-    var btn = document.getElementById('sgwh-' + p);
-    if (btn) btn.className = (p === platform) ? 'sg-ptab active-ptab' : 'sg-ptab';
-  });
+function editReportSchedule() {
+  const viewEl = document.getElementById('reportScheduleView');
+  const formEl = document.getElementById('reportScheduleForm');
+  if (formEl) {
+    if (viewEl) viewEl.style.display = 'none';
+    formEl.style.display = '';
+  } else {
+    saveReportSchedule();
+  }
 }
 
-function sgCopyWebhook() {
-  navigator.clipboard.writeText(document.getElementById('sg-webhook-url').value).then(function() {
-    var btn = document.getElementById('sg-copy-wh-btn');
-    btn.textContent = 'Copiado!';
-    setTimeout(function(){ btn.textContent = 'Copiar'; }, 1800);
-  });
+function cancelReportScheduleEdit() {
+  const viewEl = document.getElementById('reportScheduleView');
+  const formEl = document.getElementById('reportScheduleForm');
+  if (formEl) formEl.style.display = 'none';
+  if (viewEl) viewEl.style.display = '';
+  const msgEl = document.getElementById('reportScheduleMsg');
+  if (msgEl) msgEl.textContent = '';
+}
+
+// ─── INICIALIZAR ─────────────────────────────────────────────────────────────
+if (token) {
+  const user = JSON.parse(localStorage.getItem('ippmify_user')||'{}');
+  if (user.name || user.email) initApp(user);
 }
 </script>
 </body>
