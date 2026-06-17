@@ -28,12 +28,10 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
-
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar{width:5px;height:5px;}
 ::-webkit-scrollbar-track{background:var(--bg2);}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
-
 /* ── AUTH ── */
 .auth-wrapper{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 60% 40%, #0F2A4A 0%, var(--bg) 70%);}
 .auth-box{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:44px;width:100%;max-width:440px;}
@@ -50,7 +48,6 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .form-group input,.form-group select,.form-group textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-size:14px;font-family:'Montserrat',sans-serif;outline:none;transition:.2s;}
 .form-group input:focus,.form-group select:focus{border-color:var(--blue);box-shadow:0 0 0 3px #146ef520;}
 .form-group .hint{font-size:11px;color:var(--text3);margin-top:6px;line-height:1.5;}
-
 /* ── BUTTONS ── */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 22px;border-radius:10px;font-size:14px;font-weight:600;font-family:'Montserrat',sans-serif;cursor:pointer;border:none;transition:.2s;white-space:nowrap;}
 .btn:hover{filter:brightness(1.1);}
@@ -64,23 +61,19 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .btn-ghost:hover{background:var(--bg3);color:var(--text);}
 .btn-sm{padding:7px 14px;font-size:12px;border-radius:8px;}
 .btn-xs{padding:5px 10px;font-size:11px;border-radius:6px;}
-
 /* ── ALERTS ── */
 .alert{padding:12px 16px;border-radius:10px;margin-bottom:12px;font-size:13px;line-height:1.5;}
 .alert-error{background:#3a0f0f;border:1px solid #7f1d1d;color:#fca5a5;}
 .alert-success{background:#052e16;border:1px solid #14532d;color:#86efac;}
 .alert-info{background:#0c1f3d;border:1px solid #1e40af;color:#93c5fd;}
 .alert-warn{background:#2d1a00;border:1px solid #78350f;color:#fcd34d;}
-
 /* ── SPINNER ── */
 .spinner{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
-
 /* ══════════════════════════════════════════════════════
    APP LAYOUT
 ══════════════════════════════════════════════════════ */
 #appPage{display:flex;min-height:100vh;}
-
 /* ── SIDEBAR ── */
 .sidebar{width:var(--sidebar);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;transition:.3s;}
 .sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid var(--border);}
@@ -89,7 +82,6 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .sidebar-logo .logo-text{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.3px;}
 .sidebar-logo .logo-text span{color:var(--blue);}
 .sidebar-logo .logo-sub{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-top:1px;}
-
 .sidebar-nav{flex:1;padding:16px 12px;overflow-y:auto;}
 .nav-section{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;padding:0 8px;margin:16px 0 8px;}
 .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;color:var(--text2);font-size:13px;font-weight:500;transition:.15s;margin-bottom:2px;position:relative;}
@@ -100,7 +92,6 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:20px;}
 .nav-badge.orange{background:var(--orange);color:#000;}
 .nav-soon{margin-left:auto;font-size:9px;color:var(--text3);background:var(--bg3);padding:2px 6px;border-radius:4px;border:1px solid var(--border);}
-
 .sidebar-user{padding:16px 12px;border-top:1px solid var(--border);}
 .user-card{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;cursor:pointer;transition:.2s;}
 .user-card:hover{background:var(--bg3);}
@@ -112,18 +103,15 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .user-plan{font-size:11px;color:var(--text3);}
 .btn-logout-icon{color:var(--text3);font-size:16px;cursor:pointer;padding:4px;}
 .btn-logout-icon:hover{color:var(--red);}
-
 /* ── MAIN CONTENT ── */
 .main{margin-left:var(--sidebar);flex:1;padding:28px;min-height:100vh;}
 .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
 .page-title{font-family:'Sora',sans-serif;font-size:22px;font-weight:700;color:var(--text);}
 .page-subtitle{font-size:12px;color:var(--text2);margin-top:2px;}
 .page-actions{display:flex;gap:8px;align-items:center;}
-
 /* ── TABS/PAGES ── */
 .tab-page{display:none;}
 .tab-page.active{display:block;}
-
 /* ── METRIC CARDS ── */
 .metrics-row{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:20px;}
 @media(max-width:1200px){.metrics-row{grid-template-columns:repeat(3,1fr);}}
@@ -139,18 +127,15 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .metric-card .mc-delta.up{color:var(--green);}
 .metric-card .mc-delta.down{color:var(--red);}
 .metric-card .mc-icon{font-size:20px;margin-bottom:8px;}
-
 /* ── CARDS ── */
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px;}
 .card-title{font-family:'Sora',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 .card-title .ct-badge{font-size:10px;background:var(--blue);color:#fff;padding:2px 8px;border-radius:20px;font-family:'Montserrat',sans-serif;font-weight:600;}
-
 /* ── DASHBOARD GRID ── */
 .dash-grid-2{display:grid;grid-template-columns:1.7fr 1fr;gap:16px;margin-bottom:16px;}
 .dash-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;}
 .dash-grid-bot{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;}
 @media(max-width:1100px){.dash-grid-2,.dash-grid-bot{grid-template-columns:1fr;}.dash-grid-3{grid-template-columns:1fr 1fr;}}
-
 /* ── ALERTS LIST ── */
 .alert-item{display:flex;align-items:flex-start;gap:12px;padding:12px;border-radius:10px;background:var(--bg3);margin-bottom:8px;border-left:3px solid var(--orange);}
 .alert-item.critical{border-left-color:var(--red);}
@@ -161,14 +146,12 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .alert-item .ai-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;}
 .alert-item .ai-desc{font-size:11px;color:var(--text2);line-height:1.4;}
 .alert-item .ai-camp{font-size:10px;color:var(--text3);margin-bottom:4px;}
-
 /* ── INSIGHT BOX ── */
 .insight-card{background:linear-gradient(135deg,#0c1f3d,#0a1628);border:1px solid #1e40af;border-radius:14px;padding:22px;}
 .insight-card .ins-badge{display:inline-flex;align-items:center;gap:5px;background:#1e40af;color:#93c5fd;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;}
 .insight-card .ins-text{font-size:13px;color:#bfdbfe;line-height:1.7;font-style:italic;margin-bottom:14px;}
 .insight-card .ins-action{background:#1e3a8a;border-radius:8px;padding:12px;font-size:13px;color:#93c5fd;}
 .insight-card .ins-action strong{color:#fff;display:block;margin-bottom:4px;}
-
 /* ── TOP CAMPAIGNS TABLE ── */
 .top-camp-table{width:100%;border-collapse:collapse;}
 .top-camp-table th{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;padding:8px 10px;text-align:right;border-bottom:1px solid var(--border);}
@@ -180,7 +163,6 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .roas-high{background:#052e16;color:var(--green);}
 .roas-mid{background:#2d1a00;color:var(--orange);}
 .roas-low{background:#3a0f0f;color:var(--red);}
-
 /* ── DONUT CHART ── */
 .donut-wrap{position:relative;width:160px;height:160px;margin:0 auto 16px;}
 .donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
@@ -191,7 +173,6 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .dl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-right:6px;}
 .dl-name{color:var(--text2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .dl-pct{color:var(--text);font-weight:600;}
-
 /* ══════════════════════════════════════════════════════
    CAMPAIGNS TAB — REDESIGN
 ══════════════════════════════════════════════════════ */
@@ -205,11 +186,9 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .camp-kpi .ck-val.blue{color:var(--blue);}
 .camp-kpi .ck-val.orange{color:var(--orange);}
 .camp-kpi .ck-sub{font-size:11px;color:var(--text3);margin-top:4px;}
-
 /* Two-panel layout */
 .camp-two-panel{display:grid;grid-template-columns:360px 1fr;gap:14px;align-items:start;}
 @media(max-width:1100px){.camp-two-panel{grid-template-columns:1fr;}}
-
 /* Campaign list panel */
 .camp-list-panel{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
 .camp-list-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);background:#091523;}
@@ -246,7 +225,6 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .camp-list-item.camp-paused{opacity:.65;}
 .camp-list-item.camp-paused .cli-name{color:var(--text3);}
 .paused-badge{font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--bg4);color:var(--text3);letter-spacing:.3px;}
-
 /* ── PRODUTOS PREMIUM ── */
 .prod-hero{background:linear-gradient(135deg,#1a0a00,#2d1500,#091523);border:1px solid #4a2d00;border-radius:16px;padding:32px;margin-bottom:28px;position:relative;overflow:hidden;}
 .prod-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,#ffba0020,transparent 70%);pointer-events:none;}
@@ -287,7 +265,6 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 /* Plan banner (upgrade) */
 .upgrade-banner{background:linear-gradient(135deg,#1a0a00,#2d1500);border:1px solid #ffba0033;border-radius:14px;padding:24px;display:flex;align-items:center;gap:20px;margin-bottom:28px;}
 .upgrade-icon{font-size:36px;flex-shrink:0;}
-
 /* Trial banner */
 .trial-banner{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:10px 20px;font-size:13px;gap:12px;}
 .trial-banner.tb-renew{background:#1a1500;border-bottom:1px solid #f5c84244;}
@@ -395,7 +372,6 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .mkt-card-thumb.green{background:linear-gradient(135deg,#0a2818,#1a4a2a);}
 .mkt-card-thumb.purple{background:linear-gradient(135deg,#1a0f2e,#2d1a4e);}
 .mkt-card-thumb.orange{background:linear-gradient(135deg,#2d1a00,#4a2d00);}
-
 /* Trial banner */
 .trial-banner{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:10px 20px;font-size:13px;gap:12px;}
 .trial-banner.tb-renew{background:#1a1500;border-bottom:1px solid #f5c84244;}
@@ -424,14 +400,12 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .hdot.yellow{background:var(--orange);box-shadow:0 0 5px #ffba0088;}
 .hdot.red{background:var(--red);box-shadow:0 0 5px #ef444488;}
 .hdot.gray{background:var(--text3);}
-
 /* Detail panel */
 .camp-detail-panel{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;min-height:400px;}
 .camp-detail-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);background:#091523;flex-wrap:wrap;gap:8px;}
 .camp-detail-title{font-size:14px;font-weight:700;font-family:'Sora',sans-serif;color:var(--text);}
 .camp-detail-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:320px;gap:12px;color:var(--text3);}
 .camp-detail-empty .de-icon{font-size:44px;}
-
 /* Detail metric rows */
 .detail-table{width:100%;}
 .detail-hdr-row{display:grid;padding:8px 16px;background:#091523;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
@@ -447,7 +421,6 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .dr-val{font-size:12px;text-align:right;color:var(--text2);}
 .dr-val.green{color:var(--green);}
 .dr-val.red{color:var(--red);}
-
 /* Toggle switch */
 .toggle-wrap{display:flex;align-items:center;gap:6px;justify-content:flex-end;}
 .toggle-label{font-size:11px;font-weight:600;}
@@ -460,7 +433,6 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .tog input:checked+.tog-slider{background:#15803d;}
 .tog input:checked+.tog-slider:before{transform:translateX(18px);}
 .tog input:disabled+.tog-slider{opacity:.5;cursor:default;}
-
 /* Budget Modal */
 .bmodal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:flex;align-items:center;justify-content:center;}
 .bmodal{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:32px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;}
@@ -473,11 +445,9 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .bic-val.blue{color:var(--blue);}
 .bic-val.green{color:var(--green);}
 .bic-val.orange{color:var(--orange);}
-
 /* Batch modal */
 .batch-camp-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
 .batch-camp-item:last-child{border-bottom:none;}
-
 /* ══════════════════════════════════════════════════════
    RELATÓRIOS TAB
 ══════════════════════════════════════════════════════ */
@@ -487,7 +457,6 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .report-action-card .rac-icon{font-size:40px;margin-bottom:12px;}
 .report-action-card .rac-title{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;}
 .report-action-card .rac-desc{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6;}
-
 /* ══════════════════════════════════════════════════════
    COMING SOON
 ══════════════════════════════════════════════════════ */
@@ -496,7 +465,6 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .coming-soon .cs-title{font-family:'Sora',sans-serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:8px;}
 .coming-soon .cs-desc{font-size:14px;color:var(--text2);max-width:380px;line-height:1.6;}
 .coming-soon .cs-badge{margin-top:16px;display:inline-block;background:var(--bg3);border:1px solid var(--border);color:var(--text3);font-size:12px;padding:6px 16px;border-radius:20px;}
-
 /* ══════════════════════════════════════════════════════
    INTEGRAÇÕES
 ══════════════════════════════════════════════════════ */
@@ -542,7 +510,6 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .int-item .int-info{display:flex;align-items:center;gap:10px;}
 .int-name{font-size:13px;font-weight:600;color:var(--text);}
 .int-status{font-size:11px;color:var(--text3);}
-
 /* ══════════════════════════════════════════════════════
    WIZARD DE ONBOARDING
 ══════════════════════════════════════════════════════ */
@@ -563,7 +530,6 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .wiz-plat-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;}
 .wiz-plat-btn{padding:12px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:.2s;}
 .wiz-plat-btn:hover,.wiz-plat-btn.selected{border-color:var(--blue);color:var(--blue);background:#146ef510;}
-
 /* ══════════════════════════════════════════════════════
    DECISION CARDS
 ══════════════════════════════════════════════════════ */
@@ -580,24 +546,20 @@ h1,h2,h3,h4,.logo-text{font-family:'Sora',sans-serif;}
 .decision-card .dc-rec{background:var(--bg3);border-radius:8px;padding:10px;font-size:12px;color:#86efac;}
 .decision-card .dc-camp{font-size:11px;color:var(--text3);margin-bottom:4px;}
 .decision-card .dc-time{font-size:11px;color:var(--text3);margin-top:8px;}
-
 /* ── EMPTY STATE ── */
 .empty-state{text-align:center;padding:60px 20px;color:var(--text3);}
 .empty-state .es-icon{font-size:48px;margin-bottom:12px;opacity:.5;}
 .empty-state p{font-size:14px;}
-
 /* ── MISC ── */
 details summary{cursor:pointer;color:var(--blue);font-size:13px;user-select:none;list-style:none;display:flex;align-items:center;gap:6px;}
 details summary::-webkit-details-marker{display:none;}
 details[open] summary::before{content:'▼';}
 details summary::before{content:'▶';font-size:10px;}
 details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radius:10px;border:1px solid var(--border);}
-
 /* ── INTEGRATION CATEGORY FILTER ── */
 .int-cat-btn{padding:8px 16px;border-radius:8px;border:none;background:transparent;color:var(--text2);font-size:13px;font-weight:600;font-family:'Montserrat',sans-serif;cursor:pointer;transition:.2s;white-space:nowrap;}
 .int-cat-btn:hover{background:var(--bg3);color:var(--text);}
 .int-cat-btn.active{background:var(--blue);color:#fff;}
-
 /* ── SOON CARDS GRID ── */
 .int-soon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:8px;}
 .int-soon-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;opacity:.7;transition:.2s;}
@@ -605,11 +567,9 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
 .int-soon-logo{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;}
 .int-soon-name{font-size:13px;font-weight:600;color:var(--text);line-height:1.3;}
 .int-soon-tag{font-size:10px;background:var(--bg3);color:var(--text3);padding:2px 8px;border-radius:20px;border:1px solid var(--border);font-weight:600;}
-
 /* ══════════════════════════════════════════════════════
    MOBILE RESPONSIVO (≤ 768px) — nao afeta desktop
 ══════════════════════════════════════════════════════ */
-
 /* Botao hamburguer — visivel so no mobile */
 #mobileMenuBtn{
   display:none;
@@ -627,7 +587,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
   color:#fff;
   box-shadow:0 4px 16px #146ef540;
 }
-
 /* Overlay escuro ao abrir sidebar no mobile */
 #sidebarOverlay{
   display:none;
@@ -636,12 +595,9 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
   background:rgba(0,0,0,.6);
   z-index:99;
 }
-
 @media (max-width: 768px) {
-
   /* Botao hamburguer aparece */
   #mobileMenuBtn { display:flex; }
-
   /* Sidebar fica escondida por padrao e desliza da esquerda */
   .sidebar {
     transform: translateX(-100%);
@@ -651,43 +607,36 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
   .sidebar.open {
     transform: translateX(0);
   }
-
   /* Overlay aparece quando sidebar esta aberta */
   #sidebarOverlay.open { display:block; }
-
   /* Conteudo principal ocupa a tela toda */
   .main {
     margin-left: 0 !important;
     padding: 16px 12px;
     padding-top: 70px; /* espaco para o botao hamburguer */
   }
-
   /* Auth box ocupa mais espaco */
   .auth-box {
     padding: 28px 20px;
     margin: 16px;
     max-width: 100%;
   }
-
   /* Metricas: 2 colunas no mobile */
   .metrics-row {
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 10px;
   }
-
   /* Grids dashboard: 1 coluna */
   .dash-grid-2,
   .dash-grid-3,
   .dash-grid-bot {
     grid-template-columns: 1fr !important;
   }
-
   /* Campanhas KPIs: 2 colunas */
   .camp-kpis {
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 10px;
   }
-
   /* Page header empilha em vez de lado a lado */
   .page-header {
     flex-direction: column;
@@ -698,29 +647,24 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
     width: 100%;
     flex-wrap: wrap;
   }
-
   /* Cards com menos padding */
   .card, .metric-card {
     padding: 14px;
   }
-
   /* Titulos menores */
   .page-title { font-size: 18px; }
   .metric-card .mc-value { font-size: 18px; }
-
   /* Tabela de campanhas: scroll horizontal */
   .top-camp-table-wrap, .table-wrap {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
-
   /* Fonte menor nas tabelas */
   .top-camp-table th,
   .top-camp-table td {
     font-size: 11px;
     padding: 8px 6px;
   }
-
   /* Trial banner mais compacto */
   .trial-banner {
     flex-direction: column;
@@ -728,7 +672,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
     padding: 10px 14px;
     font-size: 12px;
   }
-
   /* Botoes menores */
   .btn { font-size: 13px; padding: 10px 16px; }
   .btn-sm { font-size: 11px; padding: 6px 12px; }
@@ -736,7 +679,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
 </style>
 </head>
 <body>
-
 <!-- ══════════════════════════════════════════════════
      AUTH PAGE
 ══════════════════════════════════════════════════ -->
@@ -765,7 +707,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         <span onclick="showForgotPassword()" style="font-size:13px;color:var(--blue);cursor:pointer;text-decoration:underline;text-underline-offset:3px;">Esqueceu sua senha?</span>
       </div>
     </div>
-
     <!-- Tela de redefinição de senha -->
     <div id="forgotPasswordForm" style="display:none;">
       <div style="text-align:center;margin-bottom:16px;">
@@ -792,7 +733,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       <div id="registerMsg"></div>
       <button class="btn btn-primary" id="regSubmitBtn" onclick="register()">Criar Conta</button>
     </div>
-
     <!-- Tela pós-cadastro: checkout OU trial direto -->
     <div id="registerSuccess" style="display:none;text-align:center;">
       <!-- Versão TRIAL (vai direto pro app) -->
@@ -816,7 +756,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           🚀 Entrar no IPPMIFY agora
         </button>
       </div>
-
       <!-- Versão NORMAL (direciona para checkout) -->
       <div id="regSuccessNormal">
         <div style="font-size:44px;margin-bottom:12px;">✅</div>
@@ -844,7 +783,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         </div>
       </div>
     </div>
-
     <!-- Tela de nova senha (acessada pelo link do email ?reset=TOKEN) -->
     <div id="resetPasswordForm" style="display:none;">
       <div style="text-align:center;margin-bottom:16px;">
@@ -869,10 +807,8 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       <div id="resetMsg"></div>
       <button class="btn btn-primary" onclick="submitResetPassword()">Salvar nova senha</button>
     </div>
-
   </div>
 </div>
-
 <!-- ══════════════════════════════════════════════════
      WIZARD DE ONBOARDING
 ══════════════════════════════════════════════════ -->
@@ -919,17 +855,14 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
     </div>
   </div>
 </div>
-
 <!-- ══════════════════════════════════════════════════
      APP PAGE
 ══════════════════════════════════════════════════ -->
 <div id="appPage" style="display:none">
-
   <!-- Botao hamburguer (mobile) -->
   <button id="mobileMenuBtn" onclick="toggleMobileSidebar()" aria-label="Menu">☰</button>
   <!-- Overlay escuro ao abrir sidebar no mobile -->
   <div id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
-
   <!-- SIDEBAR -->
   <aside class="sidebar" id="mainSidebar">
     <div class="sidebar-logo">
@@ -941,7 +874,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         </div>
       </div>
     </div>
-
     <nav class="sidebar-nav">
       <div class="nav-section">Principal</div>
       <div class="nav-item active" id="nav-dashboard" onclick="showTab('dashboard')">
@@ -959,7 +891,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       <div class="nav-item" id="nav-reports" onclick="showTab('reports')">
         <span class="nav-icon">📋</span> Relatórios
       </div>
-
       <div class="nav-section">Inteligência</div>
       
       <div class="nav-item" id="nav-insights" onclick="showTab('insights')">
@@ -969,7 +900,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         <span class="nav-icon">📈</span> Benchmarks
         <span class="nav-soon">Em breve</span>
       </div>
-
       <div class="nav-section">Comunidade</div>
       <div class="nav-item" id="nav-tutorial" onclick="showTab('tutorial')">
         <span class="nav-icon">🎓</span> Tutorial
@@ -981,7 +911,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         <span class="nav-icon">🛍️</span> Loja
         <span class="nav-badge" style="background:linear-gradient(135deg,#ffba00,#ff8c00);color:#000;font-size:9px;padding:1px 5px;border-radius:6px;font-weight:800;margin-left:auto">NOVO</span>
       </div>
-
       <div class="nav-section">Configurar</div>
       <div class="nav-item" id="nav-plan" onclick="showTab('plan')">
         <span class="nav-icon">💳</span> Meu Plano
@@ -993,7 +922,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         <span class="nav-icon">⚙️</span> Configurações
       </div>
     </nav>
-
     <div class="sidebar-user">
       <div class="user-card">
         <div class="user-avatar" id="userAvatar" title="Clique para trocar foto">
@@ -1008,11 +936,8 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
     </div>
   </aside>
-
   <!-- MAIN CONTENT -->
   <main class="main">
-
-
     <!-- TRIAL BANNER -->
     <div id="trialBanner" style="display:none;"></div>
     <!-- Plan lock overlay (aparece para usuarios sem plano ativo) -->
@@ -1025,8 +950,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         <div class="plan-lock-plan">Já assinou? Acesse <a onclick="showTab('plan');hidePlanLock()" href="#">Meu Plano</a> para verificar o status.</div>
       </div>
     </div>
-
-
     <!-- Aviso fixo para assinantes -->
     <div id="dataNotice" style="display:none;background:#0d1f35;border-bottom:1px solid #1e3a5f;padding:9px 20px;font-size:12px;color:#8b9ab0;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:199;">
       <span style="font-size:15px;">💡</span>
@@ -1051,12 +974,10 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <button class="btn btn-blue btn-sm" onclick="loadDashboard()">↻ Atualizar</button>
         </div>
       </div>
-
       <!-- Metric Cards -->
       <div class="metrics-row" id="metricsRow">
         <div class="empty-state"><div class="spinner"></div></div>
       </div>
-
       <!-- Charts row -->
       <div class="dash-grid-2" id="chartsRow" style="display:none">
         <div class="card">
@@ -1075,7 +996,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div class="donut-legend" id="donutLegend"></div>
         </div>
       </div>
-
       <!-- Bottom row -->
       <div class="dash-grid-bot" id="dashBotRow" style="display:none">
         <div class="card">
@@ -1090,7 +1010,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           </div>
         </div>
       </div>
-
       <!-- Alerts row -->
       <div id="dashAlertsRow" style="display:none;margin-top:16px">
         <div class="card">
@@ -1099,7 +1018,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         </div>
       </div>
     </div>
-
     <!-- ── TOMADAS DE DECISÃO ── -->
     <div id="tab-decisions" class="tab-page">
       <div class="page-header">
@@ -1113,7 +1031,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
       <div id="decisionsContent"><div class="empty-state"><div class="spinner"></div></div></div>
     </div>
-
     <!-- ── CAMPANHAS ── -->
     <div id="tab-campaigns" class="tab-page">
       <div class="page-header">
@@ -1135,7 +1052,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <button class="btn btn-blue btn-sm" onclick="loadCampaigns()">↻ Atualizar</button>
         </div>
       </div>
-
       <!-- KPI Cards -->
       <div class="camp-kpis" id="campKpis">
         <div class="camp-kpi"><div class="ck-label">Gasto</div><div class="ck-val" id="kpiSpend">—</div><div class="ck-sub" id="kpiSpendSub"></div></div>
@@ -1143,10 +1059,8 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         <div class="camp-kpi"><div class="ck-label">Lucro</div><div class="ck-val" id="kpiProfit">—</div><div class="ck-sub" id="kpiProfSub"></div></div>
         <div class="camp-kpi"><div class="ck-label">ROAS Médio</div><div class="ck-val blue" id="kpiRoas">—</div><div class="ck-sub" id="kpiRoasSub"></div></div>
       </div>
-
       <!-- Two-Panel Layout -->
       <div class="camp-two-panel">
-
         <!-- PAINEL ESQUERDO: Lista de Campanhas -->
         <div class="camp-list-panel">
           <div class="camp-list-hdr">
@@ -1162,7 +1076,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
             <div class="camp-detail-empty" style="height:200px"><div class="de-icon"><div class="spinner"></div></div></div>
           </div>
         </div>
-
         <!-- PAINEL DIREITO: Detalhes -->
         <div class="camp-detail-panel" id="campDetailPanel">
           <div class="camp-detail-empty">
@@ -1173,8 +1086,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         </div>
       </div>
     </div>
-
-
     <!-- ══════════════════════════════════════════════════════════════ -->
     <!-- TAB: TUTORIAL                                                  -->
     <!-- ══════════════════════════════════════════════════════════════ -->
@@ -1185,13 +1096,11 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div class="page-subtitle">Aprenda a usar o IPPMIFY do zero ao avançado</div>
         </div>
       </div>
-
       <div class="tut-hero">
         <div style="font-size:40px;margin-bottom:12px">🚀</div>
         <div class="tut-hero-title">Bem-vindo ao IPPMIFY</div>
         <div class="tut-hero-sub">Siga os passos abaixo para configurar sua conta, conectar suas campanhas e começar a lucrar com inteligência de dados.</div>
       </div>
-
       <div style="font-size:14px;font-weight:700;color:var(--text2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">📚 Passo a Passo</div>
       <div class="tut-steps">
         <div class="tut-step" onclick="showTab('integrations')">
@@ -1243,7 +1152,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div class="tut-step-desc">Em Configurações defina seu CPA máximo e ROAS mínimo. O IPPMIFY usa esses valores para classificar a saúde de cada campanha.</div>
         </div>
       </div>
-
       <div style="font-size:14px;font-weight:700;color:var(--text2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">💡 Dicas Avançadas</div>
       <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:28px">
         <div class="tut-tip">
@@ -1263,7 +1171,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div class="tut-tip-text"><strong>Múltiplas contas:</strong> Você pode conectar várias contas de anúncios. Use o seletor de conta na aba Campanhas para filtrar por conta.</div>
         </div>
       </div>
-
       <div style="background:linear-gradient(135deg,#0d2137,#091523);border:1px solid var(--border);border-radius:14px;padding:24px;text-align:center">
         <div style="font-size:22px;margin-bottom:8px">📞</div>
         <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px">Ficou com dúvidas?</div>
@@ -1271,7 +1178,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         <button class="btn btn-green btn-sm" onclick="showTab('marketplace')">💬 Falar com o Suporte</button>
       </div>
     </div>
-
     <!-- ══════════════════════════════════════════════════════════════ -->
     <!-- TAB: AFILIADOS                                                 -->
     <!-- ══════════════════════════════════════════════════════════════ -->
@@ -1282,13 +1188,11 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div class="page-subtitle">Indique o IPPMIFY e ganhe comissão recorrente</div>
         </div>
       </div>
-
       <div class="aff-hero">
         <div class="aff-badge">💸 30% de comissão recorrente</div>
         <div class="aff-title">Ganhe indicando o IPPMIFY</div>
         <div class="aff-sub">Cada pessoa que assinar pelo seu link te garante 30% do valor mensalmente. Sem limite de indicações.</div>
       </div>
-
       <!-- Link para SE AFILIAR -->
       <div class="aff-link-box">
         <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">🤝 Entre para o programa de afiliados</div>
@@ -1300,7 +1204,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         <a href="https://app.kirvano.com/affiliate/99c3a5da-5919-4a64-b408-0b5b137d227c" target="_blank" class="btn btn-blue btn-sm" style="margin-top:10px;display:inline-block;text-decoration:none">🚀 Quero ser afiliado →</a>
         <div id="affLinkMsg" style="font-size:11px;color:var(--green);margin-top:6px;display:none">✅ Link copiado!</div>
       </div>
-
       <!-- Como funciona -->
       <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">📋 Como funciona</div>
       <div class="aff-how" style="margin-bottom:24px">
@@ -1320,10 +1223,8 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div style="font-size:11px;color:var(--text3)">30% cai todo mês enquanto a assinatura estiver ativa. Automático.</div>
         </div>
       </div>
-
       <!-- Materiais de apoio -->
       <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">📦 Materiais de Apoio</div>
-
       <!-- Card da pasta do Drive -->
       <div style="background:linear-gradient(135deg,#0d2137,#091523);border:1px solid #1e3a5f;border-radius:14px;padding:20px;margin-bottom:16px;display:flex;align-items:center;gap:16px;">
         <div style="font-size:36px;flex-shrink:0;">📁</div>
@@ -1334,7 +1235,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div style="font-size:10px;color:var(--text3);margin-top:8px;">⚠️ Link em breve — materiais sendo preparados</div>
         </div>
       </div>
-
       <div class="aff-mat" style="margin-bottom:24px">
         <div class="aff-mat-card">
           <div style="font-size:20px">📝</div>
@@ -1361,7 +1261,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <button class="btn btn-ghost btn-xs" onclick="copyAffCopy('audience')">📋 Ver perfil</button>
         </div>
       </div>
-
       <!-- Stats -->
       <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">📈 Suas Estatísticas</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px">
@@ -1378,13 +1277,11 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div style="font-size:26px;font-weight:800;color:var(--orange);font-family:'Sora',sans-serif" id="affStatEarn">—</div>
         </div>
       </div>
-
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;color:var(--text3);font-size:13px">
         📬 Para sacar suas comissões ou tirar dúvidas sobre o programa, entre em contato pelo suporte abaixo.
         <br><button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="showTab('marketplace')">📞 Falar com suporte</button>
       </div>
     </div>
-
     <!-- ══════════════════════════════════════════════════════════════ -->
     <!-- TAB: MARKETPLACE                                               -->
     <!-- ══════════════════════════════════════════════════════════════ -->
@@ -1398,7 +1295,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div class="page-subtitle">Produtos, ferramentas e suporte — tudo em um só lugar</div>
         </div>
       </div>
-
       <!-- Hero coming soon -->
       <div class="prod-hero" style="text-align:center;margin-bottom:28px">
         <div class="prod-hero-tag" style="justify-content:center">🚀 Loja em construção</div>
@@ -1411,11 +1307,9 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         </div>
         <div id="storeNotifyMsg" style="display:none;margin-top:10px;font-size:12px;color:var(--green)">✅ Anotado! Você será o primeiro a saber.</div>
       </div>
-
       <!-- ── INFOPRODUTOS ── -->
       <div class="prod-section-title">📘 Infoprodutos</div>
       <div class="prod-grid">
-
         <div class="prod-card locked">
           <div class="prod-card-banner banner-blue">
             <span class="banner-icon">📘</span>
@@ -1431,7 +1325,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
             </div>
           </div>
         </div>
-
         <div class="prod-card locked">
           <div class="prod-card-banner banner-purple">
             <span class="banner-icon">🎓</span>
@@ -1447,7 +1340,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
             </div>
           </div>
         </div>
-
         <div class="prod-card locked">
           <div class="prod-card-banner banner-green">
             <span class="banner-icon">📋</span>
@@ -1463,13 +1355,10 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
             </div>
           </div>
         </div>
-
       </div>
-
       <!-- ── SERVIÇOS ── -->
       <div class="prod-section-title">🛠️ Serviços</div>
       <div class="prod-grid">
-
         <div class="prod-card locked">
           <div class="prod-card-banner banner-orange">
             <span class="banner-icon">📡</span>
@@ -1485,7 +1374,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
             </div>
           </div>
         </div>
-
         <div class="prod-card locked">
           <div class="prod-card-banner banner-teal">
             <span class="banner-icon">🎯</span>
@@ -1501,7 +1389,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
             </div>
           </div>
         </div>
-
         <div class="prod-card locked">
           <div class="prod-card-banner banner-blue">
             <span class="banner-icon">🚀</span>
@@ -1517,9 +1404,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
             </div>
           </div>
         </div>
-
       </div>
-
       <!-- ── COMUNIDADE ── -->
       <div class="prod-section-title">👥 Comunidade</div>
       <div class="community-box" style="margin-bottom:28px">
@@ -1530,7 +1415,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <a href="https://chat.whatsapp.com/CH2WSRPt8xH8B5YkcB4zfQ" target="_blank" class="btn btn-green btn-sm">📲 Entrar no grupo gratuito</a>
         </div>
       </div>
-
       <!-- ── SUPORTE ── -->
       <div class="prod-section-title">📞 Suporte</div>
       <div class="support-channels" style="margin-bottom:24px">
@@ -1550,7 +1434,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div class="support-ch-sub">Tire dúvidas com outros usuários</div>
         </div>
       </div>
-
       <!-- ── FAQ ── -->
       <div class="prod-section-title">❓ Perguntas Frequentes</div>
       <div id="faqList">
@@ -1579,15 +1462,10 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div class="faq-a">Você ganha 30% de comissão recorrente por cada assinatura feita pelo seu link. Acesse a aba <strong>Afiliados</strong> para copiar seu link exclusivo.</div>
         </div>
       </div>
-
     </div>
-
-
-
     <!-- ══════════════════════════════════════════════════════════════ -->
     <!-- TAB: PRODUTOS PREMIUM (LTV)                                    -->
     <!-- ══════════════════════════════════════════════════════════════ -->
-
     <!-- ── MODAL ORÇAMENTO ── -->
     <div id="budgetModal" class="bmodal-overlay" style="display:none" onclick="if(event.target===this)closeBudgetModal()">
       <div class="bmodal">
@@ -1617,7 +1495,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         </div>
       </div>
     </div>
-
     <!-- ── MODAL AJUSTE EM LOTE ── -->
     <div id="batchModal" class="bmodal-overlay" style="display:none" onclick="if(event.target===this)closeBatchModal()">
       <div class="bmodal" style="max-width:560px">
@@ -1625,14 +1502,12 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div class="bmodal-title">📊 Ajuste em Lote</div>
           <button onclick="closeBatchModal()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;line-height:1">✕</button>
         </div>
-
         <!-- Abas CBO / ABO -->
         <div style="display:flex;gap:4px;background:var(--bg3);border-radius:10px;padding:4px;margin-bottom:16px">
           <button id="batchTabCBO" onclick="switchBatchTab('CBO')" style="flex:1;padding:9px;border-radius:7px;border:none;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;cursor:pointer;background:var(--blue);color:#fff;transition:.2s">🔵 CBO — Campanhas</button>
           <button id="batchTabABO" onclick="switchBatchTab('ABO')" style="flex:1;padding:9px;border-radius:7px;border:none;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--text2);transition:.2s">🟣 ABO — Conjuntos</button>
         </div>
         <div id="batchModeDesc" style="font-size:12px;color:var(--text2);margin-bottom:14px"></div>
-
         <!-- Porcentagem -->
         <div style="display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
           <input type="number" id="batchPercent" value="20" min="-90" max="500" step="1" style="width:90px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:18px;font-weight:700;font-family:'Sora',sans-serif;text-align:center;outline:none">
@@ -1646,10 +1521,8 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
             <button class="btn btn-red btn-sm" onclick="setBatchPct(-30)">-30%</button>
           </div>
         </div>
-
         <!-- Lista de itens -->
         <div id="batchItemList" style="max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:8px 12px"></div>
-
         <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
           <button class="btn btn-ghost btn-sm" onclick="toggleSelectAll(true)">Selecionar todos</button>
           <button class="btn btn-ghost btn-sm" onclick="toggleSelectAll(false)">Desmarcar todos</button>
@@ -1661,7 +1534,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         </div>
       </div>
     </div>
-
     <!-- ── IA CRIATIVA ── -->
     <div id="tab-creatives" class="tab-page">
       <div class="page-header">
@@ -1670,19 +1542,16 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div class="page-subtitle">Gere copies, variações de imagem e novas imagens com inteligência artificial</div>
         </div>
       </div>
-
       <!-- Mode Selector -->
       <div style="display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:5px;margin-bottom:24px;width:fit-content;">
         <button id="modeBtn-copy"   onclick="switchCreativeMode('copy')"   style="padding:10px 22px;border-radius:10px;border:none;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;background:var(--blue);color:#fff;">📝 Copy</button>
         <button id="modeBtn-imgvar" onclick="switchCreativeMode('imgvar')" style="padding:10px 22px;border-radius:10px;border:none;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;background:transparent;color:var(--text2);">🖼️ Variação de Imagem</button>
         <button id="modeBtn-imggen" onclick="switchCreativeMode('imggen')" style="padding:10px 22px;border-radius:10px;border:none;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;background:transparent;color:var(--text2);">🎨 Gerar por Prompt</button>
       </div>
-
       <!-- ── MODO COPY ── -->
       <div id="mode-copy">
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:24px;">
           <div style="font-size:15px;font-weight:700;font-family:'Sora',sans-serif;margin-bottom:20px;">📝 Gerar Variações de Copy</div>
-
           <!-- Campos de precisão -->
           <div style="background:var(--bg3);border-radius:12px;padding:18px;margin-bottom:20px;border:1px solid var(--border);">
             <div style="font-size:12px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;">🎯 Precisão do Criativo</div>
@@ -1722,7 +1591,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
               </div>
             </div>
           </div>
-
           <div class="form-group">
             <label>Texto / Copy atual (opcional se preencheu os campos acima)</label>
             <textarea id="creativeText" rows="4" placeholder="Cole o texto do seu anúncio atual ou descreva mais sobre o produto..." style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;font-family:'Montserrat',sans-serif;outline:none;resize:vertical;transition:.2s;line-height:1.6;"></textarea>
@@ -1755,7 +1623,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div id="creativesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px;"></div>
         </div>
       </div>
-
       <!-- ── MODO VARIAÇÃO DE IMAGEM ── -->
       <div id="mode-imgvar" style="display:none;">
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:24px;">
@@ -1798,7 +1665,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div id="imgvarGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;"></div>
         </div>
       </div>
-
       <!-- ── MODO GERAR POR PROMPT ── -->
       <div id="mode-imggen" style="display:none;">
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:24px;">
@@ -1839,7 +1705,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         </div>
       </div>
     </div>
-
     <!-- ── RELATÓRIOS ── -->
     <div id="tab-reports" class="tab-page">
       <div class="page-header">
@@ -1873,7 +1738,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       <div style="max-width:640px;margin-top:24px;">
         <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px;">📅 Relatório Automático via WhatsApp</div>
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;">
-
           <!-- MODO VISUALIZAÇÃO -->
           <div id="reportScheduleView">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
@@ -1884,11 +1748,9 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
               <span style="color:var(--text3);">Carregando...</span>
             </div>
           </div>
-
           <!-- MODO EDIÇÃO (oculto por padrão) -->
           <div id="reportScheduleForm" style="display:none;">
             <div style="font-size:13px;color:var(--text2);margin-bottom:16px;">Configure quantas vezes por dia você quer receber o relatório automático no WhatsApp.</div>
-
             <div style="margin-bottom:16px;">
               <label style="font-size:12px;color:var(--text2);font-weight:600;display:block;margin-bottom:8px;">Frequência diária</label>
               <select id="reportFreqSelect" onchange="updateReportTimeSlots()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;width:100%;font-family:'Montserrat',sans-serif;outline:none;">
@@ -1898,12 +1760,10 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
                 <option value="3">3x por dia</option>
               </select>
             </div>
-
             <div id="reportTimeSlots" style="display:none;margin-bottom:16px;">
               <label style="font-size:12px;color:var(--text2);font-weight:600;display:block;margin-bottom:8px;">Horários de envio</label>
               <div id="reportTimeSlotsInputs" style="display:flex;flex-direction:column;gap:8px;"></div>
             </div>
-
             <div style="margin-bottom:16px;">
               <label style="font-size:12px;color:var(--text2);font-weight:600;display:block;margin-bottom:8px;">📅 Período do relatório</label>
               <div style="display:flex;gap:8px;">
@@ -1913,18 +1773,15 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
               </div>
               <input type="hidden" id="reportDaysValue" value="7">
             </div>
-
             <div style="display:flex;gap:8px;">
               <button class="btn btn-blue" onclick="saveReportSchedule()" style="flex:1;padding:11px;">💾 Salvar agendamento</button>
               <button class="btn btn-ghost" onclick="cancelReportScheduleEdit()" style="padding:11px 16px;">✕</button>
             </div>
             <div id="reportScheduleMsg" style="margin-top:8px;font-size:12px;text-align:center;"></div>
           </div>
-
         </div>
       </div>
     </div>
-
     <!-- ── IA INSIGHTS ── -->
     <div id="tab-insights" class="tab-page">
       <!-- ── HEADER ── -->
@@ -1946,7 +1803,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           </button>
         </div>
       </div>
-
       <!-- ── CONTEÚDO PRINCIPAL ── -->
       <div id="insightContent">
         <div class="empty-state">
@@ -1957,7 +1813,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         </div>
       </div>
     </div>
-
     <!-- ── BENCHMARKS ── -->
     <div id="tab-benchmarks" class="tab-page">
       <div class="page-header">
@@ -1973,7 +1828,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <option value="aplicativos">📱 Aplicativos / SaaS</option>
         </select>
       </div>
-
       <!-- Score geral -->
       <div id="benchOverall" style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:24px;display:flex;align-items:center;gap:28px;">
         <div id="benchGradeCircle" style="width:90px;height:90px;border-radius:50%;background:var(--bg3);border:3px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;">
@@ -1992,10 +1846,8 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div style="font-size:11px;color:var(--text3)">/100</div>
         </div>
       </div>
-
       <!-- Cards de métricas -->
       <div id="benchMetrics" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;"></div>
-
       <!-- Legenda -->
       <div style="margin-top:24px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px;">
         <div style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px">Legenda de Notas</div>
@@ -2008,7 +1860,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         </div>
       </div>
     </div>
-
     <!-- ── INTEGRAÇÕES ── -->
     <div id="tab-integrations" class="tab-page">
       <div class="page-header">
@@ -2017,7 +1868,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div class="page-subtitle">Conecte todas as suas plataformas em um só lugar</div>
         </div>
       </div>
-
       <!-- ── FILTRO POR CATEGORIA ── -->
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;background:var(--bg2);padding:6px;border-radius:12px;border:1px solid var(--border);">
         <button class="int-cat-btn active" onclick="filterIntCategory('todos', this)">🔗 Todos</button>
@@ -2028,10 +1878,8 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         <button class="int-cat-btn" onclick="filterIntCategory('crm', this)">🎯 CRM</button>
         <button class="int-cat-btn" onclick="filterIntCategory('erp', this)">📊 ERP / Gestão</button>
       </div>
-
       <!-- ── ANÚNCIOS ── -->
       <div class="int-section-label int-cat-section" data-cat="anuncios">📣 Anúncios</div>
-
       <!-- Meta Ads -->
       <div class="int-pcard" id="pcard-meta_ads" data-cat="anuncios">
         <div class="int-pcard-header" onclick="togglePlatformCard('meta_ads')">
@@ -2068,10 +1916,8 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           </div>
         </div>
       </div>
-
       <!-- ── CHECKOUTS ── -->
       <div class="int-section-label int-cat-section" data-cat="checkouts" style="margin-top:24px">🛒 Checkouts</div>
-
       <!-- Hotmart -->
       <div class="int-pcard" id="pcard-hotmart" data-cat="checkouts">
         <div class="int-pcard-header" onclick="togglePlatformCard('hotmart')">
@@ -2105,7 +1951,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           </div>
         </div>
       </div>
-
       <!-- Kiwify -->
       <div class="int-pcard" id="pcard-kiwify" data-cat="checkouts">
         <div class="int-pcard-header" onclick="togglePlatformCard('kiwify')">
@@ -2135,7 +1980,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <button class="btn btn-blue btn-sm" onclick="connectKiwify()">⚡ Conectar Kiwify</button>
         </div>
       </div>
-
       <!-- Kirvano -->
       <div class="int-pcard" id="pcard-kirvano" data-cat="checkouts">
         <div class="int-pcard-header" onclick="togglePlatformCard('kirvano')">
@@ -2171,7 +2015,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <button class="btn btn-ghost btn-sm" onclick="connectKirvano()">⚡ Gerar URL do Webhook</button>
         </div>
       </div>
-
       <!-- Eduzz -->
       <div class="int-pcard" id="pcard-eduzz" data-cat="checkouts">
         <div class="int-pcard-header" onclick="togglePlatformCard('eduzz')">
@@ -2207,7 +2050,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <button class="btn btn-ghost btn-sm" onclick="connectWebhookPlatform('eduzz')">⚡ Gerar URL do Webhook</button>
         </div>
       </div>
-
       <!-- Monetizze -->
       <div class="int-pcard" id="pcard-monetizze" data-cat="checkouts">
         <div class="int-pcard-header" onclick="togglePlatformCard('monetizze')">
@@ -2242,7 +2084,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <button class="btn btn-ghost btn-sm" onclick="connectWebhookPlatform('monetizze')">⚡ Gerar URL do Webhook</button>
         </div>
       </div>
-
       <!-- Braip -->
       <div class="int-pcard" id="pcard-braip" data-cat="checkouts">
         <div class="int-pcard-header" onclick="togglePlatformCard('braip')">
@@ -2277,7 +2118,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <button class="btn btn-ghost btn-sm" onclick="connectWebhookPlatform('braip')">⚡ Gerar URL do Webhook</button>
         </div>
       </div>
-
       <!-- PerfectPay -->
       <div class="int-pcard" id="pcard-perfectpay" data-cat="checkouts">
         <div class="int-pcard-header" onclick="togglePlatformCard('perfectpay')">
@@ -2312,7 +2152,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <button class="btn btn-ghost btn-sm" onclick="connectWebhookPlatform('perfectpay')">⚡ Gerar URL do Webhook</button>
         </div>
       </div>
-
       <!-- Ticto -->
       <div class="int-pcard" id="pcard-ticto" data-cat="checkouts">
         <div class="int-pcard-header" onclick="togglePlatformCard('ticto')">
@@ -2347,7 +2186,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <button class="btn btn-ghost btn-sm" onclick="connectWebhookPlatform('ticto')">⚡ Gerar URL do Webhook</button>
         </div>
       </div>
-
       <!-- ── MAIS ANÚNCIOS (em breve) ── -->
       <div class="int-soon-grid int-cat-section" data-cat="anuncios" style="margin-top:8px">
         <div class="int-soon-card"><div class="int-soon-logo" style="background:#000">▶</div><div class="int-soon-name">TikTok Ads</div><span class="int-soon-tag">Em breve</span></div>
@@ -2357,10 +2195,8 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         <div class="int-soon-card"><div class="int-soon-logo" style="background:#ff6600">T</div><div class="int-soon-name">Taboola Ads</div><span class="int-soon-tag">Em breve</span></div>
         <div class="int-soon-card"><div class="int-soon-logo" style="background:#006699">O</div><div class="int-soon-name">Outbrain Ads</div><span class="int-soon-tag">Em breve</span></div>
       </div>
-
       <!-- ── GATEWAYS DE PAGAMENTO ── -->
       <div class="int-section-label int-cat-section" data-cat="gateways" style="margin-top:28px">💳 Gateways de Pagamento</div>
-
       <!-- Mercado Pago -->
       <div class="int-pcard int-cat-section" id="pcard-mercadopago" data-cat="gateways">
         <div class="int-pcard-header" onclick="togglePlatformCard('mercadopago')">
@@ -2399,7 +2235,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <button class="btn btn-primary btn-sm" onclick="connectGateway('mercadopago', {access_token: document.getElementById('mp-token').value}, 'mercadopagoMsg', 'mpWebhookArea', 'mpWebhookUrl')">⚡ Conectar Mercado Pago</button>
         </div>
       </div>
-
       <!-- Stripe -->
       <div class="int-pcard int-cat-section" id="pcard-stripe" data-cat="gateways">
         <div class="int-pcard-header" onclick="togglePlatformCard('stripe')">
@@ -2442,7 +2277,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <button class="btn btn-primary btn-sm" onclick="connectGateway('stripe', {secret_key: document.getElementById('stripe-secret').value, webhook_secret: document.getElementById('stripe-wsecret').value}, 'stripeMsg', 'stripeWebhookArea', 'stripeWebhookUrl')">⚡ Conectar Stripe</button>
         </div>
       </div>
-
       <!-- PagSeguro -->
       <div class="int-pcard int-cat-section" id="pcard-pagseguro" data-cat="gateways">
         <div class="int-pcard-header" onclick="togglePlatformCard('pagseguro')">
@@ -2480,7 +2314,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <button class="btn btn-primary btn-sm" onclick="connectGateway('pagseguro', {token: document.getElementById('ps-token').value}, 'pagseguroMsg', 'pagseguroWebhookArea', 'pagseguroWebhookUrl')">⚡ Conectar PagSeguro</button>
         </div>
       </div>
-
       <!-- Asaas -->
       <div class="int-pcard int-cat-section" id="pcard-asaas" data-cat="gateways">
         <div class="int-pcard-header" onclick="togglePlatformCard('asaas')">
@@ -2518,7 +2351,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <button class="btn btn-primary btn-sm" onclick="connectGateway('asaas', {api_key: document.getElementById('asaas-key').value}, 'asaasMsg', 'asaasWebhookArea', 'asaasWebhookUrl')">⚡ Conectar Asaas</button>
         </div>
       </div>
-
       <!-- Pagar.me -->
       <div class="int-pcard int-cat-section" id="pcard-pagarme" data-cat="gateways">
         <div class="int-pcard-header" onclick="togglePlatformCard('pagarme')">
@@ -2556,14 +2388,12 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <button class="btn btn-primary btn-sm" onclick="connectGateway('pagarme', {secret_key: document.getElementById('pagarme-key').value}, 'pagarmeMsg', 'pagarmeWebhookArea', 'pagarmeWebhookUrl')">⚡ Conectar Pagar.me</button>
         </div>
       </div>
-
       <!-- Demais gateways em breve -->
       <div class="int-soon-grid int-cat-section" data-cat="gateways" style="margin-top:8px">
         <div class="int-soon-card"><div class="int-soon-logo" style="background:#003087">PP</div><div class="int-soon-name">PayPal</div><span class="int-soon-tag">Em breve</span></div>
         <div class="int-soon-card"><div class="int-soon-logo" style="background:#00b14f">PF</div><div class="int-soon-name">PagBank</div><span class="int-soon-tag">Em breve</span></div>
         <div class="int-soon-card"><div class="int-soon-logo" style="background:#142032">Sf</div><div class="int-soon-name">Safe2Pay</div><span class="int-soon-tag">Em breve</span></div>
       </div>
-
       <!-- ── E-COMMERCE ── -->
       <div class="int-section-label int-cat-section" data-cat="ecommerce" style="margin-top:28px">🏪 E-commerce</div>
       <div class="int-soon-grid int-cat-section" data-cat="ecommerce">
@@ -2574,7 +2404,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         <div class="int-soon-card"><div class="int-soon-logo" style="background:#f5a623">Tr</div><div class="int-soon-name">Tray</div><span class="int-soon-tag">Em breve</span></div>
         <div class="int-soon-card"><div class="int-soon-logo" style="background:#00c6d7">Lj</div><div class="int-soon-name">Lojas Virtuais</div><span class="int-soon-tag">Em breve</span></div>
       </div>
-
       <!-- ── CRM / AUTOMAÇÃO ── -->
       <div class="int-section-label int-cat-section" data-cat="crm" style="margin-top:28px">🎯 CRM e Automação</div>
       <div class="int-soon-grid int-cat-section" data-cat="crm">
@@ -2585,7 +2414,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         <div class="int-soon-card"><div class="int-soon-logo" style="background:#5433ff">Kl</div><div class="int-soon-name">Klaviyo</div><span class="int-soon-tag">Em breve</span></div>
         <div class="int-soon-card"><div class="int-soon-logo" style="background:#00a4ef">Br</div><div class="int-soon-name">Brevo</div><span class="int-soon-tag">Em breve</span></div>
       </div>
-
       <!-- ── ERP / GESTÃO ── -->
       <div class="int-section-label int-cat-section" data-cat="erp" style="margin-top:28px">📊 ERP e Gestão Financeira</div>
       <div class="int-soon-grid int-cat-section" data-cat="erp">
@@ -2596,9 +2424,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         <div class="int-soon-card"><div class="int-soon-logo" style="background:#1db954">Cx</div><div class="int-soon-name">Conta Azul</div><span class="int-soon-tag">Em breve</span></div>
         <div class="int-soon-card"><div class="int-soon-logo" style="background:#0061a8">Zr</div><div class="int-soon-name">Zero Finance</div><span class="int-soon-tag">Em breve</span></div>
       </div>
-
     </div>
-
     <!-- ── CONFIGURAÇÕES ── -->
     <div id="tab-settings" class="tab-page">
       <div class="page-header">
@@ -2608,7 +2434,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         </div>
         <div style="display:flex;gap:8px;"><button class="btn btn-blue" onclick="openSetupGuide()" style="font-size:12px;padding:9px 16px;">🚀 Guia de Conexão</button><button class="btn btn-ghost" onclick="toggleSettingsEdit()" id="settingsEditBtn">✏️ Editar</button></div>
       </div>
-
       <!-- MODO VISUALIZAÇÃO -->
       <div id="settingsView" style="max-width:640px;">
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:24px;">
@@ -2628,12 +2453,10 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
             <div id="viewWppStatus" style="font-size:11px;margin-top:4px;color:var(--text3);">sem notificações</div>
           </div>
         </div>
-
         <!-- Guia WhatsApp -->
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;">
           <div style="font-size:15px;font-weight:700;font-family:'Sora',sans-serif;margin-bottom:6px;">📲 Como conectar o WhatsApp</div>
           <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">Receba alertas de performance diretamente no seu WhatsApp. É gratuito e leva menos de 2 minutos.</div>
-
           <div style="display:flex;flex-direction:column;gap:14px;">
             <div style="display:flex;gap:14px;align-items:flex-start;">
               <div style="min-width:32px;height:32px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;flex-shrink:0;">1</div>
@@ -2643,7 +2466,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
                 <div style="font-size:12px;color:var(--text3);margin-top:6px;">Salve com o nome "CallMeBot" ou qualquer nome que preferir.</div>
               </div>
             </div>
-
             <div style="display:flex;gap:14px;align-items:flex-start;">
               <div style="min-width:32px;height:32px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;flex-shrink:0;">2</div>
               <div>
@@ -2652,7 +2474,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
                 <div style="font-size:12px;color:var(--text3);margin-top:6px;">Envie exatamente assim, em inglês, pelo WhatsApp.</div>
               </div>
             </div>
-
             <div style="display:flex;gap:14px;align-items:flex-start;">
               <div style="min-width:32px;height:32px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;flex-shrink:0;">3</div>
               <div>
@@ -2661,7 +2482,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
                 <div style="font-size:12px;color:var(--text3);margin-top:4px;">Pode levar alguns segundos. Se não chegar, tente reenviar a mensagem.</div>
               </div>
             </div>
-
             <div style="display:flex;gap:14px;align-items:flex-start;">
               <div style="min-width:32px;height:32px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;flex-shrink:0;">4</div>
               <div>
@@ -2672,7 +2492,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           </div>
         </div>
       </div>
-
       <!-- MODO EDIÇÃO (oculto por padrão) -->
       <div id="settingsForm" style="display:none;max-width:600px;">
         <div class="card">
@@ -2685,7 +2504,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
             <label>ROAS Target — Retorno mínimo desejado</label>
             <input type="number" id="settingRoas" placeholder="Ex: 2.0" step="0.1">
           </div>
-
           <div class="card-title" style="margin-top:24px">📲 WhatsApp & Notificações</div>
           <div class="form-group">
             <label>Seu número de WhatsApp (com DDI)</label>
@@ -2697,7 +2515,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
             <input type="text" id="settingWhatsappKey" placeholder="Ex: 1234567">
             <div class="hint">Siga o guia acima para obter sua chave gratuita em 2 minutos.</div>
           </div>
-
           <div class="card-title" style="margin-top:24px">📡 Meta CAPI — Rastreamento Server-Side</div>
           <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6;">
             Configure seu Pixel e Token de Acesso do Meta para que a IPPMIFY envie eventos de <strong>Purchase</strong> server-side ao seu pixel toda vez que uma venda for registrada nos seus webhooks (Kirvano, Hotmart, Eduzz, Stripe etc.)
@@ -2715,13 +2532,11 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div style="background:var(--bg3);border-radius:10px;padding:14px 16px;font-size:12px;color:var(--text3);margin-bottom:8px;line-height:1.6;">
             🔒 O token é armazenado de forma segura e usado apenas para enviar eventos ao <em>seu</em> pixel. A IPPMIFY nunca compartilha suas credenciais.
           </div>
-
           <!-- ── CAPI Proxy — Rastreamento de Funil Completo ── -->
           <div class="card-title" style="margin-top:28px">🔗 CAPI Proxy — Rastreamento de Funil</div>
           <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6;">
             Rastreie <strong>PageView, ViewContent, InitiateCheckout e Purchase</strong> server-side no seu Pixel via IPPMIFY. Cole o snippet JS nas páginas do seu funil — funciona em qualquer plataforma (ClickFunnels, WordPress, Hotmart Pages, Loja Integrada etc.)
           </div>
-
           <!-- Chave de API -->
           <div class="form-group">
             <label>Chave de API Pública (CAPI)</label>
@@ -2735,7 +2550,6 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
             </div>
             <div class="hint">Esta chave é <strong>pública</strong> — pode ficar visível no código do site. Rotacione se suspeitar de abuso.</div>
           </div>
-
           <!-- Snippet JS -->
           <div id="capiSnippetSection" style="display:none;margin-top:4px;">
             <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;">
@@ -2749,23 +2563,18 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
                       border:1px solid var(--border);border-radius:6px;padding:4px 10px;
                       font-size:11px;color:var(--text2);cursor:pointer;">Copiar</button>
             </div>
-
             <!-- Exemplos de uso -->
             <div style="font-size:12px;font-weight:600;color:var(--text2);margin:14px 0 8px;">Exemplos de disparo no seu funil:</div>
             <pre style="background:var(--bg3);border-radius:8px;padding:12px 16px;font-size:10.5px;
                  font-family:monospace;color:var(--text3);margin:0;border:1px solid var(--border);
                  white-space:pre-wrap;line-height:1.65;">// Página de vendas (scroll ou tempo na página):
 window.ippmify('track', 'ViewContent', { content_name: 'Curso X', value: 97.00, currency: 'BRL' });
-
 // Clique no botão de compra / entrada no checkout:
 window.ippmify('track', 'InitiateCheckout', { value: 97.00, currency: 'BRL' });
-
 // Página de obrigado / confirmação de compra:
 window.ippmify('track', 'Purchase', { value: 97.00, currency: 'BRL', order_id: '12345' });
-
 // Capturar e-mail do lead (melhora o match rate no Meta):
 window.ippmify('setUser', { email: 'lead@email.com', phone: '5511999999999' });</pre>
-
             <!-- API Direta (para devs) -->
             <details style="margin-top:12px;">
               <summary style="font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;user-select:none;">
@@ -2775,7 +2584,6 @@ window.ippmify('setUser', { email: 'lead@email.com', phone: '5511999999999' });<
                    font-family:monospace;color:var(--text3);margin:8px 0 0;border:1px solid var(--border);
                    white-space:pre-wrap;line-height:1.65;">POST /api/s/SUA_CHAVE/event
 Content-Type: application/json
-
 {
   "event_name": "Purchase",
   "event_source_url": "https://seusite.com/obrigado",
@@ -2795,7 +2603,6 @@ Content-Type: application/json
               <div class="hint" style="margin-top:6px;">O campo <code>em</code> e <code>ph</code> são enviados em texto plano — o servidor faz o hash SHA-256 antes de encaminhar ao Meta.</div>
             </details>
           </div>
-
           <div id="settingsMsg" style="margin-bottom:8px;margin-top:16px;"></div>
           <div style="display:flex;gap:10px;">
             <button class="btn btn-ghost" onclick="toggleSettingsEdit()">Cancelar</button>
@@ -2804,8 +2611,6 @@ Content-Type: application/json
         </div>
       </div>
     </div>
-
-
     <!-- ── MEU PLANO ── -->
     <div id="tab-plan" class="tab-page">
       <div class="page-header">
@@ -2814,7 +2619,6 @@ Content-Type: application/json
           <div class="page-subtitle">Assinatura, pagamentos e gerenciamento</div>
         </div>
       </div>
-
       <!-- Hero do plano -->
       <div id="planHero" class="plan-hero ph-trial">
         <div class="plan-hero-icon" id="planHeroIcon">⏱️</div>
@@ -2825,7 +2629,6 @@ Content-Type: application/json
           <div class="plan-hero-actions" id="planHeroActions"></div>
         </div>
       </div>
-
       <!-- Cards de info -->
       <div class="plan-cards">
         <div class="plan-card">
@@ -2849,7 +2652,6 @@ Content-Type: application/json
           <div class="plan-card-sub">via Cakto</div>
         </div>
       </div>
-
       <!-- Gerenciar assinatura -->
       <div class="plan-section">
         <div class="plan-section-title">⚙️ Gerenciar assinatura</div>
@@ -2867,7 +2669,6 @@ Content-Type: application/json
           </div>
           <button class="btn btn-ghost" onclick="window.open('https://help.kirvano.com/hc/central-de-ajuda/articles/1765383202-alteracao-do-plano-forma-de-pagamento-da-assinatura?utm_source=chatgpt.com#como-cancelar-a-assinatura','_blank')" style="padding:9px 20px;font-size:13px;">Como cancelar →</button>
         </div>
-
         <div class="plan-action-row">
           <div>
             <div class="plan-action-label">Precisa de ajuda?</div>
@@ -2876,7 +2677,6 @@ Content-Type: application/json
           <button class="btn btn-ghost" onclick="openPlanSupport()" style="padding:9px 20px;font-size:13px;">💬 Suporte →</button>
         </div>
       </div>
-
       <!-- O que está incluso -->
       <div class="plan-section">
         <div class="plan-section-title">✅ O que está incluso no plano</div>
@@ -2926,15 +2726,12 @@ Content-Type: application/json
         </div>
       </div>
     </div>
-
     <!-- ─── ADMIN: Gerar link de trial por lead (visível só para admins) ─── -->
     <div id="adminDemoSection" style="display:none;margin-top:24px;">
-
       <!-- Bloco 1: Conceder trial a conta já cadastrada -->
       <div style="background:var(--bg2);border:1px solid #146ef530;border-radius:16px;padding:24px;margin-bottom:16px;">
         <div style="font-size:15px;font-weight:700;color:var(--accent);margin-bottom:4px;">⚡ Ativar trial em conta existente</div>
         <div style="font-size:12px;color:var(--text3);margin-bottom:18px;">Para leads que já se cadastraram mas ainda não têm acesso</div>
-
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
           <div style="flex:2;min-width:200px;">
             <div style="font-size:11px;color:var(--text3);margin-bottom:5px;">Email da conta</div>
@@ -2953,12 +2750,10 @@ Content-Type: application/json
         </div>
         <div id="grantTrialMsg" style="margin-top:10px;font-size:12px;"></div>
       </div>
-
       <!-- Bloco 2: Gerar link para novo cadastro -->
       <div style="background:var(--bg2);border:1px solid #146ef530;border-radius:16px;padding:24px;">
         <div style="font-size:15px;font-weight:700;color:var(--accent);margin-bottom:4px;">🔑 Gerar link de trial para novo cadastro</div>
         <div style="font-size:12px;color:var(--text3);margin-bottom:18px;">Cada link é de uso único — expira assim que o lead se cadastra</div>
-
         <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
           <input id="demoTokenLabel" type="text" placeholder="Nome do lead (ex: João Silva)" maxlength="100"
             style="flex:1;min-width:180px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:13px;outline:none;">
@@ -2967,7 +2762,6 @@ Content-Type: application/json
             Gerar link
           </button>
         </div>
-
         <!-- Resultado do link gerado -->
         <div id="demoTokenResult" style="display:none;background:var(--bg3);border:1px solid #146ef530;border-radius:10px;padding:14px;margin-bottom:16px;">
           <div style="font-size:11px;color:var(--text3);margin-bottom:6px;">Link gerado — compartilhe com o lead:</div>
@@ -2977,30 +2771,23 @@ Content-Type: application/json
           </div>
           <div id="demoTokenMeta" style="font-size:11px;color:var(--text3);margin-top:8px;"></div>
         </div>
-
         <!-- Histórico de tokens -->
         <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;">Tokens gerados</div>
         <div id="demoTokenList" style="display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto;">
           <div style="font-size:12px;color:var(--text3);padding:10px;text-align:center;">Carregando...</div>
         </div>
       </div>
-
     </div>
-
   </main>
 </div>
-
 <script>
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
 const API_URL = window.location.origin;
-
 // Setar URL do webhook da Kirvano
 const kirvanoInput = document.getElementById('kirvanoWebhookUrl');
 if (kirvanoInput) kirvanoInput.value = `${API_URL}/api/integrations/webhook/kirvano`;
-
 let token = localStorage.getItem('ippmify_token');
 let chartSR = null, chartDonut = null;
-
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 const api = async (method, path, body) => {
   const opts = { method, headers: { 'Content-Type': 'application/json' } };
@@ -3011,15 +2798,12 @@ const api = async (method, path, body) => {
   if (!res.ok) throw new Error(data.error || 'Erro desconhecido');
   return data;
 };
-
 const showMsg = (id, msg, type = 'error') => {
   const el = document.getElementById(id);
   if (el) el.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
 };
-
 const fmt  = (v) => `R$ ${Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
 const fmtN = (v, d=2) => Number(v||0).toFixed(d);
-
 // ─── AUTH ────────────────────────────────────────────────────────────────────
 function switchAuthTab(tab) {
   document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
@@ -3043,7 +2827,6 @@ function switchAuthTab(tab) {
     if (b) b.style.display = 'none';
   }
 }
-
 function togglePasswordVisibility(inputId, btn) {
   const input = document.getElementById(inputId);
   if (input.type === 'password') {
@@ -3054,21 +2837,17 @@ function togglePasswordVisibility(inputId, btn) {
     btn.textContent = '👁';
   }
 }
-
 function showForgotPassword() {
   document.getElementById('loginForm').style.display          = 'none';
   document.getElementById('forgotPasswordForm').style.display = 'block';
   document.getElementById('forgotMsg').innerHTML              = '';
 }
-
 function showLoginForm() {
   document.getElementById('forgotPasswordForm').style.display = 'none';
   document.getElementById('loginForm').style.display          = 'block';
 }
-
 // Token de reset lido da URL (?reset=TOKEN)
 let _resetToken = null;
-
 function showResetForm(token) {
   _resetToken = token;
   // Esconde tudo e mostra apenas o formulário de nova senha
@@ -3081,12 +2860,10 @@ function showResetForm(token) {
   const tabs = document.querySelector('.auth-tabs');
   if (tabs) tabs.style.display = 'none';
 }
-
 async function submitResetPassword() {
   const password  = document.getElementById('resetNewPassword').value;
   const confirm   = document.getElementById('resetConfirmPassword').value;
   const msgEl     = document.getElementById('resetMsg');
-
   if (!password || password.length < 8) {
     msgEl.innerHTML = '<div class="alert alert-error">A senha deve ter pelo menos 8 caracteres.</div>';
     return;
@@ -3099,7 +2876,6 @@ async function submitResetPassword() {
     msgEl.innerHTML = '<div class="alert alert-error">Token inválido. Solicite um novo link.</div>';
     return;
   }
-
   try {
     await api('POST', '/api/auth/reset-password', { token: _resetToken, password });
     msgEl.innerHTML = '<div class="alert alert-success">✅ Senha redefinida com sucesso! Redirecionando para o login...</div>';
@@ -3116,7 +2892,6 @@ async function submitResetPassword() {
     msgEl.innerHTML = `<div class="alert alert-error">${e.message || 'Erro ao redefinir senha. Solicite um novo link.'}</div>`;
   }
 }
-
 async function sendForgotPassword() {
   const email = document.getElementById('forgotEmail').value.trim();
   const msgEl = document.getElementById('forgotMsg');
@@ -3132,7 +2907,6 @@ async function sendForgotPassword() {
     msgEl.innerHTML = '<div class="alert alert-success">✅ Se esse email estiver cadastrado, você receberá as instruções em breve.</div>';
   }
 }
-
 async function login() {
   try {
     const data = await api('POST', '/api/auth/login', {
@@ -3145,7 +2919,6 @@ async function login() {
     initApp(data.user);
   } catch (e) { showMsg('loginMsg', e.message); }
 }
-
 async function register() {
   try {
     const payload = {
@@ -3155,16 +2928,13 @@ async function register() {
     };
     // Se vier de link de trial, envia o código para o backend ativar
     if (window._demoTrialCode) payload.trial_code = window._demoTrialCode;
-
     const data = await api('POST', '/api/auth/register', payload);
     token = data.accessToken;
     localStorage.setItem('ippmify_token', token);
     localStorage.setItem('ippmify_user', JSON.stringify(data.user));
     window._pendingUser = data.user;
-
     document.getElementById('registerForm').style.display    = 'none';
     document.getElementById('registerSuccess').style.display = 'block';
-
     if (data.is_trial) {
       // Trial: mostra tela de trial, vai direto ao app
       document.getElementById('regSuccessTrial').style.display  = 'block';
@@ -3178,12 +2948,10 @@ async function register() {
     }
   } catch (e) { showMsg('registerMsg', e.message); }
 }
-
 function enterAppAfterRegister() {
   const user = window._pendingUser || JSON.parse(localStorage.getItem('ippmify_user') || '{}');
   initApp(user);
 }
-
 function logout() {
   localStorage.removeItem('ippmify_token');
   localStorage.removeItem('ippmify_user');
@@ -3191,19 +2959,15 @@ function logout() {
   document.getElementById('authPage').style.display = 'flex';
   document.getElementById('appPage').style.display  = 'none';
 }
-
 // ─── APP INIT ────────────────────────────────────────────────────────────────
 let _planStatus = null;
 let _checkoutUrl = 'https://pay.kirvano.com/38e05652-22f6-494e-a97f-bd2e3f0aa034';
-
 async function initApp(user) {
   document.getElementById('authPage').style.display = 'none';
   document.getElementById('appPage').style.display  = 'flex';
-
   // Sidebar user info
   document.getElementById('sidebarUserName').textContent = user.name || user.email;
   document.getElementById('userInitials').textContent = (user.name || 'U').charAt(0).toUpperCase();
-
   // Restaurar foto do avatar
   const savedAvatar = localStorage.getItem('ippmify_avatar');
   if (savedAvatar) {
@@ -3213,7 +2977,6 @@ async function initApp(user) {
     img.src = savedAvatar;
     document.getElementById('userInitials').style.display = 'none';
   }
-
   // Buscar status do plano atualizado
   try {
     const { data } = await api('GET', '/api/auth/me');
@@ -3223,15 +2986,12 @@ async function initApp(user) {
       updateSidebarPlan(data.plan_status);
     }
   } catch(e) {}
-
   loadDashboard();
   loadDecisions();
   loadIntegrations();
-
   // Mostrar aviso de atualização de dados para assinantes ativos
   const notice = document.getElementById('dataNotice');
   if (notice && _planStatus === 'active') notice.style.display = 'flex';
-
   // Wizard para novos usuários
   const onboarded = localStorage.getItem('ippmify_onboarded');
   if (!onboarded) {
@@ -3241,7 +3001,6 @@ async function initApp(user) {
     } catch(e) {}
   }
 }
-
 function updateSidebarPlan(status) {
   const el = document.getElementById('sidebarUserPlan');
   if (!el) return;
@@ -3253,21 +3012,17 @@ function updateSidebarPlan(status) {
   };
   el.textContent = labels[status] || status;
 }
-
 function showTrialBanner(data) {
   const banner    = document.getElementById('trialBanner');
   if (!banner) return;
-
   const status    = data.plan_status;
   const dismissed = sessionStorage.getItem('trial_banner_dismissed');
-
   // ── TRIAL: mostra banner com contagem regressiva ─────────────────────────
   if (status === 'trial' && data.trial_expires_at && !dismissed) {
     const exp      = new Date(data.trial_expires_at);
     const now      = new Date();
     const daysLeft = Math.max(0, Math.ceil((exp - now) / (1000 * 60 * 60 * 24)));
     const label    = daysLeft === 1 ? '1 dia restante' : `${daysLeft} dias restantes`;
-
     banner.style.display = 'flex';
     banner.className     = 'trial-banner tb-trial';
     banner.innerHTML     = `
@@ -3281,7 +3036,6 @@ function showTrialBanner(data) {
       </div>`;
     return;
   }
-
   // ── PLANO ATIVO prestes a vencer: banner de renovação ────────────────────
   if (status === 'active' && data.plan_expires_at) {
     const exp      = new Date(data.plan_expires_at);
@@ -3298,37 +3052,29 @@ function showTrialBanner(data) {
       return;
     }
   }
-
   banner.style.display = 'none';
-
   // ── Bloquear acesso se não tiver plano ativo nem trial ───────────────────
   if (status !== 'active' && status !== 'trial') {
     showPlanLock();
   }
 }
-
 function showPlanLock() {
   document.getElementById('planLockOverlay')?.classList.add('visible');
 }
-
 function hidePlanLock() {
   document.getElementById('planLockOverlay')?.classList.remove('visible');
 }
-
-
 function dismissTrialBanner() {
   sessionStorage.setItem('trial_banner_dismissed', '1');
   const banner = document.getElementById('trialBanner');
   if (banner) banner.style.display = 'none';
 }
-
 function openUpgrade() {
   const url = _checkoutUrl || 'https://ippmify.com/assinar';
   // Tracking: InitiateCheckout server-side
   track('InitiateCheckout', { content_name: 'IPPMIFY Mensal', value: 97, currency: 'BRL' });
   window.open(url, '_blank');
 }
-
 // ─── TRACKING META CAPI (server-side) ────────────────────────────────────────
 // Envia evento para o backend que repassa ao Meta Conversions API.
 // Fire-and-forget: nunca bloqueia a UX, nunca lança erro.
@@ -3345,7 +3091,6 @@ function track(eventName, customData = {}) {
     }),
   }).catch(() => {}); // silencioso
 }
-
 function uploadAvatar(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -3361,11 +3106,8 @@ function uploadAvatar(event) {
   };
   reader.readAsDataURL(file);
 }
-
 // ─── TAB NAVIGATION ──────────────────────────────────────────────────────────
-
 // ── LOJA ────────────────────────────────────────────────────────────
-
 function storeNotify() {
   const email = document.getElementById('storeEmailInput')?.value?.trim();
   if (!email || !email.includes('@')) { alert('Informe um e-mail válido.'); return; }
@@ -3378,18 +3120,14 @@ function storeNotify() {
   // Opcional: enviar para backend
   api('POST', '/api/store/notify', { email }).catch(() => {});
 }
-
 function storeEarlyAccess(product) {
   const msg = encodeURIComponent(`Olá! Quero acesso antecipado a: ${product}. Pode me passar mais informações?`);
   window.open(`https://wa.me/5543996267951?text=${msg}`, '_blank');
 }
-
 // ── TUTORIAL / AFILIADOS / MARKETPLACE ────────────────────────────
-
 function toggleFaq(el) {
   el.classList.toggle('open');
 }
-
 async function initAffiliateTab() {
   try {
     const { data } = await api('GET', '/api/auth/me');
@@ -3409,7 +3147,6 @@ async function initAffiliateTab() {
     if (el) el.textContent = 'https://app.kirvano.com/affiliate/99c3a5da-5919-4a64-b408-0b5b137d227c';
   }
 }
-
 function copyAffLink() {
   const url = document.getElementById('affLinkUrl')?.textContent;
   if (!url) return;
@@ -3418,86 +3155,62 @@ function copyAffLink() {
     if (msg) { msg.style.display = 'block'; setTimeout(() => msg.style.display = 'none', 2000); }
   });
 }
-
 const _affCopies = {
   whatsapp: `🚀 IPPMIFY — O Sistema que Transforma Tráfego em Lucro Real
-
 A IPPMIFY não é apenas mais uma ferramenta… é um verdadeiro centro de inteligência de performance criado para afiliados, infoprodutores e media buyers que querem parar de operar no escuro e começar a escalar com dados reais.
-
 Enquanto a maioria ainda toma decisões baseadas em achismo, a IPPMIFY entrega:
 ✔️ Monitoramento de lucro em tempo real
 ✔️ Alertas automáticos de campanhas que estão queimando dinheiro
 ✔️ Insights inteligentes com base em dados reais
 ✔️ Recomendações práticas para aumentar ROI
 ✔️ Integração entre tráfego + vendas em um só lugar
-
 💡 O grande diferencial: A IPPMIFY não mostra só métricas… ela te diz exatamente o que fazer para lucrar mais e cria ofertas novas como copy/imagens, criativos etc.
-
 👉 Acesse agora: {LINK}`,
-
   pitch: `🚀 IPPMIFY — O Sistema que Transforma Tráfego em Lucro Real
-
 🔥 Por que vender a IPPMIFY é fácil?
 • Produto com alta dor (perder dinheiro no tráfego)
 • Mercado gigante (afiliados, dropshippers, gestores de tráfego, infoprodutores)
 • Ticket recorrente (ganhos mensais previsíveis)
 • Perfeito para criativos UGC, provas sociais e conteúdos de autoridade
-
 💰 Comissões e Potencial de Ganho
 Ao promover a IPPMIFY, você entra em um modelo de recorrência:
 👉 Você ganha todos os meses por cada cliente ativo
 Isso permite construir uma renda previsível e escalável.
-
 🎯 Para quem a IPPMIFY é perfeita?
 • Afiliados que já rodam tráfego pago
 • Iniciantes que querem evitar prejuízo
 • Infoprodutores que precisam escalar campanhas
 • Gestores que querem otimizar múltiplos clientes
-
 🔥 Resumo: Você não está vendendo um software… Você está vendendo clareza, controle e lucro no tráfego pago.
-
 Link: {LINK}`,
-
   objections: `⚠️ Objeções mais comuns e como rebater:
-
 "Já uso o Gerenciador da Meta"
 → O Gerenciador não te mostra lucro real. A IPPMIFY integra tráfego + vendas e te mostra exatamente quanto você está ganhando (ou perdendo) em cada campanha.
-
 "É caro"
 → O quanto você perde por não saber qual campanha está queimando dinheiro? A IPPMIFY paga sozinha na primeira otimização.
-
 "Não tenho tempo para aprender"
 → Leva 5 minutos para conectar. O dashboard é visual e direto — sem configuração complexa.
-
 "Já tenho outras ferramentas"
 → Nenhuma delas integra tráfego + vendas + IA em um só lugar. A IPPMIFY é a camada de inteligência que faltava.`,
-
   audience: `🎯 Perfil ideal para indicar a IPPMIFY:
-
 ✅ Gestores de tráfego com múltiplos clientes
 ✅ Afiliados que rodam tráfego pago
 ✅ Infoprodutores e lançadores
 ✅ Empreendedores que investem R$1k+/mês em anúncios
 ✅ Dropshippers e e-commerces com campanhas ativas
 ✅ Agências de marketing digital
-
 ⚠️ Importante: A IPPMIFY é um produto premium, voltado para quem quer resultado de verdade. Foque em comunicar lucro, controle e escala — não apenas "ferramenta".
-
 Evite: quem ainda não tem anúncios rodando ou não tem budget de mídia.`,
 };
-
 function copyAffCopy(type) {
   const text = (_affCopies[type] || '').replace('{LINK}', '[COLOQUE SEU LINK DE AFILIADO AQUI]');
   navigator.clipboard.writeText(text).then(() => alert('✅ Copiado! Cole onde quiser.'));
 }
-
-
 function showTab(name) {
   document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById(`tab-${name}`)?.classList.add('active');
   document.getElementById(`nav-${name}`)?.classList.add('active');
-
   // Controle de acesso: ativo e trial têm acesso completo; pending/expired só veem Meu Plano
   const hasAccess = _planStatus === 'active' || _planStatus === 'trial';
   if (!hasAccess) {
@@ -3510,7 +3223,6 @@ function showTab(name) {
   } else {
     hidePlanLock();
   }
-
   if (name === 'affiliates') initAffiliateTab();
   if (name === 'decisions')   loadDecisionsTab();
   if (name === 'campaigns')   { loadCampAccountSelector().then(loadCampaigns); }
@@ -3521,33 +3233,27 @@ function showTab(name) {
   if (name === 'plan')        loadPlanTab();
   if (name === 'reports')     loadReportSchedule();
   // creatives tab has no auto-load (it's a generator)
-
   // Tracking: ViewContent em abas estratégicas
   const trackableTabs = { dashboard: 'Dashboard', integrations: 'Integrações', campaigns: 'Campanhas', reports: 'Relatórios' };
   if (trackableTabs[name]) {
     track('ViewContent', { content_name: trackableTabs[name], content_category: 'app_tab' });
   }
 }
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // INTEGRATIONS
 // ═══════════════════════════════════════════════════════════════════════════════
-
 let _integrationMap = {};
 const WEBHOOK_PLATFORMS = ['kirvano','eduzz','monetizze','braip','perfectpay','ticto'];
-
 function togglePlatformCard(platform) {
   const body = document.getElementById(`body-${platform}`);
   if (!body) return;
   const isOpen = body.style.display !== 'none';
   body.style.display = isOpen ? 'none' : 'block';
 }
-
 function updatePlatformUI(platform, integrations) {
   // integrations = array of integration rows for this platform
   const badge  = document.getElementById(`badge-${platform}`);
   const toggle = document.getElementById(`toggle-${platform}`);
-
   if (platform === 'meta_ads') {
     // Multi-account: list each account
     const list = document.getElementById('metaAccountsList');
@@ -3577,7 +3283,6 @@ function updatePlatformUI(platform, integrations) {
       </div>`).join('');
     return;
   }
-
   // Single-integration platforms
   const integration = integrations && integrations[0];
   if (!integration) {
@@ -3585,9 +3290,7 @@ function updatePlatformUI(platform, integrations) {
     if (toggle) toggle.style.display = 'none';
     return;
   }
-
   _integrationMap[platform] = integration;
-
   if (badge) {
     badge.textContent = integration.is_active ? '● Conectado' : '● Inativo';
     badge.className   = `int-badge ${integration.is_active ? 'connected' : 'inactive'}`;
@@ -3597,38 +3300,32 @@ function updatePlatformUI(platform, integrations) {
     toggle.textContent   = integration.is_active ? '⏸ Desativar' : '▶ Ativar';
     toggle.className     = `int-toggle-btn ${integration.is_active ? 'active' : ''}`;
   }
-
   // Webhook URL for webhook-based platforms
   if (WEBHOOK_PLATFORMS.includes(platform)) {
     const input = document.getElementById(`${platform}WebhookUrl`);
     if (input) input.value = `${window.location.origin}/api/hook/webhook/${platform}`;
   }
 }
-
 async function loadIntegrations() {
   try {
     const { data } = await api('GET', '/api/integrations');
     if (!data) return;
-
     // Group by platform
     const grouped = {};
     data.forEach(i => {
       if (!grouped[i.platform]) grouped[i.platform] = [];
       grouped[i.platform].push(i);
     });
-
     // Update UI for all platforms
     const allPlatforms = ['meta_ads','hotmart','kiwify','kirvano','eduzz','monetizze','braip','perfectpay','ticto',
                           'mercadopago','stripe','pagseguro','asaas','pagarme'];
     allPlatforms.forEach(p => updatePlatformUI(p, grouped[p] || []));
-
     // Store for account selector usage elsewhere
     window._allIntegrations = data;
   } catch(e) {
     console.error('[loadIntegrations]', e.message);
   }
 }
-
 async function toggleIntegration(platform) {
   const integration = _integrationMap[platform];
   if (!integration) return;
@@ -3640,7 +3337,6 @@ async function toggleIntegration(platform) {
     alert('Erro ao alternar integração: ' + e.message);
   }
 }
-
 async function toggleMetaAccount(id) {
   try {
     await api('PATCH', `/api/integrations/${id}/toggle`);
@@ -3656,7 +3352,6 @@ async function toggleMetaAccount(id) {
     alert('Erro ao alternar conta: ' + e.message);
   }
 }
-
 async function removeIntegration(id) {
   if (!confirm('Remover esta integração permanentemente?')) return;
   try {
@@ -3666,7 +3361,6 @@ async function removeIntegration(id) {
     alert('Erro ao remover: ' + e.message);
   }
 }
-
 async function connectWebhookPlatform(platform) {
   try {
     const { message } = await api('POST', `/api/integrations/${platform}/connect`);
@@ -3685,7 +3379,6 @@ async function connectWebhookPlatform(platform) {
     alert('Erro: ' + e.message);
   }
 }
-
 // Conectar gateway de pagamento (Mercado Pago, Stripe, Asaas, etc)
 async function connectGateway(platform, body, msgId, webhookAreaId, webhookInputId) {
   const msgEl = document.getElementById(msgId);
@@ -3710,7 +3403,6 @@ async function connectGateway(platform, body, msgId, webhookAreaId, webhookInput
     if (msgEl) msgEl.innerHTML = `<div class="int-msg err">❌ ${e.message}</div>`;
   }
 }
-
 function copyWebhook(inputId) {
   const input = document.getElementById(inputId);
   if (!input) return;
@@ -3719,7 +3411,6 @@ function copyWebhook(inputId) {
     if (btn) { btn.textContent = '✅ Copiado!'; setTimeout(() => { btn.textContent = '📋 Copiar'; }, 2000); }
   });
 }
-
 async function connectMetaToken() {
   const token_val = document.getElementById('metaAccessToken')?.value?.trim();
   const account   = document.getElementById('metaAdAccountId')?.value?.trim();
@@ -3760,7 +3451,6 @@ async function connectMetaToken() {
     btn.disabled = false;
   }
 }
-
 async function syncMeta() {
   const msgEl = document.getElementById('metaMsg');
   const btn = event?.target;
@@ -3786,7 +3476,6 @@ async function syncMeta() {
     if (btn) { btn.innerHTML = '↻ Sincronizar'; btn.disabled = false; }
   }
 }
-
 async function connectHotmart() {
   const client_id     = document.getElementById('hotmartClientId')?.value?.trim();
   const client_secret = document.getElementById('hotmartClientSecret')?.value?.trim();
@@ -3807,7 +3496,6 @@ async function connectHotmart() {
     btn.disabled = false;
   }
 }
-
 async function connectKiwify() {
   const api_key = document.getElementById('kiwifyApiKey')?.value?.trim();
   if (!api_key) { alert('Informe a API Key.'); return; }
@@ -3826,7 +3514,6 @@ async function connectKiwify() {
     btn.disabled = false;
   }
 }
-
 async function connectKirvano() {
   try {
     const { message } = await api('POST', '/api/integrations/kirvano/connect');
@@ -3843,14 +3530,11 @@ async function connectKirvano() {
     alert('Erro: ' + e.message);
   }
 }
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // CAMPAIGNS
 // ═══════════════════════════════════════════════════════════════════════════════
-
 let _campData = [], _selectedCampId = null, _selectedSetId = null, _budgetCtx = {}, _campFilter = 'all';
 let _batchMode = 'CBO';
-
 async function loadCampAccountSelector() {
   const sel = document.getElementById('campAccount');
   if (!sel) return;
@@ -3867,7 +3551,6 @@ async function loadCampAccountSelector() {
     sel.innerHTML = '<option value="">Erro ao carregar</option>';
   }
 }
-
 async function loadCampaigns() {
   const campList   = document.getElementById('campListContent');
   const detailPanel = document.getElementById('campDetailPanel');
@@ -3876,30 +3559,25 @@ async function loadCampaigns() {
   if (detailPanel) detailPanel.innerHTML = '';
   _campData = [];
   _selectedCampId = null;
-
   const period        = document.getElementById('campPeriod')?.value || '7';
   const integrationId = document.getElementById('campAccount')?.value || '';
-
   try {
     let url = `/api/metrics/tree?period=${period}`;
     if (integrationId) url += `&integration_id=${integrationId}`;
     const { data } = await api('GET', url);
     _campData = data || [];
-
     // KPIs
     const totSpend = _campData.reduce((s,c)=>s+(c.spend||0),0);
     const totRev   = _campData.reduce((s,c)=>s+(c.revenue||0),0);
     const totRoas  = totSpend > 0 ? totRev / totSpend : 0;
     const totCpa   = _campData.reduce((s,c)=>s+(c.conversions||0),0) > 0
       ? totSpend / _campData.reduce((s,c)=>s+(c.conversions||0),0) : 0;
-
     const kpiEl = document.getElementById('campKpis');
     if (kpiEl) kpiEl.innerHTML = `
       <div class="camp-kpi"><div class="camp-kpi-label">💸 Gasto</div><div class="camp-kpi-value blue">${fmt(totSpend)}</div></div>
       <div class="camp-kpi"><div class="camp-kpi-label">💰 Receita</div><div class="camp-kpi-value green">${fmt(totRev)}</div></div>
       <div class="camp-kpi"><div class="camp-kpi-label">📈 ROAS</div><div class="camp-kpi-value ${totRoas>=2?'green':totRoas>=1?'orange':'red'}">${fmtN(totRoas)}x</div></div>
       <div class="camp-kpi"><div class="camp-kpi-label">🎯 CPA</div><div class="camp-kpi-value">${fmt(totCpa)}</div></div>`;
-
     // Atualizar contadores das abas
     const nAll    = _campData.length;
     const nActive = _campData.filter(c => c.status === 'ACTIVE').length;
@@ -3910,13 +3588,11 @@ async function loadCampaigns() {
     if (allEl) allEl.textContent = nAll;
     if (actEl) actEl.textContent = nActive;
     if (pauEl) pauEl.textContent = nPaused;
-
     renderCampList();
   } catch(e) {
     campList.innerHTML = `<div class="alert alert-error" style="margin:16px">${e.message}</div>`;
   }
 }
-
 function setCampFilter(f) {
   _campFilter = f;
   ['all','active','paused'].forEach(id => {
@@ -3929,22 +3605,18 @@ function setCampFilter(f) {
   if (dp) dp.innerHTML = '<div class="camp-detail-empty"><div class="de-icon">📢</div><div style="font-size:14px;font-weight:600;color:var(--text2)">Selecione uma campanha</div><div style="font-size:12px">Clique em uma campanha para ver conjuntos e anúncios</div></div>';
   _selectedCampId = null;
 }
-
 function renderCampList() {
   const campList = document.getElementById('campListContent');
   if (!campList) return;
-
   let filtered = _campData;
   if (_campFilter === 'active') filtered = _campData.filter(c => c.status === 'ACTIVE');
   if (_campFilter === 'paused') filtered = _campData.filter(c => c.status === 'PAUSED');
-
   if (filtered.length === 0) {
     const icons = { active:'✅', paused:'⏸', all:'📊' };
     const labels = { active:'ativas', paused:'pausadas', all:'no período' };
     campList.innerHTML = `<div class="empty-state" style="padding:30px"><div class="cs-icon">${icons[_campFilter]}</div><p>Nenhuma campanha ${labels[_campFilter]}.</p></div>`;
     return;
   }
-
   campList.innerHTML = filtered.map(c => {
     const roas     = c.spend > 0 ? (c.revenue||0)/c.spend : 0;
     const dotClass = roas >= 2 ? 'green' : roas >= 1 ? 'yellow' : c.spend > 0 ? 'red' : 'gray';
@@ -3965,23 +3637,18 @@ function renderCampList() {
       </div>`;
   }).join('');
 }
-
 function selectCampaign(campId) {
   // Highlight
   document.querySelectorAll('.camp-list-item').forEach(el => el.classList.remove('selected'));
   const item = document.getElementById(`cli-${campId}`);
   if (item) item.classList.add('selected');
-
   _selectedCampId = campId;
   _selectedSetId  = null;
-
   const camp = _campData.find(c => c.id === campId);
   if (!camp) return;
-
   const isCBO = (camp.daily_budget > 0 || camp.lifetime_budget > 0);
   const roas  = camp.spend > 0 ? (camp.revenue||0)/camp.spend : 0;
   const cpa   = (camp.conversions||0) > 0 ? (camp.spend||0)/camp.conversions : 0;
-
   const adSetsHtml = (camp.ad_sets || []).map(s => {
     const sRoas = s.spend > 0 ? (s.revenue||0)/s.spend : 0;
     const hasBudget = (s.daily_budget > 0 || s.lifetime_budget > 0);
@@ -4011,7 +3678,6 @@ function selectCampaign(campId) {
       </td>
     </tr>`;
   }).join('');
-
   const dp = document.getElementById('campDetailPanel');
   if (!dp) return;
   dp.innerHTML = `
@@ -4055,16 +3721,13 @@ function selectCampaign(campId) {
     </div>` : '<div style="color:var(--text3);font-size:13px;padding:20px 0">Nenhum conjunto encontrado neste período.</div>'}
     <div id="adsSubPanel"></div>`;
 }
-
 function selectAdSet(campId, adSetId) {
   _selectedSetId = adSetId;
   const camp  = _campData.find(c => c.id === campId);
   const adSet = camp?.ad_sets?.find(s => s.id === adSetId);
   if (!adSet) return;
-
   const panel = document.getElementById('adsSubPanel');
   if (!panel) return;
-
   const adsHtml = (adSet.ads || []).map(a => {
     const aRoas = a.spend > 0 ? (a.revenue||0)/a.spend : 0;
     const isAdActive = a.status === 'ACTIVE';
@@ -4082,7 +3745,6 @@ function selectAdSet(campId, adSetId) {
       </td>
     </tr>`;
   }).join('');
-
   panel.innerHTML = `
     <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">📣 Anúncios — ${adSet.name}</div>
     ${adsHtml ? `<div style="overflow-x:auto;border:1px solid var(--border);border-radius:10px">
@@ -4098,7 +3760,6 @@ function selectAdSet(campId, adSetId) {
       </table>
     </div>` : '<div style="color:var(--text3);font-size:13px">Nenhum anúncio encontrado.</div>'}`;
 }
-
 function openBudgetModal(entityType, entityId, name, currentBudget, isCBO, spend, roas, cpa) {
   _budgetCtx = { entityType, entityId, name, currentBudget, isCBO, spend, roas, cpa };
   const bud = parseFloat(currentBudget) || 0;
@@ -4112,11 +3773,9 @@ function openBudgetModal(entityType, entityId, name, currentBudget, isCBO, spend
   document.getElementById('budgetModal').style.display = 'flex';
   updateBudgetImpact();
 }
-
 function closeBudgetModal() {
   document.getElementById('budgetModal').style.display = 'none';
 }
-
 function updateBudgetImpact() {
   const newBud = parseFloat(document.getElementById('bmodalNewBudget')?.value) || 0;
   const curBud = parseFloat(_budgetCtx.currentBudget) || 0;
@@ -4132,7 +3791,6 @@ function updateBudgetImpact() {
   if (roEl) roEl.textContent = _budgetCtx.roas > 0 ? fmtN(_budgetCtx.roas) + 'x' : '—';
   if (cpEl) cpEl.textContent = _budgetCtx.cpa > 0 ? fmt(_budgetCtx.cpa) : '—';
 }
-
 async function saveBudget() {
   const newBud = parseFloat(document.getElementById('bmodalNewBudget')?.value);
   if (!newBud || newBud <= 0) {
@@ -4159,7 +3817,6 @@ async function saveBudget() {
     btn.disabled = false;
   }
 }
-
 async function toggleCampaignStatus(campId, currentStatus) {
   const action = currentStatus === 'ACTIVE' ? 'pause' : 'activate';
   try {
@@ -4173,7 +3830,6 @@ async function toggleCampaignStatus(campId, currentStatus) {
     alert('Erro: ' + e.message);
   }
 }
-
 async function toggleAdSetStatus(adSetId, currentStatus) {
   const action = currentStatus === 'ACTIVE' ? 'pause' : 'activate';
   try {
@@ -4187,7 +3843,6 @@ async function toggleAdSetStatus(adSetId, currentStatus) {
     alert('Erro: ' + e.message);
   }
 }
-
 async function toggleAdStatus(adId, currentStatus) {
   const action = currentStatus === 'ACTIVE' ? 'pause' : 'activate';
   try {
@@ -4206,32 +3861,26 @@ async function toggleAdStatus(adId, currentStatus) {
     alert('Erro: ' + e.message);
   }
 }
-
 function openBatchModal() {
   document.getElementById('batchModal').style.display = 'flex';
   document.getElementById('batchMsg').innerHTML = '';
   switchBatchTab('CBO');
 }
-
 function closeBatchModal() {
   document.getElementById('batchModal').style.display = 'none';
 }
-
 function switchBatchTab(mode) {
   _batchMode = mode;
   const tabCBO = document.getElementById('batchTabCBO');
   const tabABO = document.getElementById('batchTabABO');
   if (tabCBO) { tabCBO.style.background = mode === 'CBO' ? 'var(--blue)'   : 'transparent'; tabCBO.style.color = mode === 'CBO' ? '#fff' : 'var(--text2)'; }
   if (tabABO) { tabABO.style.background = mode === 'ABO' ? 'var(--purple)' : 'transparent'; tabABO.style.color = mode === 'ABO' ? '#fff' : 'var(--text2)'; }
-
   const desc = document.getElementById('batchModeDesc');
   if (desc) desc.textContent = mode === 'CBO'
     ? 'Ajuste o orçamento de campanhas CBO em lote (orçamento no nível da campanha).'
     : 'Ajuste o orçamento de conjuntos ABO em lote (orçamento no nível do conjunto de anúncios).';
-
   const list = document.getElementById('batchItemList');
   if (!list) return;
-
   if (mode === 'CBO') {
     const cboCamps = _campData.filter(c => (c.daily_budget||0) > 0 || (c.lifetime_budget||0) > 0);
     if (cboCamps.length === 0) {
@@ -4275,10 +3924,8 @@ function switchBatchTab(mode) {
         </div>
       </div>`).join('');
   }
-
   updateBatchPreview();
 }
-
 function updateBatchPreview() {
   const pct  = parseFloat(document.getElementById('batchPercent')?.value) || 0;
   const cbs  = document.querySelectorAll('#batchItemList input[type=checkbox]');
@@ -4289,20 +3936,17 @@ function updateBatchPreview() {
     if (el) el.textContent = fmt(Math.max(newVal, 1));
   });
 }
-
 async function applyBatchBudget() {
   const pct  = parseFloat(document.getElementById('batchPercent')?.value);
   if (isNaN(pct)) { alert('Informe a porcentagem.'); return; }
   const cbs  = [...document.querySelectorAll('#batchItemList input[type=checkbox]:checked')];
   if (cbs.length === 0) { alert('Selecione ao menos um item.'); return; }
   if (!confirm(`Aplicar ${pct >= 0 ? '+' : ''}${pct}% em ${cbs.length} item(s)?`)) return;
-
   const btn = document.getElementById('batchSaveBtn');
   btn.innerHTML = '<span class="spinner"></span> Aplicando...';
   btn.disabled = true;
   const msgEl = document.getElementById('batchMsg');
   msgEl.innerHTML = '';
-
   let ok = 0, fail = 0;
   for (const cb of cbs) {
     const cur     = parseFloat(cb.dataset.budget);
@@ -4320,13 +3964,11 @@ async function applyBatchBudget() {
       console.error(`[Batch] Erro em ${cb.value}:`, e.message);
     }
   }
-
   btn.innerHTML = '⚡ Aplicar a Selecionadas';
   btn.disabled  = false;
   msgEl.innerHTML = `<div class="alert ${fail === 0 ? 'alert-success' : 'alert-warn'}">${ok} atualizado(s)${fail > 0 ? `, ${fail} com erro` : ''}.</div>`;
   if (ok > 0) setTimeout(() => { closeBatchModal(); loadCampaigns(); }, 1500);
 }
-
 // ─── DASHBOARD ───────────────────────────────────────────────────────────────
 async function triggerMetaSyncFromDash() {
   const btn = event?.target;
@@ -4339,15 +3981,12 @@ async function triggerMetaSyncFromDash() {
     if (btn) { btn.innerHTML = '↻ Sincronizar Meta Ads Agora'; btn.disabled = false; }
   }
 }
-
 async function loadDashboard() {
   const days = document.getElementById('dashDays')?.value || 7;
   document.getElementById('dashDateLabel').textContent = `Últimos ${days} dias`;
-
   try {
     const { data } = await api('GET', `/api/metrics/overview?days=${days}`);
     const pc = data.profit >= 0;
-
     document.getElementById('metricsRow').innerHTML = `
       <div class="metric-card">
         <div class="mc-icon">💸</div>
@@ -4387,20 +4026,16 @@ async function loadDashboard() {
     document.getElementById('metricsRow').innerHTML = `<div class="alert alert-info" style="grid-column:1/-1">Conecte suas plataformas em Integrações para ver as métricas.</div>`;
   }
 }
-
 async function loadCharts() {
   try {
     const { data: history } = await api('GET', '/api/metrics/history?days=30');
     if (!history || history.length === 0) return;
-
     document.getElementById('chartsRow').style.display = 'grid';
     document.getElementById('dashBotRow').style.display = 'grid';
-
     const labels   = history.map(d => { const dt = new Date(d.date); return `${dt.getDate()}/${dt.getMonth()+1}`; });
     const spends   = history.map(d => d.spend);
     const revenues = history.map(d => d.revenue);
     const profits  = history.map(d => d.profit);
-
     if (chartSR) chartSR.destroy();
     chartSR = new Chart(document.getElementById('chartSpendRevenue'), {
       type: 'line',
@@ -4423,7 +4058,6 @@ async function loadCharts() {
     });
   } catch(e) { console.log('[Charts] Sem histórico.'); }
 }
-
 async function loadTopCampaigns(days = 7) {
   try {
     const { data: camps } = await api('GET', `/api/metrics/campaigns?days=${days}`);
@@ -4436,7 +4070,6 @@ async function loadTopCampaigns(days = 7) {
         </div>`;
       return;
     }
-
     // Normalizar campos: backend retorna campaign_name/campaign_id
     // Ativas primeiro (backend já ordena, mas garantir no front também)
     const allNorm = camps.map(c => ({
@@ -4449,12 +4082,10 @@ async function loadTopCampaigns(days = 7) {
       if (aActive !== bActive) return aActive - bActive;
       return (b.spend || 0) - (a.spend || 0);
     });
-
     // Donut: usar top 5 com gasto > 0, ou top 5 geral
     const withSpend = allNorm.filter(c => (c.spend||0) > 0);
     const top5 = (withSpend.length > 0 ? withSpend : allNorm).slice(0, 5);
     const totalRev = allNorm.reduce((s,c)=>s+(c.revenue||0),0);
-
     // Donut
     if (chartDonut) chartDonut.destroy();
     const colors = ['#146EF5','#22C55E','#FFBA00','#8B5CF6','#EF4444'];
@@ -4475,7 +4106,6 @@ async function loadTopCampaigns(days = 7) {
         </div>
         <span class="dl-pct">${totalRev>0?(((c.revenue||0)/totalRev)*100).toFixed(1):0}%</span>
       </div>`).join('');
-
     // Tabela: mostrar TODAS as campanhas (ativas primeiro, máx 10)
     const tableRows = allNorm.slice(0, 10);
     document.getElementById('topCampsContent').innerHTML = `
@@ -4504,7 +4134,6 @@ async function loadTopCampaigns(days = 7) {
       ${allNorm.length > 10 ? `<div style="text-align:center;padding:8px;color:var(--text-muted);font-size:12px">+ ${allNorm.length - 10} campanhas — veja mais na aba Campanhas</div>` : ''}`;
   } catch(e) {}
 }
-
 async function loadDashAlerts() {
   try {
     const { data } = await api('GET', '/api/decisions?limit=5');
@@ -4526,7 +4155,6 @@ async function loadDashAlerts() {
     if (badge) { badge.textContent = critical.length; badge.style.display = 'inline'; }
   } catch(e) {}
 }
-
 // ─── ALERTAS TAB ─────────────────────────────────────────────────────────────
 async function loadAlerts() {
   try {
@@ -4551,7 +4179,6 @@ async function loadAlerts() {
     document.getElementById('alertsContent').innerHTML = '<div class="alert alert-info">Conecte suas plataformas para ativar o motor de alertas.</div>';
   }
 }
-
 async function loadDecisionsTab() {
   try {
     const { data } = await api('GET', '/api/decisions?limit=30');
@@ -4580,7 +4207,6 @@ async function loadDecisionsTab() {
     document.getElementById('decisionsContent').innerHTML = '<div class="alert alert-info">Conecte suas plataformas para ativar o motor de decisões.</div>';
   }
 }
-
 async function loadDecisions() {
   // Carrega silenciosamente para o badge
   try {
@@ -4590,7 +4216,6 @@ async function loadDecisions() {
     if (badge && critical.length) { badge.textContent = critical.length; badge.style.display = 'inline'; }
   } catch(e) {}
 }
-
 async function runDecisions() {
   const btn = event.target;
   btn.innerHTML = '<span class="spinner"></span> Analisando...';
@@ -4602,10 +4227,8 @@ async function runDecisions() {
   } catch (e) { showMsg('alertsContent', e.message); }
   finally { btn.innerHTML = '▶ Executar Motor'; btn.disabled = false; }
 }
-
 // ─── IA CRIATIVA ──────────────────────────────────────────────────────────────
 let creativeImageBase64 = null;
-
 function handleCreativeImage(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -4622,14 +4245,12 @@ function handleCreativeImage(event) {
   };
   reader.readAsDataURL(file);
 }
-
 function clearCreativeImage() {
   creativeImageBase64 = null;
   document.getElementById('creativeImageInput').value = '';
   document.getElementById('creativeImagePreview').style.display = 'none';
   document.getElementById('creativeImagePlaceholder').style.display = 'block';
 }
-
 async function generateCreatives() {
   const text    = document.getElementById('creativeText').value.trim();
   const url     = document.getElementById('creativeUrl').value.trim();
@@ -4638,18 +4259,15 @@ async function generateCreatives() {
   const publico = document.getElementById('creativePublico').value.trim();
   const tom     = document.getElementById('creativeTom').value;
   const msg     = document.getElementById('creativesMsg');
-
   if (!text && !url && !creativeImageBase64 && !produto) {
     msg.innerHTML = '<div class="alert alert-error">Preencha pelo menos o produto ou cole um texto/URL.</div>';
     return;
   }
   msg.innerHTML = '';
-
   const btn = document.getElementById('generateBtn');
   btn.innerHTML = '<span class="spinner"></span> Gerando variações…';
   btn.disabled = true;
   document.getElementById('creativesResults').style.display = 'none';
-
   try {
     const body = {};
     if (text)    body.text    = text;
@@ -4659,14 +4277,11 @@ async function generateCreatives() {
     if (publico) body.publico = publico;
     if (tom)     body.tom     = tom;
     if (creativeImageBase64) body.image_base64 = creativeImageBase64;
-
     const { variations, tokens_used } = await api('POST', '/api/creatives/generate', body);
-
     document.getElementById('creativesTokens').textContent = `${tokens_used} tokens usados`;
     document.getElementById('creativesGrid').innerHTML = variations.map((v, i) => renderCreativeCard(v, i)).join('');
     document.getElementById('creativesResults').style.display = 'block';
     document.getElementById('creativesResults').scrollIntoView({ behavior: 'smooth', block: 'start' });
-
   } catch(e) {
     msg.innerHTML = `<div class="alert alert-error">${e.message}</div>`;
   } finally {
@@ -4674,7 +4289,6 @@ async function generateCreatives() {
     btn.disabled = false;
   }
 }
-
 const hookColors = {
   curiosidade:   { bg:'#0c1f3d', border:'#1e40af', text:'#93c5fd', label:'🔍 Curiosidade'   },
   dor:           { bg:'#3a0f0f', border:'#7f1d1d', text:'#fca5a5', label:'😣 Dor'            },
@@ -4683,41 +4297,32 @@ const hookColors = {
   transformacao: { bg:'#1e0a3d', border:'#5b21b6', text:'#c4b5fd', label:'🚀 Transformação'  },
   identidade:    { bg:'#0f1f2e', border:'#0e7490', text:'#67e8f9', label:'🎯 Identidade'     },
 };
-
 function renderCreativeCard(v, i) {
   const hook    = hookColors[v.hook_type] || hookColors['curiosidade'];
   const safeText = (v.primary_text || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const copyText = (v.primary_text || '').replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$');
   return `
     <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:14px;">
-
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <span style="background:${hook.bg};border:1px solid ${hook.border};color:${hook.text};font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;">${hook.label}</span>
         <span style="background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:11px;padding:4px 10px;border-radius:20px;">📱 ${v.platform || 'Universal'}</span>
       </div>
-
       <div style="font-size:11px;color:var(--text3);font-style:italic;">Ângulo: ${v.angle || '—'}</div>
-
       <div style="font-size:18px;font-weight:800;font-family:'Sora',sans-serif;line-height:1.3;color:var(--text);">${v.headline || ''}</div>
-
       <div style="font-size:13px;color:var(--text2);line-height:1.75;white-space:pre-wrap;background:var(--bg3);border-radius:10px;padding:14px;">${safeText}</div>
-
       <div style="display:flex;align-items:center;gap:8px;">
         <span style="font-size:11px;color:var(--text3);">CTA:</span>
         <span style="background:var(--blue);color:#fff;font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;">${v.cta || ''}</span>
       </div>
-
       <div style="font-size:12px;color:var(--text3);border-top:1px solid var(--border);padding-top:12px;">
         💡 ${v.why_it_converts || ''}
       </div>
-
       <button onclick="copyCreative(this, \`${copyText}\`)" class="btn btn-ghost btn-sm" style="width:100%;">
         📋 Copiar Texto
       </button>
     </div>
   `;
 }
-
 function copyCreative(btn, text) {
   navigator.clipboard.writeText(text).then(() => {
     btn.textContent = '✅ Copiado!';
@@ -4726,7 +4331,6 @@ function copyCreative(btn, text) {
     btn.textContent = 'Erro ao copiar';
   });
 }
-
 // ─── MODO SELECTOR ────────────────────────────────────────────────────────────
 function switchCreativeMode(mode) {
   ['copy','imgvar','imggen'].forEach(m => {
@@ -4736,10 +4340,8 @@ function switchCreativeMode(mode) {
     btn.style.color      = m === mode ? '#fff'        : 'var(--text2)';
   });
 }
-
 // ─── VARIAÇÃO DE IMAGEM (imgvar) ──────────────────────────────────────────────
 let imgvarBase64 = null;
-
 function handleImgvar(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -4756,14 +4358,12 @@ function handleImgvar(event) {
   };
   reader.readAsDataURL(file);
 }
-
 function clearImgvar() {
   imgvarBase64 = null;
   document.getElementById('imgvarInput').value = '';
   document.getElementById('imgvarPreview').style.display = 'none';
   document.getElementById('imgvarPlaceholder').style.display = 'block';
 }
-
 async function generateImgVariations() {
   if (!imgvarBase64) {
     document.getElementById('imgvarMsg').innerHTML = '<div class="alert alert-error">Selecione uma imagem do criativo primeiro.</div>';
@@ -4774,17 +4374,14 @@ async function generateImgVariations() {
   btn.innerHTML = '<span class="spinner"></span> Gerando variações…';
   btn.disabled = true;
   document.getElementById('imgvarResults').style.display = 'none';
-
   try {
     const context = document.getElementById('imgvarContext').value.trim();
     const style   = document.getElementById('imgvarStyle').value;
-
     const { images } = await api('POST', '/api/creatives/generate-image-variations', {
       image_base64: imgvarBase64,
       context,
       style
     });
-
     document.getElementById('imgvarGrid').innerHTML = images.map((img, i) => `
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px;text-align:center;">
         <div style="font-size:12px;color:var(--text3);margin-bottom:10px;font-weight:600;">Variação ${i + 1}</div>
@@ -4794,7 +4391,6 @@ async function generateImgVariations() {
         <a href="${img.url}" target="_blank" class="btn btn-ghost btn-sm" style="width:100%;margin-top:10px;">⬇ Abrir / Baixar</a>
       </div>
     `).join('');
-
     // Carregar imagens sequencialmente para evitar rate limit do Pollinations
     async function loadImgvarSequential(images) {
       for (let i = 0; i < images.length; i++) {
@@ -4824,10 +4420,8 @@ async function generateImgVariations() {
       }
     }
     loadImgvarSequential(images);
-
     document.getElementById('imgvarResults').style.display = 'block';
     document.getElementById('imgvarResults').scrollIntoView({ behavior: 'smooth', block: 'start' });
-
   } catch(e) {
     document.getElementById('imgvarMsg').innerHTML = `<div class="alert alert-error">${e.message}</div>`;
   } finally {
@@ -4835,7 +4429,6 @@ async function generateImgVariations() {
     btn.disabled = false;
   }
 }
-
 // ─── GERAR POR PROMPT (imggen) ────────────────────────────────────────────────
 async function generateImgFromPrompt() {
   const prompt = document.getElementById('imggenPrompt').value.trim();
@@ -4848,13 +4441,10 @@ async function generateImgFromPrompt() {
   btn.innerHTML = '<span class="spinner"></span> Gerando imagem…';
   btn.disabled = true;
   document.getElementById('imggenResult').style.display = 'none';
-
   try {
     const sizeVal = document.getElementById('imggenSize').value;
     const [width, height] = sizeVal.split('x').map(Number);
-
     const { image_url } = await api('POST', '/api/creatives/generate-image', { prompt, width, height });
-
     // Mostrar resultado com loading enquanto imagem carrega
     document.getElementById('imggenResult').style.display = 'block';
     document.getElementById('imggenResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -4862,7 +4452,6 @@ async function generateImgFromPrompt() {
       <div style="padding:40px;color:var(--text2);font-size:14px;">
         <span class="spinner"></span> Renderizando imagem… (pode levar até 30 segundos)
       </div>`;
-
     const img = new Image();
     img.onload = () => {
       document.getElementById('imggenImageWrap').innerHTML = `
@@ -4875,7 +4464,6 @@ async function generateImgFromPrompt() {
       document.getElementById('imggenImageWrap').innerHTML = `<div class="alert alert-error">Erro ao carregar imagem. Tente novamente.</div>`;
     };
     img.src = image_url;
-
   } catch(e) {
     document.getElementById('imggenMsg').innerHTML = `<div class="alert alert-error">${e.message}</div>`;
     document.getElementById('imggenResult').style.display = 'none';
@@ -4884,27 +4472,22 @@ async function generateImgFromPrompt() {
     btn.disabled = false;
   }
 }
-
 // ─── BENCHMARKS ──────────────────────────────────────────────────────────────
 async function loadBenchmarks() {
   const niche = document.getElementById('benchNicheSelect')?.value || 'ecommerce';
-
   // Reset UI
   document.getElementById('benchGradeText').textContent = '…';
   document.getElementById('benchOverallLabel').textContent = 'Carregando análise…';
   document.getElementById('benchScoreFill').style.width = '0%';
   document.getElementById('benchScoreNum').textContent = '—';
   document.getElementById('benchMetrics').innerHTML = '<div style="color:var(--text2);font-size:14px;padding:20px">Carregando dados…</div>';
-
   try {
     const data = await api('GET', `/api/benchmarks?niche=${niche}`);
-
     // Score geral
     const score = data.overall_score;
     const grade = data.overall_grade;
     const gradeColors = { 'A+': '#22C55E', 'A': '#146EF5', 'B': '#FFBA00', 'C': '#F97316', 'D': '#EF4444', 'N/A': '#4A6580' };
     const color = gradeColors[grade] || '#4A6580';
-
     document.getElementById('benchGradeText').textContent = grade;
     document.getElementById('benchGradeText').style.color = color;
     document.getElementById('benchGradeCircle').style.borderColor = color;
@@ -4912,10 +4495,8 @@ async function loadBenchmarks() {
     document.getElementById('benchScoreFill').style.background = color;
     document.getElementById('benchScoreNum').textContent = score ?? '—';
     document.getElementById('benchScoreNum').style.color = color;
-
     const gradeLabels = { 'A+': 'Performance excelente — top 10% do mercado', 'A': 'Acima da média do mercado', 'B': 'Na média — há espaço para crescer', 'C': 'Abaixo da média — precisa de atenção', 'D': 'Performance crítica — revise sua estratégia', 'N/A': 'Dados insuficientes — conecte suas integrações' };
     document.getElementById('benchOverallLabel').textContent = gradeLabels[grade] || '';
-
     // Nomes das métricas
     const metricNames = {
       roas:      { label: 'ROAS', desc: 'Retorno sobre gasto em anúncios', icon: '💰' },
@@ -4924,10 +4505,8 @@ async function loadBenchmarks() {
       cpm:       { label: 'CPM',  desc: 'Custo por mil impressões',         icon: '👁️' },
       conv_rate: { label: 'Conv. Rate', desc: 'Taxa de conversão',          icon: '✅' },
     };
-
     const gradeColors2 = { 'A+': '#22C55E22', 'A': '#146EF522', 'B': '#FFBA0022', 'C': '#F9731622', 'D': '#EF444422', 'N/A': '#4A658022' };
     const gradeBorder  = { 'A+': '#22C55E',   'A': '#146EF5',   'B': '#FFBA00',   'C': '#F97316',   'D': '#EF4444',   'N/A': '#4A6580' };
-
     let html = '';
     for (const [key, m] of Object.entries(data.metrics)) {
       const info = metricNames[key] || { label: key, desc: '', icon: '📊' };
@@ -4939,7 +4518,6 @@ async function loadBenchmarks() {
         if (v === null || v === undefined) return '—';
         return m.unit === 'R$' ? `R$ ${v.toFixed(2)}` : m.unit === '%' ? `${v.toFixed(2)}%` : `${v.toFixed(2)}x`;
       };
-
       // Barra de progresso (relativo ao benchmark "great")
       let barPct = 0;
       if (hasValue && m.your_value !== null) {
@@ -4950,7 +4528,6 @@ async function loadBenchmarks() {
           barPct = Math.min(100, Math.max(0, (m.your_value / m.benchmark_great) * 100));
         }
       }
-
       html += `
       <div style="background:var(--bg2);border:1px solid ${gc ? gb : 'var(--border)'};border-radius:14px;padding:20px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
@@ -4963,7 +4540,6 @@ async function loadBenchmarks() {
           </div>
           <div style="background:${gc};color:${gb};padding:4px 12px;border-radius:20px;font-weight:800;font-size:14px;font-family:'Sora',sans-serif;">${g}</div>
         </div>
-
         <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
           <div style="text-align:center;">
             <div style="font-size:22px;font-weight:800;font-family:'Sora',sans-serif;color:${gb};">${formatVal(m.your_value)}</div>
@@ -4978,7 +4554,6 @@ async function loadBenchmarks() {
             <div style="font-size:11px;color:var(--text3);">Meta top 10%</div>
           </div>
         </div>
-
         <div style="height:6px;background:var(--bg4);border-radius:6px;overflow:hidden;">
           <div style="height:100%;width:${barPct.toFixed(1)}%;background:${gb};border-radius:6px;transition:width .6s ease;"></div>
         </div>
@@ -4988,18 +4563,14 @@ async function loadBenchmarks() {
         </div>
       </div>`;
     }
-
     document.getElementById('benchMetrics').innerHTML = html || '<div style="color:var(--text2);font-size:14px;padding:20px">Nenhuma métrica disponível</div>';
-
   } catch (e) {
     document.getElementById('benchMetrics').innerHTML = `<div style="color:var(--red);font-size:14px;padding:20px">Erro: ${e.message}</div>`;
     document.getElementById('benchOverallLabel').textContent = 'Conecte integrações para ver benchmarks';
   }
 }
-
 // ─── IA INSIGHTS ─────────────────────────────────────────────────────────────
 // ─── IPPMIFY AI ──────────────────────────────────────────────────────────────
-
 function _aiScoreCor(score) {
   if (score >= 81) return '#22C55E';
   if (score >= 66) return '#146EF5';
@@ -5011,19 +4582,16 @@ function _aiNivelBadge(nivel) {
   const m = { alto:'#EF4444', medio:'#F97316', baixo:'#22C55E', critico:'#EF4444', aviso:'#F97316', info:'#146EF5' };
   return m[nivel] || 'var(--text2)';
 }
-
 function renderAIAnalysis(data) {
   const cor   = _aiScoreCor(data.score || 0);
   const score = data.score || 0;
   const cached = data._cached ? ' <span style="font-size:11px;color:var(--text3);">(cache)</span>' : '';
-
   const alertsHtml = (data.alerts || []).map(a => {
     const bg  = a.nivel === 'critico' ? 'rgba(239,68,68,.12)' : a.nivel === 'aviso' ? 'rgba(249,115,22,.10)' : 'rgba(20,110,245,.09)';
     const col = a.nivel === 'critico' ? '#EF4444' : a.nivel === 'aviso' ? '#F97316' : '#146EF5';
     const ic  = a.nivel === 'critico' ? '🔴' : a.nivel === 'aviso' ? '🟡' : 'ℹ️';
     return `<div style="background:${bg};border-left:3px solid ${col};border-radius:8px;padding:10px 14px;font-size:13px;color:${col};font-weight:600;">${ic} ${a.mensagem}</div>`;
   }).join('');
-
   const otimHtml = (data.otimizacoes || []).map(o => {
     const ic = o.impacto === 'alto' ? '#EF4444' : o.impacto === 'medio' ? '#F97316' : '#22C55E';
     return `<div style="border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;">
@@ -5034,27 +4602,22 @@ function renderAIAnalysis(data) {
       <div style="font-size:13px;color:var(--text2);">${o.acao}</div>
     </div>`;
   }).join('');
-
   const copiesHtml = (data.copies_sugeridas || []).map(c =>
     `<div style="border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;">
       <div style="font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;margin-bottom:8px;">${c.tipo}</div>
       <div style="font-size:14px;line-height:1.6;font-style:italic;">"${c.texto}"</div>
     </div>`
   ).join('');
-
   const pausarHtml = (data.campanhas_pausar || []).length > 0
     ? (data.campanhas_pausar || []).map(c => `<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:#EF4444;margin-right:8px;">⏸</span>${c}</div>`).join('')
     : '<div style="color:var(--text3);font-size:13px;">Nenhuma campanha para pausar</div>';
-
   const escalarHtml = (data.campanhas_escalar || []).length > 0
     ? (data.campanhas_escalar || []).map(c => `<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:#22C55E;margin-right:8px;">🚀</span>${c}</div>`).join('')
     : '<div style="color:var(--text3);font-size:13px;">Nenhuma campanha para escalar agora</div>';
-
   const urgColorMap = { agora:'#EF4444', hoje:'#F97316', esta_semana:'#FFBA00' };
   const urgCor = urgColorMap[(data.acao_imediata || {}).urgencia] || '#FFBA00';
   const urgLabel = { agora:'AGORA', hoje:'HOJE', esta_semana:'ESTA SEMANA' };
   const urgText = urgLabel[(data.acao_imediata || {}).urgencia] || '';
-
   document.getElementById('insightContent').innerHTML = `
     <div style="display:grid;grid-template-columns:auto 1fr;gap:20px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;align-items:center;">
       <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
@@ -5069,9 +4632,7 @@ function renderAIAnalysis(data) {
         <div style="font-size:15px;line-height:1.6;color:var(--text);font-weight:500;">${data.resumo_executivo || ''}</div>
       </div>
     </div>
-
     ${alertsHtml ? `<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">${alertsHtml}</div>` : ''}
-
     ${data.acao_imediata ? `
     <div style="background:${urgCor}15;border:1.5px solid ${urgCor};border-radius:14px;padding:20px;margin-bottom:20px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
@@ -5081,7 +4642,6 @@ function renderAIAnalysis(data) {
       <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:10px;">${data.acao_imediata.ordem || ''}</div>
       <div style="font-size:13px;color:var(--text2);line-height:1.5;">${data.acao_imediata.detalhes || ''}</div>
     </div>` : ''}
-
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
       <div>
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;">
@@ -5112,12 +4672,10 @@ function renderAIAnalysis(data) {
         </div>
       </div>
     </div>
-
     ${copiesHtml ? `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;">
       <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;">✍️ Copies Sugeridas</div>
       ${copiesHtml}
     </div>` : ''}
-
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
       <div style="background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.25);border-radius:14px;padding:20px;">
         <div style="font-size:11px;font-weight:700;color:#EF4444;text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;">⏸ Pausar Agora</div>
@@ -5128,7 +4686,6 @@ function renderAIAnalysis(data) {
         ${escalarHtml}
       </div>
     </div>
-
     ${data.previsao ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;">
         <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">📊 Próximo mês (curso atual)</div>
@@ -5140,11 +4697,9 @@ function renderAIAnalysis(data) {
       </div>
     </div>` : ''}
   `;
-
   const dashEl = document.getElementById('dashInsightText');
   if (dashEl) dashEl.textContent = data.resumo_executivo || data.summary || '';
 }
-
 async function generateInsight(evt) {
   const btn   = document.getElementById('aiAnalyzeBtn');
   const label = document.getElementById('aiAnalyzeBtnLabel');
@@ -5164,7 +4719,6 @@ async function generateInsight(evt) {
     if (btn)   btn.disabled = false;
   }
 }
-
 async function loadAIInsights() {
   try {
     const { data } = await api('GET', '/api/insights');
@@ -5177,7 +4731,6 @@ async function loadAIInsights() {
     }
   } catch (_) { /* sem histórico */ }
 }
-
 // ─── RELATÓRIOS ──────────────────────────────────────────────────────────────
 async function downloadPDF() {
   const btn = event?.target;
@@ -5194,7 +4747,6 @@ async function downloadPDF() {
   } catch (e) { alert('Erro ao gerar PDF: ' + e.message); }
   finally { if (btn) { btn.textContent = '⬇ Baixar PDF'; btn.disabled = false; } }
 }
-
 async function sendWhatsAppReport() {
   const btn = event?.target;
   if (btn) { btn.textContent = '⏳ Enviando...'; btn.disabled = true; }
@@ -5206,7 +4758,6 @@ async function sendWhatsAppReport() {
   finally { if (btn) { btn.textContent = '📲 Enviar Agora'; btn.disabled = false; } }
 }
 let settingsEditing = false;
-
 function toggleSettingsEdit() {
   settingsEditing = !settingsEditing;
   document.getElementById('settingsView').style.display = settingsEditing ? 'none' : 'block';
@@ -5214,7 +4765,6 @@ function toggleSettingsEdit() {
   document.getElementById('settingsEditBtn').innerHTML  = settingsEditing ? '✕ Cancelar' : '✏️ Editar';
   document.getElementById('settingsMsg').innerHTML = '';
 }
-
 function renderSettingsView(u) {
   document.getElementById('viewCpa').textContent      = u.cpa_target  ? `R$ ${Number(u.cpa_target).toFixed(2)}` : '—';
   document.getElementById('viewRoas').textContent     = u.roas_target ? `${Number(u.roas_target).toFixed(1)}x`  : '—';
@@ -5224,7 +4774,6 @@ function renderSettingsView(u) {
   document.getElementById('viewWppStatus').textContent  = hasWpp ? '✅ Notificações ativas' : 'sem notificações';
   document.getElementById('viewWppStatus').style.color  = hasWpp ? 'var(--green)' : 'var(--text3)';
 }
-
 async function loadSettings() {
   try {
     const resp = await api('GET', '/api/auth/me');
@@ -5253,7 +4802,6 @@ async function loadSettings() {
     renderSettingsView(user);
   } catch(e) { console.error('loadSettings:', e.message); }
 }
-
 async function saveSettings() {
   const btn = document.getElementById('settingsSaveBtn');
   btn.innerHTML = '<span class="spinner"></span> Salvando…';
@@ -5282,7 +4830,6 @@ async function saveSettings() {
     btn.disabled  = false;
   }
 }
-
 // ─── CAPI PROXY — FUNIL COMPLETO ─────────────────────────────────────────────
 function buildCapiSnippet(apiKey) {
   var base = window.location.origin;
@@ -5314,7 +4861,6 @@ function buildCapiSnippet(apiKey) {
 '})(window,document);\n' +
 '<\/script>';
 }
-
 function buildCapiApiExample(apiKey) {
   var base = window.location.origin;
   return 'POST ' + base + '/api/s/' + apiKey + '/event\n' +
@@ -5336,7 +4882,6 @@ function buildCapiApiExample(apiKey) {
 '  }\n' +
 '}';
 }
-
 function copyCapiKey() {
   var key = document.getElementById('capiApiKeyInput').value;
   if (!key) return;
@@ -5346,14 +4891,12 @@ function copyCapiKey() {
     setTimeout(function() { btn.textContent = '📋'; }, 1500);
   });
 }
-
 function copySnippet() {
   var code = document.getElementById('capiSnippetCode').textContent;
   navigator.clipboard.writeText(code).then(function() {
     showMsg('settingsMsg', '📋 Snippet copiado para a área de transferência!', 'success');
   });
 }
-
 async function generateCapiKey() {
   var btn = document.getElementById('generateCapiKeyBtn');
   var originalText = btn.textContent;
@@ -5374,15 +4917,12 @@ async function generateCapiKey() {
     btn.textContent = originalText;
   }
 }
-
 // ─── CAMPANHAS — REDESIGN ────────────────────────────────────────────────────
 // ─── WIZARD DE ONBOARDING ────────────────────────────────────────────────────
 let wizStep = 0;
 let wizSelectedPlatform = null;
-
 function showWizard() { document.getElementById('wizardOverlay').style.display = 'flex'; wizStep = 0; updateWizUI(); }
 function closeWizard() { document.getElementById('wizardOverlay').style.display = 'none'; localStorage.setItem('ippmify_onboarded','1'); }
-
 function updateWizUI() {
   document.querySelectorAll('.wiz-panel').forEach((p,i) => p.classList.toggle('active', i===wizStep));
   for (let i=0;i<3;i++) {
@@ -5392,7 +4932,6 @@ function updateWizUI() {
   document.getElementById('wizBtnBack').style.display = wizStep>0?'inline-flex':'none';
   document.getElementById('wizBtnNext').textContent = wizStep===2?'Concluir ✓':'Próximo →';
 }
-
 async function wizNext() {
   if (wizStep===0) {
     const t=document.getElementById('wiz-metaToken').value.trim();
@@ -5419,9 +4958,7 @@ async function wizNext() {
     } catch(e) { showMsg('wizTargetsMsg',e.message); }
   }
 }
-
 function wizBack() { if (wizStep>0){ wizStep--; updateWizUI(); } }
-
 function wizSelectPlatform(p) {
   wizSelectedPlatform = p;
   ['hotmart','kirvano','kiwify'].forEach(pl => {
@@ -5439,7 +4976,6 @@ function wizSelectPlatform(p) {
   };
   document.getElementById('wiz-platform-form').innerHTML = forms[p]||'';
 }
-
 async function wizConnectPlatform() {
   try {
     let r;
@@ -5449,8 +4985,6 @@ async function wizConnectPlatform() {
     showMsg('wizPlatformMsg',`✅ ${r.message}`,'success');
   } catch(e) { showMsg('wizPlatformMsg',e.message); }
 }
-
-
 // ─── MEU PLANO ───────────────────────────────────────────────────────────────
 async function loadPlanTab() {
   try {
@@ -5458,7 +4992,6 @@ async function loadPlanTab() {
     if (!data) return;
     const { plan_status, plan_expires_at, is_admin } = data;
     const now = new Date();
-
     // Seção admin: visível apenas para admins
     const adminSection = document.getElementById('adminDemoSection');
     if (adminSection) {
@@ -5469,7 +5002,6 @@ async function loadPlanTab() {
         adminSection.style.display = 'none';
       }
     }
-
     const hero     = document.getElementById('planHero');
     const icon     = document.getElementById('planHeroIcon');
     const badge    = document.getElementById('planHeroBadge');
@@ -5480,10 +5012,8 @@ async function loadPlanTab() {
     const cStatusS = document.getElementById('planCardStatusSub');
     const cExpiry  = document.getElementById('planCardExpiry');
     const cExpiryS = document.getElementById('planCardExpirySub');
-
     const fmtDate = (d) => d ? new Date(d).toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' }) : '—';
     const daysLeft = (d) => d ? Math.max(0, Math.ceil((new Date(d) - now) / 864e5)) : 0;
-
     if (plan_status === 'active') {
       hero.className = 'plan-hero ph-active';
       icon.textContent = '✅';
@@ -5498,7 +5028,6 @@ async function loadPlanTab() {
       cStatusS.textContent = 'renovação automática';
       cExpiry.textContent = fmtDate(plan_expires_at);
       cExpiryS.textContent = 'próxima renovação';
-
     } else {
       // pending ou expired — sem plano ativo
       hero.className = 'plan-hero ph-expired';
@@ -5519,13 +5048,126 @@ async function loadPlanTab() {
   }
 }
 
+// ─── RELATÓRIOS — AGENDAMENTO ────────────────────────────────────────────────
+async function loadReportSchedule() {
+  const displayEl = document.getElementById('reportScheduleDisplay');
+  if (displayEl) displayEl.innerHTML = '<span style="color:var(--text3);">Carregando...</span>';
+  if (!token) {
+    if (displayEl) displayEl.innerHTML = '<span style="color:var(--red);">Sessão expirada. Faça login novamente.</span>';
+    return;
+  }
+  try {
+    const res = await fetch(`${API_URL}/api/reports/schedule`, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      if (displayEl) displayEl.innerHTML = `<span style="color:var(--red);">Erro: ${e.error || 'tente novamente'}</span>`;
+      return;
+    }
+    const data = await res.json();
+    const freq  = data.report_freq  ?? 0;
+    const times = data.report_times ? data.report_times.split(',').map(t => t.trim()).filter(Boolean) : [];
+    const days  = data.report_days  ?? 7;
+    const freqSel = document.getElementById('reportFreqSelect');
+    if (freqSel) freqSel.value = freq;
+    selectReportDays(days);
+    updateReportTimeSlots();
+    if (freq > 0 && times.length > 0) {
+      times.forEach((t, i) => {
+        const inp = document.getElementById(`reportTime${i}`);
+        if (inp) inp.value = t;
+      });
+    }
+    if (displayEl) {
+      if (freq === 0) {
+        displayEl.innerHTML = '<span style="color:var(--text3);">❌ Desativado — nenhum relatório agendado.</span>';
+      } else {
+        const freqLabel = freq === 1 ? '1x por dia' : `${freq}x por dia`;
+        const daysLabel = days === 1 ? 'hoje (últimas 24h)' : days === 7 ? 'últimos 7 dias' : 'últimos 30 dias';
+        displayEl.innerHTML = `<strong style="color:var(--green);">✅ Ativo</strong><br>
+          Frequência: <strong>${freqLabel}</strong><br>
+          Horários: <strong>${times.join(', ') || '—'}</strong><br>
+          Período: <strong>${daysLabel}</strong>`;
+      }
+    }
+    document.getElementById('reportScheduleView').style.display = '';
+    document.getElementById('reportScheduleForm').style.display = 'none';
+  } catch(err) {
+    if (displayEl) displayEl.innerHTML = `<span style="color:var(--red);">Erro: ${err.message}</span>`;
+  }
+}
+
+function editReportSchedule() {
+  document.getElementById('reportScheduleView').style.display = 'none';
+  document.getElementById('reportScheduleForm').style.display = '';
+}
+
+function cancelReportScheduleEdit() {
+  document.getElementById('reportScheduleView').style.display = '';
+  document.getElementById('reportScheduleForm').style.display = 'none';
+}
+
+function updateReportTimeSlots() {
+  const freq      = parseInt(document.getElementById('reportFreqSelect')?.value || '0');
+  const slotsDiv  = document.getElementById('reportTimeSlots');
+  const inputsDiv = document.getElementById('reportTimeSlotsInputs');
+  if (!slotsDiv || !inputsDiv) return;
+  if (freq === 0) { slotsDiv.style.display = 'none'; return; }
+  slotsDiv.style.display = '';
+  const defaults = ['08:00', '14:00', '20:00'];
+  inputsDiv.innerHTML = '';
+  for (let i = 0; i < freq; i++) {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;align-items:center;gap:8px;';
+    wrap.innerHTML = `
+      <label style="font-size:12px;color:var(--text3);min-width:60px;">Envio ${i + 1}</label>
+      <input type="time" id="reportTime${i}" value="${defaults[i] || '08:00'}"
+        style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-size:13px;outline:none;">`;
+    inputsDiv.appendChild(wrap);
+  }
+}
+
+function selectReportDays(days) {
+  const inp = document.getElementById('reportDaysValue');
+  if (inp) inp.value = days;
+  const map = { 1: 'rdBtn1', 7: 'rdBtn7', 30: 'rdBtn30' };
+  ['rdBtn1','rdBtn7','rdBtn30'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) { btn.style.background = ''; btn.style.color = ''; }
+  });
+  const active = document.getElementById(map[days]);
+  if (active) { active.style.background = 'var(--blue)'; active.style.color = '#fff'; }
+}
+
+async function saveReportSchedule() {
+  const msgEl = document.getElementById('reportScheduleMsg');
+  const freq  = parseInt(document.getElementById('reportFreqSelect')?.value || '0');
+  const days  = parseInt(document.getElementById('reportDaysValue')?.value  || '7');
+  const times = [];
+  for (let i = 0; i < freq; i++) {
+    const val = document.getElementById(`reportTime${i}`)?.value;
+    if (val) times.push(val);
+  }
+  if (msgEl) msgEl.innerHTML = '<span style="color:var(--text2);">Salvando...</span>';
+  try {
+    await api('POST', '/api/reports/schedule', {
+      report_freq:  freq,
+      report_times: times.join(','),
+      report_days:  days,
+    });
+    if (msgEl) msgEl.innerHTML = '<span style="color:var(--green);">✅ Agendamento salvo!</span>';
+    setTimeout(() => { if (msgEl) msgEl.innerHTML = ''; loadReportSchedule(); }, 1500);
+  } catch(e) {
+    if (msgEl) msgEl.innerHTML = `<span style="color:var(--red);">❌ ${e.message}</span>`;
+  }
+}
 </script>
 <!-- =====================================================================
      SETUP GUIDE WIZARD - Guia de Conexao Completo
      ===================================================================== -->
 <div id="setupGuideOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2000;align-items:center;justify-content:center;padding:16px;">
   <div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;width:100%;max-width:620px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.5);">
-
     <!-- Header -->
     <div style="padding:24px 28px 0;flex-shrink:0;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
@@ -5545,10 +5187,8 @@ async function loadPlanTab() {
         <span id="sgLabel4">4. Webhooks</span>
       </div>
     </div>
-
     <!-- Steps container -->
     <div style="flex:1;overflow-y:auto;padding:28px;">
-
       <!-- STEP 1: Meta Pixel + Token CAPI -->
       <div id="sg-step-1">
         <div style="font-size:32px;margin-bottom:12px;">📡</div>
@@ -5556,7 +5196,6 @@ async function loadPlanTab() {
         <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px;">
           O rastreamento server-side (CAPI) envia dados de conversao diretamente para o Meta, sem depender do navegador. Isso garante muito mais precisao e nao e afetado por bloqueadores de anuncio.
         </div>
-
         <div style="background:var(--bg3);border-radius:12px;padding:16px;margin-bottom:16px;">
           <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;">Como obter o Pixel ID</div>
           <div style="display:flex;flex-direction:column;gap:10px;">
@@ -5570,7 +5209,6 @@ async function loadPlanTab() {
             </div>
           </div>
         </div>
-
         <div style="background:var(--bg3);border-radius:12px;padding:16px;margin-bottom:20px;">
           <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;">Como gerar o Token de Acesso (CAPI)</div>
           <div style="display:flex;flex-direction:column;gap:10px;">
@@ -5592,7 +5230,6 @@ async function loadPlanTab() {
             </div>
           </div>
         </div>
-
         <div style="display:flex;flex-direction:column;gap:12px;">
           <div>
             <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">Meta Pixel ID</label>
@@ -5607,7 +5244,6 @@ async function loadPlanTab() {
           <div id="sg-step1-msg" style="font-size:12px;min-height:18px;"></div>
         </div>
       </div>
-
       <!-- STEP 2: Conta de Anuncios -->
       <div id="sg-step-2" style="display:none;">
         <div style="font-size:32px;margin-bottom:12px;">📊</div>
@@ -5615,12 +5251,10 @@ async function loadPlanTab() {
         <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px;">
           Para o Meta saber quais anuncios geraram cada venda, sua <strong>Conta de Anuncios</strong> precisa estar vinculada ao mesmo Pixel que voce configurou.
         </div>
-
         <div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:12px;padding:16px;margin-bottom:20px;">
           <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:4px;">Por que isso importa?</div>
           <div style="font-size:13px;color:var(--text2);line-height:1.6;">Sem essa vinculacao o Meta recebe os eventos mas nao consegue atribuir aos seus anuncios. CPA parece alto, ROAS parece baixo — tudo distorcido.</div>
         </div>
-
         <div style="background:var(--bg3);border-radius:12px;padding:16px;margin-bottom:16px;">
           <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;">Passo a passo</div>
           <div style="display:flex;flex-direction:column;gap:10px;">
@@ -5642,13 +5276,11 @@ async function loadPlanTab() {
             </div>
           </div>
         </div>
-
         <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:14px;">
           <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:4px;">Dica</div>
           <div style="font-size:13px;color:var(--text2);line-height:1.6;">Apos vincular, confirme no <strong>Gerenciador de Eventos</strong> que os eventos aparecem na aba <em>Atividade de Eventos</em>. Pode demorar alguns minutos apos a primeira venda.</div>
         </div>
       </div>
-
       <!-- STEP 3: Snippet JS no funil -->
       <div id="sg-step-3" style="display:none;">
         <div style="font-size:32px;margin-bottom:12px;">🔗</div>
@@ -5656,7 +5288,6 @@ async function loadPlanTab() {
         <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px;">
           Cole esse codigo em <strong>todas as paginas do seu funil</strong> (venda, checkout, obrigado). Ele rastreia automaticamente PageView, ViewContent, InitiateCheckout e Purchase via CAPI.
         </div>
-
         <div style="margin-bottom:16px;">
           <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;">Seu snippet personalizado:</div>
           <div style="position:relative;">
@@ -5664,7 +5295,6 @@ async function loadPlanTab() {
             <button onclick="sgCopySnippet()" id="sg-copy-btn" style="position:absolute;top:8px;right:8px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--text2);cursor:pointer;">Copiar</button>
           </div>
         </div>
-
         <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:10px;">Como colar por plataforma:</div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
           <button onclick="sgShowPlatform('wp')"      id="sgpt-wp"      class="sg-ptab active-ptab">WordPress</button>
@@ -5672,7 +5302,6 @@ async function loadPlanTab() {
           <button onclick="sgShowPlatform('hp')"      id="sgpt-hp"      class="sg-ptab">Hotmart Pages</button>
           <button onclick="sgShowPlatform('generic')" id="sgpt-generic" class="sg-ptab">Outra plat.</button>
         </div>
-
         <div id="sg-platform-wp" style="background:var(--bg3);border-radius:10px;padding:14px;font-size:13px;color:var(--text2);line-height:1.65;">
           <strong>WordPress / Elementor / WooCommerce</strong><br><br>
           1. Instale o plugin gratuito <strong>Insert Headers and Footers</strong>.<br>
@@ -5695,17 +5324,14 @@ async function loadPlanTab() {
           <strong>Qualquer outra plataforma</strong><br><br>
           Cole o snippet dentro da tag <code style="background:var(--bg2);padding:2px 5px;border-radius:4px;">&lt;head&gt;</code> do HTML das suas paginas — ou no campo de "Scripts personalizados" que a plataforma oferece.
         </div>
-
         <div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:14px;margin-top:14px;">
           <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:6px;">Capturar e-mail do lead (melhora o match rate)</div>
           <pre style="font-size:10.5px;font-family:monospace;color:var(--text2);margin:0;white-space:pre-wrap;">// Quando o lead preenche o formulario:
 window.ippmify('setUser', { email: 'lead@email.com' });
-
 // Na pagina de checkout:
 window.ippmify('track', 'InitiateCheckout', { value: 97, currency: 'BRL' });</pre>
         </div>
       </div>
-
       <!-- STEP 4: Webhooks das plataformas -->
       <div id="sg-step-4" style="display:none;">
         <div style="font-size:32px;margin-bottom:12px;">🔔</div>
@@ -5713,7 +5339,6 @@ window.ippmify('track', 'InitiateCheckout', { value: 97, currency: 'BRL' });</pr
         <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px;">
           Sempre que uma venda e aprovada, a plataforma envia uma notificacao (webhook) para o IPPMIFY. Registramos a venda e disparamos um evento <strong>Purchase</strong> server-side no seu Pixel automaticamente.
         </div>
-
         <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:10px;">Selecione sua plataforma:</div>
         <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
           <button onclick="sgShowWebhook('kirvano')"    id="sgwh-kirvano"    class="sg-ptab active-ptab">Kirvano</button>
@@ -5729,7 +5354,6 @@ window.ippmify('track', 'InitiateCheckout', { value: 97, currency: 'BRL' });</pr
           <button onclick="sgShowWebhook('pagarme')"    id="sgwh-pagarme"    class="sg-ptab">Pagar.me</button>
           <button onclick="sgShowWebhook('pagseguro')"  id="sgwh-pagseguro"  class="sg-ptab">PagSeguro</button>
         </div>
-
         <div style="margin-bottom:16px;">
           <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;">URL do Webhook — cole na sua plataforma:</div>
           <div style="display:flex;gap:8px;">
@@ -5738,33 +5362,26 @@ window.ippmify('track', 'InitiateCheckout', { value: 97, currency: 'BRL' });</pr
             <button onclick="sgCopyWebhook()" id="sg-copy-wh-btn" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 16px;color:var(--text2);font-size:13px;cursor:pointer;white-space:nowrap;font-weight:600;">Copiar</button>
           </div>
         </div>
-
         <div id="sg-wh-instructions" style="background:var(--bg3);border-radius:10px;padding:14px;font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:14px;"></div>
-
         <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:14px;">
           <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:4px;">Tudo pronto!</div>
           <div style="font-size:13px;color:var(--text2);line-height:1.6;">Faca uma venda teste. Em segundos ela aparece no IPPMIFY e um evento <strong>Purchase</strong> e enviado ao seu Pixel automaticamente.</div>
         </div>
       </div>
-
     </div><!-- /steps container -->
-
     <!-- Footer navigation -->
     <div style="padding:16px 28px 24px;flex-shrink:0;border-top:1px solid var(--border);display:flex;align-items:center;gap:12px;">
       <button id="sg-btn-prev" onclick="sgPrev()" style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 22px;color:var(--text2);font-size:13px;cursor:pointer;font-weight:600;display:none;">Anterior</button>
       <div style="flex:1;text-align:center;font-size:12px;color:var(--text3);" id="sg-step-counter">Passo 1 de 4</div>
       <button id="sg-btn-next" onclick="sgNext()" style="background:var(--blue);color:#fff;border:none;border-radius:10px;padding:11px 28px;font-size:13px;cursor:pointer;font-weight:700;">Proximo</button>
     </div>
-
   </div>
 </div>
-
 <style>
 .sg-ptab{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:5px 12px;font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s;}
 .sg-ptab:hover{border-color:var(--blue);color:var(--blue);}
 .sg-ptab.active-ptab{background:var(--blue)!important;border-color:var(--blue)!important;color:#fff!important;}
 </style>
-
 <script>
 var _sgStep = 1;
 var _sgCurrentPlatform = 'kirvano';
@@ -5782,7 +5399,6 @@ var _sgWebhookInstructions = {
   pagarme:     '<strong>Pagar.me:</strong> <em>Configuracoes &gt; Webhooks &gt; Adicionar webhook</em>. Cole a URL e selecione eventos de pagamento aprovado.',
   pagseguro:   '<strong>PagSeguro:</strong> <em>Minha Conta &gt; Preferencias de IPN</em>. Cole a URL de notificacao e salve.',
 };
-
 function openSetupGuide() {
   _sgStep = 1;
   document.getElementById('setupGuideOverlay').style.display = 'flex';
@@ -5792,11 +5408,9 @@ function openSetupGuide() {
   document.getElementById('sg-token').value = '';
   document.getElementById('sg-step1-msg').textContent = '';
 }
-
 function closeSetupGuide() {
   document.getElementById('setupGuideOverlay').style.display = 'none';
 }
-
 function sgUpdateUI() {
   for (var i = 1; i <= 4; i++) {
     document.getElementById('sg-step-' + i).style.display = (i === _sgStep) ? '' : 'none';
@@ -5815,7 +5429,6 @@ function sgUpdateUI() {
   if (_sgStep === 3) sgEnsureSnippet();
   if (_sgStep === 4) sgShowWebhook(_sgCurrentPlatform);
 }
-
 async function sgNext() {
   if (_sgStep === 1) {
     var pixelId = document.getElementById('sg-pixel-id').value.trim();
@@ -5843,11 +5456,9 @@ async function sgNext() {
   if (_sgStep < 4) { _sgStep++; sgUpdateUI(); }
   else { closeSetupGuide(); if (typeof loadSettings === 'function') loadSettings(); }
 }
-
 function sgPrev() {
   if (_sgStep > 1) { _sgStep--; sgUpdateUI(); }
 }
-
 async function sgEnsureSnippet() {
   var snipEl = document.getElementById('sg-snippet-code');
   try {
@@ -5870,7 +5481,6 @@ async function sgEnsureSnippet() {
     snipEl.textContent = '// Erro ao carregar snippet. Verifique sua conexao.';
   }
 }
-
 function sgCopySnippet() {
   navigator.clipboard.writeText(document.getElementById('sg-snippet-code').textContent).then(function() {
     var btn = document.getElementById('sg-copy-btn');
@@ -5878,7 +5488,6 @@ function sgCopySnippet() {
     setTimeout(function(){ btn.textContent = 'Copiar'; }, 1800);
   });
 }
-
 function sgShowPlatform(p) {
   ['wp','cf','hp','generic'].forEach(function(k) {
     document.getElementById('sg-platform-' + k).style.display = (k === p) ? '' : 'none';
@@ -5886,7 +5495,6 @@ function sgShowPlatform(p) {
     if (btn) btn.className = (k === p) ? 'sg-ptab active-ptab' : 'sg-ptab';
   });
 }
-
 function sgShowWebhook(platform) {
   _sgCurrentPlatform = platform;
   document.getElementById('sg-webhook-url').value = window.location.origin + '/api/hook/webhook/' + platform;
@@ -5896,7 +5504,6 @@ function sgShowWebhook(platform) {
     if (btn) btn.className = (p === platform) ? 'sg-ptab active-ptab' : 'sg-ptab';
   });
 }
-
 function sgCopyWebhook() {
   navigator.clipboard.writeText(document.getElementById('sg-webhook-url').value).then(function() {
     var btn = document.getElementById('sg-copy-wh-btn');
