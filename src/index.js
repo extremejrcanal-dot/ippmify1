@@ -21,19 +21,10 @@ const app  = express();
 const PORT = process.env.PORT || 3000;
 
 // ─── MIDDLEWARES DE SEGURANCA ──────────────────────────────────────────────
-// Helmet com CSP configurado para permitir CDNs usados no frontend
+// CSP desabilitado: o frontend usa scripts inline e CDNs externos
+// (Chart.js, Google Fonts) que conflitam com CSP estrito
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc:  ["'self'"],
-      scriptSrc:   ["'self'", "'unsafe-inline'", "cdnjs.cloudflare.com", "fonts.googleapis.com"],
-      styleSrc:    ["'self'", "'unsafe-inline'", "fonts.googleapis.com"],
-      fontSrc:     ["'self'", "fonts.gstatic.com"],
-      imgSrc:      ["'self'", "data:", "blob:"],
-      connectSrc:  ["'self'", "https://ippmify1-production.up.railway.app"],
-      frameSrc:    ["'none'"],
-    },
-  },
+  contentSecurityPolicy: false,
 }));
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
