@@ -4,6 +4,7 @@ const express  = require('express');
 const cors     = require('cors');
 const helmet   = require('helmet');
 const rateLimit = require('express-rate-limit');
+const path     = require('path');
 
 // Rotas
 const authRoutes         = require('./routes/auth');
@@ -20,7 +21,20 @@ const app  = express();
 const PORT = process.env.PORT || 3000;
 
 // ─── MIDDLEWARES DE SEGURANCA ──────────────────────────────────────────────
-app.use(helmet());
+// Helmet com CSP configurado para permitir CDNs usados no frontend
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc:  ["'self'"],
+      scriptSrc:   ["'self'", "'unsafe-inline'", "cdnjs.cloudflare.com", "fonts.googleapis.com"],
+      styleSrc:    ["'self'", "'unsafe-inline'", "fonts.googleapis.com"],
+      fontSrc:     ["'self'", "fonts.gstatic.com"],
+      imgSrc:      ["'self'", "data:", "blob:"],
+      connectSrc:  ["'self'", "https://ippmify1-production.up.railway.app"],
+      frameSrc:    ["'none'"],
+    },
+  },
+}));
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
@@ -62,12 +76,17 @@ app.use('/api/insights',     insightsRoutes);
 app.use('/api/reports',      reportsRoutes);
 app.use('/api/integrations', integrationsRoutes);
 
-// Rota nao encontrada
-app.use('*', (req, res) => {
-  res.status(404).json({
-    error: 'Rota nao encontrada',
-    path: req.originalUrl
-  });
+// ─── FRONTEND ESTATICO ────────────────────────────────────────────────────
+// Serve os arquivos da pasta public/ (index.html, CSS, JS, etc.)
+app.use(express.static(path.join(__dirname, '../public')));
+
+// SPA fallback: qualquer rota nao-API retorna o index.html
+// (permite que o front-end gerencie suas proprias rotas)
+app.get('*', (req, res) => {
+  if (req.originalUrl.startsWith('/api/')) {
+    return res.status(404).json({ error: 'Rota nao encontrada', path: req.originalUrl });
+  }
+  res.sendFile(path.join(__dirname, '../public', 'index.html'));
 });
 
 // Handler global de erros
