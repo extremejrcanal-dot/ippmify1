@@ -1,9 +1,11 @@
 const jwt = require('jsonwebtoken');
 const { query } = require('../config/database');
 
-// ─── AUTENTICACAO JWT ────────────────────────────────────────────────────────
+// Middleware de autenticacao JWT
+// Verifica se o usuario esta logado em cada requisicao protegida
 const requireAuth = async (req, res, next) => {
   try {
+    // Pegar o token do cabecalho da requisicao
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -13,14 +15,16 @@ const requireAuth = async (req, res, next) => {
       });
     }
 
+    // Extrair o token (remove "Bearer " do inicio)
     const token = authHeader.substring(7);
+
+    // Verificar e decodificar o token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+    // Buscar o usuario no banco para garantir que ainda existe
     const result = await query(
-      `SELECT id, email, name, plan, timezone, whatsapp, whatsapp_key,
-              cpa_target, roas_target, report_freq, report_times, report_days,
-              trial_expires_at, plan_expires_at, is_admin,
-              meta_pixel_id, meta_access_token, capi_api_key
+      `SELECT id, email, name, plan, plan_expires_at, trial_expires_at,
+              is_admin, timezone, whatsapp, report_freq, report_times, report_days
        FROM users WHERE id = $1 AND is_active = true`,
       [decoded.userId]
     );
@@ -32,44 +36,12 @@ const requireAuth = async (req, res, next) => {
       });
     }
 
-    const user = result.rows[0];
-    const now = new Date();
-
-    // Admin tem acesso total sem verificacao de plano
-    if (user.is_admin) {
-      user.plan_status = 'active';
-      req.user = user;
-      return next();
-    }
-
-    // ── Verificar expiracao do plano pago ──────────────────────────────────
-    if (user.plan === 'active' && user.plan_expires_at && new Date(user.plan_expires_at) < now) {
-      user.plan = 'expired';
-      await query("UPDATE users SET plan='expired' WHERE id=$1", [user.id]);
-    }
-
-    // ── Verificar expiracao do trial ───────────────────────────────────────
-    if (user.plan === 'trial' && user.trial_expires_at && new Date(user.trial_expires_at) < now) {
-      user.plan = 'expired';
-      await query("UPDATE users SET plan='expired' WHERE id=$1", [user.id]);
-    }
-
-    // ── Calcular plan_status ───────────────────────────────────────────────
-    // active  → assinatura paga ativa
-    // trial   → trial gratuito ainda vigente
-    // pending → sem assinatura nem trial (recém cadastrado)
-    // expired → assinatura ou trial vencido
-    if (user.plan === 'active') {
-      user.plan_status = 'active';
-    } else if (user.plan === 'trial') {
-      user.plan_status = 'trial';
-    } else if (user.plan === 'expired') {
-      user.plan_status = 'expired';
-    } else {
-      user.plan_status = 'pending';
-    }
-
-    req.user = user;
+    const u = result.rows[0];
+    // Mapear 'plan' -> 'plan_status' para compatibilidade com o frontend
+    req.user = {
+      ...u,
+      plan_status: u.plan,
+    };
     next();
 
   } catch (error) {
@@ -90,44 +62,21 @@ const requireAuth = async (req, res, next) => {
   }
 };
 
-// ─── VERIFICACAO DE PLANO ATIVO ──────────────────────────────────────────────
-// Permite: assinatura paga (active) OU trial ainda vigente (trial)
-// Bloqueia: sem assinatura (pending), expirado (expired)
-const requireActivePlan = (req, res, next) => {
-  // Admin sempre passa
-  if (req.user?.is_admin) return next();
-
-  const { plan_status } = req.user;
-
-  if (plan_status === 'active' || plan_status === 'trial') {
-    return next();
-  }
-
-  return res.status(402).json({
-    error: 'Assinatura necessaria',
-    message: plan_status === 'expired'
-      ? 'Seu trial ou assinatura expirou. Assine o IPPMIFY para continuar.'
-      : 'Assine o IPPMIFY para acessar este recurso.',
-    plan_status,
-    upgrade_url: process.env.KIRVANO_CHECKOUT_URL || 'https://pay.kirvano.com/38e05652-22f6-494e-a97f-bd2e3f0aa034',
-  });
-};
-
-// ─── GERAR TOKENS JWT ────────────────────────────────────────────────────────
+// Gerar tokens JWT
 const generateTokens = (userId) => {
   const accessToken = jwt.sign(
     { userId },
     process.env.JWT_SECRET,
-    { expiresIn: '15m' }
+    { expiresIn: '15m' }   // Token de acesso expira em 15 minutos
   );
 
   const refreshToken = jwt.sign(
     { userId, type: 'refresh' },
     process.env.JWT_SECRET,
-    { expiresIn: '30d' }
+    { expiresIn: '30d' }   // Token de renovacao expira em 30 dias
   );
 
   return { accessToken, refreshToken };
 };
 
-module.exports = { requireAuth, generateTokens, requireActivePlan };
+module.exports = { requireAuth, generateTokens };
