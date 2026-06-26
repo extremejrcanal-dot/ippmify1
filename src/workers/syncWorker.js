@@ -4,7 +4,13 @@ const { runDecisionEngine } = require('../services/decisionEngine');
 const { generateInsights } = require('../services/aiInsights');
 const { sendAlert, sendDailyReport } = require('../services/alertService');
 const { calculateOverview } = require('../services/metricsEngine');
-const { syncGoogleAds } = require('../services/googleAdsService');
+// Google Ads service — carregado opcionalmente
+let syncGoogleAds = null;
+try {
+  syncGoogleAds = require('../services/googleAdsService').syncGoogleAds;
+} catch (e) {
+  console.warn('[Worker] googleAdsService nao encontrado — sync Google Ads desativado');
+}
 
 // ─── WORKER DE SINCRONIZACAO E AUTOMACAO ──────────────────────────────────
 // Roda em background automaticamente
@@ -20,6 +26,7 @@ const getActiveUsers = async () => {
 
 // Sincronizar Google Ads para um usuario (se tiver integracao ativa)
 const syncGoogleAdsForUser = async (userId) => {
+  if (!syncGoogleAds) return; // servico nao disponivel
   try {
     const result = await query(
       `SELECT * FROM integrations
