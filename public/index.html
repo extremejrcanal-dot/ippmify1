@@ -1164,11 +1164,13 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
       </div>
 
       <!-- KPI Cards -->
-      <div class="camp-kpis" id="campKpis">
-        <div class="camp-kpi"><div class="ck-label">Gasto</div><div class="ck-val" id="kpiSpend">—</div><div class="ck-sub" id="kpiSpendSub"></div></div>
-        <div class="camp-kpi"><div class="ck-label">Receita</div><div class="ck-val green" id="kpiRevenue">—</div><div class="ck-sub" id="kpiRevSub"></div></div>
-        <div class="camp-kpi"><div class="ck-label">Lucro</div><div class="ck-val" id="kpiProfit">—</div><div class="ck-sub" id="kpiProfSub"></div></div>
-        <div class="camp-kpi"><div class="ck-label">ROAS Médio</div><div class="ck-val blue" id="kpiRoas">—</div><div class="ck-sub" id="kpiRoasSub"></div></div>
+      <div class="camp-kpis" id="campKpis" style="grid-template-columns:repeat(6,1fr)">
+        <div class="camp-kpi"><div class="ck-label">💸 Gasto</div><div class="ck-val blue" id="kpiSpend">—</div><div class="ck-sub" id="kpiSpendSub"></div></div>
+        <div class="camp-kpi"><div class="ck-label">💰 Receita</div><div class="ck-val green" id="kpiRevenue">—</div><div class="ck-sub" id="kpiRevSub"></div></div>
+        <div class="camp-kpi"><div class="ck-label">📈 Lucro</div><div class="ck-val" id="kpiProfit">—</div><div class="ck-sub" id="kpiProfSub"></div></div>
+        <div class="camp-kpi"><div class="ck-label">🎯 ROAS Médio</div><div class="ck-val" id="kpiRoas">—</div><div class="ck-sub" id="kpiRoasSub"></div></div>
+        <div class="camp-kpi"><div class="ck-label">👁 Impressões</div><div class="ck-val" id="kpiImpressions">—</div><div class="ck-sub" id="kpiImpSub"></div></div>
+        <div class="camp-kpi"><div class="ck-label">👆 CTR Médio</div><div class="ck-val" id="kpiCtr">—</div><div class="ck-sub" id="kpiCtrSub"></div></div>
       </div>
 
       <!-- Two-Panel Layout -->
@@ -3913,19 +3915,31 @@ async function loadCampaigns() {
     const { data } = await api('GET', url);
     _campData = data || [];
 
-    // KPIs
-    const totSpend = _campData.reduce((s,c)=>s+(c.spend||0),0);
-    const totRev   = _campData.reduce((s,c)=>s+(c.revenue||0),0);
-    const totRoas  = totSpend > 0 ? totRev / totSpend : 0;
-    const totCpa   = _campData.reduce((s,c)=>s+(c.conversions||0),0) > 0
-      ? totSpend / _campData.reduce((s,c)=>s+(c.conversions||0),0) : 0;
+    // KPIs agregados
+    const totSpend   = _campData.reduce((s,c)=>s+(c.spend||0),0);
+    const totRev     = _campData.reduce((s,c)=>s+(c.revenue||0),0);
+    const totProfit  = totRev - totSpend;
+    const totRoas    = totSpend > 0 ? totRev / totSpend : 0;
+    const totConv    = _campData.reduce((s,c)=>s+(c.conversions||0),0);
+    const totImpr    = _campData.reduce((s,c)=>s+(c.impressions||0),0);
+    const totClicks  = _campData.reduce((s,c)=>s+(c.clicks||0),0);
+    const totCtr     = totImpr > 0 ? (totClicks/totImpr)*100 : 0;
 
-    const kpiEl = document.getElementById('campKpis');
-    if (kpiEl) kpiEl.innerHTML = `
-      <div class="camp-kpi"><div class="camp-kpi-label">💸 Gasto</div><div class="camp-kpi-value blue">${fmt(totSpend)}</div></div>
-      <div class="camp-kpi"><div class="camp-kpi-label">💰 Receita</div><div class="camp-kpi-value green">${fmt(totRev)}</div></div>
-      <div class="camp-kpi"><div class="camp-kpi-label">📈 ROAS</div><div class="camp-kpi-value ${totRoas>=2?'green':totRoas>=1?'orange':'red'}">${fmtN(totRoas)}x</div></div>
-      <div class="camp-kpi"><div class="camp-kpi-label">🎯 CPA</div><div class="camp-kpi-value">${fmt(totCpa)}</div></div>`;
+    // Preencher os 6 KPI cards do HTML estático
+    const setKpi = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+    const pc = totProfit >= 0;
+    setKpi('kpiSpend',       fmt(totSpend));
+    setKpi('kpiRevenue',     fmt(totRev));
+    setKpi('kpiProfit',      fmt(totProfit));
+    setKpi('kpiRoas',        fmtN(totRoas,2)+'x');
+    setKpi('kpiImpressions', totImpr >= 1000 ? (totImpr/1000).toFixed(1)+'k' : totImpr);
+    setKpi('kpiCtr',         fmtN(totCtr,2)+'%');
+
+    // Colorir lucro e roas dinamicamente
+    const profEl = document.getElementById('kpiProfit');
+    if (profEl) profEl.style.color = pc ? 'var(--green)' : 'var(--red)';
+    const roasEl = document.getElementById('kpiRoas');
+    if (roasEl) roasEl.style.color = totRoas>=2?'var(--green)':totRoas>=1?'var(--orange)':'var(--red)';
 
     // Atualizar contadores das abas
     const nAll    = _campData.length;
@@ -3977,16 +3991,27 @@ function renderCampList() {
     const dotClass = roas >= 2 ? 'green' : roas >= 1 ? 'yellow' : c.spend > 0 ? 'red' : 'gray';
     const isCBO    = (c.daily_budget > 0 || c.lifetime_budget > 0);
     const isPaused = c.status !== 'ACTIVE';
+    const freq     = (c.reach||0) > 0 ? (c.impressions||0)/(c.reach||1) : 0;
+    const freqClr  = freq > 5 ? 'var(--red)' : freq > 3 ? 'var(--orange)' : 'var(--text)';
+    const ctrClr   = (c.ctr||0) >= 2 ? 'var(--green)' : (c.ctr||0) >= 1 ? 'var(--orange)' : 'var(--text)';
     return `
       <div class="camp-list-item${isPaused?' camp-paused':''}" id="cli-${c.id}" onclick="selectCampaign('${c.id}')">
         <span class="cli-dot ${isPaused?'gray':dotClass}"></span>
-        <div class="cli-info">
-          <div class="cli-name">${c.name || 'Campanha'}</div>
-          <div class="cli-meta">
+        <div class="cli-info" style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px">
+            <div class="cli-name" style="flex:1;min-width:0">${c.name || 'Campanha'}</div>
             <span class="camp-badge ${isCBO?'cbo':'abo'}">${isCBO?'CBO':'ABO'}</span>
             ${isPaused?'<span class="paused-badge">PAUSADA</span>':''}
-            <span>Gasto: ${fmt(c.spend)}</span>
-            <span class="cli-roas ${isPaused?'gray':dotClass}">ROAS: ${fmtN(roas)}x</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding-top:7px;border-top:1px solid var(--border)">
+            <div style="text-align:center"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px">Gasto</div><div style="font-size:12px;font-weight:700;color:var(--blue)">${fmt(c.spend)}</div></div>
+            <div style="text-align:center"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px">ROAS</div><div style="font-size:12px;font-weight:700;color:var(--${isPaused?'text3':dotClass})">${fmtN(roas,2)}x</div></div>
+            <div style="text-align:center"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px">Vendas</div><div style="font-size:12px;font-weight:700;color:var(--green)">${c.conversions||0}</div></div>
+            <div style="text-align:center"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px">IC</div><div style="font-size:12px;font-weight:700;color:var(--text)">${c.ic||0}</div></div>
+            <div style="text-align:center"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px">CTR</div><div style="font-size:12px;font-weight:700;color:${ctrClr}">${fmtN(c.ctr||0,2)}%</div></div>
+            <div style="text-align:center"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px">CPC</div><div style="font-size:12px;font-weight:700;color:var(--text)">${(c.cpc||0)>0?fmt(c.cpc):'—'}</div></div>
+            <div style="text-align:center"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px">CPM</div><div style="font-size:12px;font-weight:700;color:var(--text)">${(c.cpm||0)>0?fmt(c.cpm):'—'}</div></div>
+            <div style="text-align:center"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px">Freq.</div><div style="font-size:12px;font-weight:700;color:${freqClr}">${freq>0?fmtN(freq,1)+'x':'—'}</div></div>
           </div>
         </div>
       </div>`;
@@ -4007,7 +4032,9 @@ function selectCampaign(campId) {
 
   const isCBO = (camp.daily_budget > 0 || camp.lifetime_budget > 0);
   const roas  = camp.spend > 0 ? (camp.revenue||0)/camp.spend : 0;
-  const cpa   = (camp.conversions||0) > 0 ? (camp.spend||0)/camp.conversions : 0;
+  const cpa        = (camp.conversions||0) > 0 ? (camp.spend||0)/camp.conversions : 0;
+  const freq       = (camp.reach||0) > 0 ? (camp.impressions||0)/(camp.reach||1) : 0;
+  const avgTicket  = (camp.conversions||0) > 0 ? (camp.revenue||0)/(camp.conversions||0) : 0;
 
   const adSetsHtml = (camp.ad_sets || []).map(s => {
     const sRoas = s.spend > 0 ? (s.revenue||0)/s.spend : 0;
@@ -4060,11 +4087,78 @@ function selectCampaign(campId) {
         </div>
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
-      <div class="detail-row"><div style="font-size:11px;color:var(--text3)">Gasto</div><div style="font-size:17px;font-weight:700;color:var(--blue)">${fmt(camp.spend)}</div></div>
-      <div class="detail-row"><div style="font-size:11px;color:var(--text3)">Receita</div><div style="font-size:17px;font-weight:700;color:var(--green)">${fmt(camp.revenue)}</div></div>
-      <div class="detail-row"><div style="font-size:11px;color:var(--text3)">ROAS</div><div style="font-size:17px;font-weight:700;color:${roas>=2?'var(--green)':roas>=1?'var(--orange)':'var(--red)'}">${fmtN(roas)}x</div></div>
-      <div class="detail-row"><div style="font-size:11px;color:var(--text3)">CPA</div><div style="font-size:17px;font-weight:700;color:var(--text)">${fmt(cpa)}</div></div>
+    <!-- Grid de métricas completas: 4 col × 4 linhas -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">
+      <!-- Linha 1: financeiro -->
+      <div class="detail-row">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">💸 Gasto</div>
+        <div style="font-size:16px;font-weight:700;color:var(--blue)">${fmt(camp.spend)}</div>
+      </div>
+      <div class="detail-row">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">💰 Receita</div>
+        <div style="font-size:16px;font-weight:700;color:var(--green)">${fmt(camp.revenue||0)}</div>
+      </div>
+      <div class="detail-row">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">📈 Lucro</div>
+        <div style="font-size:16px;font-weight:700;color:${(camp.profit||0)>=0?'var(--green)':'var(--red)'}">${fmt(camp.profit||0)}</div>
+      </div>
+      <div class="detail-row">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">🎯 ROAS</div>
+        <div style="font-size:16px;font-weight:700;color:${roas>=2?'var(--green)':roas>=1?'var(--orange)':'var(--red)'}">${fmtN(roas,2)}x</div>
+      </div>
+      <!-- Linha 2: alcance e engajamento -->
+      <div class="detail-row">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">👁 Impressões</div>
+        <div style="font-size:16px;font-weight:700;color:var(--text)">${(camp.impressions||0)>=1000?((camp.impressions||0)/1000).toFixed(1)+'k':(camp.impressions||0)}</div>
+      </div>
+      <div class="detail-row">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">🖱 Cliques</div>
+        <div style="font-size:16px;font-weight:700;color:var(--text)">${(camp.clicks||0)>=1000?((camp.clicks||0)/1000).toFixed(1)+'k':(camp.clicks||0)}</div>
+      </div>
+      <div class="detail-row">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">👆 CTR</div>
+        <div style="font-size:16px;font-weight:700;color:${(camp.ctr||0)>=2?'var(--green)':(camp.ctr||0)>=1?'var(--orange)':'var(--text)'}">${fmtN(camp.ctr||0,2)}%</div>
+      </div>
+      <div class="detail-row">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">🌍 Alcance</div>
+        <div style="font-size:16px;font-weight:700;color:var(--text)">${(camp.reach||0)>=1000?((camp.reach||0)/1000).toFixed(1)+'k':(camp.reach||0)||'—'}</div>
+      </div>
+      <!-- Linha 3: custo e conversão -->
+      <div class="detail-row">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">💡 CPA</div>
+        <div style="font-size:16px;font-weight:700;color:var(--text)">${cpa>0?fmt(cpa):'—'}</div>
+      </div>
+      <div class="detail-row">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">💲 CPC</div>
+        <div style="font-size:16px;font-weight:700;color:var(--text)">${(camp.cpc||0)>0?fmt(camp.cpc):'—'}</div>
+      </div>
+      <div class="detail-row">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">📊 CPM</div>
+        <div style="font-size:16px;font-weight:700;color:var(--text)">${(camp.cpm||0)>0?fmt(camp.cpm):'—'}</div>
+      </div>
+      <div class="detail-row">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">🏆 Conversões</div>
+        <div style="font-size:16px;font-weight:700;color:var(--green)">${camp.conversions||0}</div>
+      </div>
+      <!-- Linha 4: IC, Frequência, Ticket Médio, Custo/IC -->
+      <div class="detail-row">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">🛒 IC</div>
+        <div style="font-size:16px;font-weight:700;color:var(--text)">${camp.ic||0}</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px">Init. Compra</div>
+      </div>
+      <div class="detail-row">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">🔁 Frequência</div>
+        <div style="font-size:16px;font-weight:700;color:${freq>5?'var(--red)':freq>3?'var(--orange)':'var(--text)'}">${freq>0?fmtN(freq,1)+'x':'—'}</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px">${freq>5?'Alta saturação':freq>3?'Atenção':'Normal'}</div>
+      </div>
+      <div class="detail-row">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">🎫 Ticket Médio</div>
+        <div style="font-size:16px;font-weight:700;color:var(--text)">${avgTicket>0?fmt(avgTicket):'—'}</div>
+      </div>
+      <div class="detail-row">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">💹 Custo por IC</div>
+        <div style="font-size:16px;font-weight:700;color:var(--text)">${(camp.ic||0)>0?fmt((camp.spend||0)/(camp.ic||1)):'—'}</div>
+      </div>
     </div>
     ${(camp.ad_sets||[]).length > 0 ? `
     <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">📦 Conjuntos de Anúncios</div>
@@ -5883,46 +5977,4 @@ async function loadPlanTab() {
         </div>
         <div id="sg-platform-generic" style="display:none;background:var(--bg3);border-radius:10px;padding:14px;font-size:13px;color:var(--text2);line-height:1.65;">
           <strong>Qualquer outra plataforma</strong><br><br>
-          Cole o snippet dentro da tag <code style="background:var(--bg2);padding:2px 5px;border-radius:4px;">&lt;head&gt;</code> do HTML das suas paginas — ou no campo de "Scripts personalizados" que a plataforma oferece.
-        </div>
-
-        <div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:14px;margin-top:14px;">
-          <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:6px;">Capturar e-mail do lead (melhora o match rate)</div>
-          <pre style="font-size:10.5px;font-family:monospace;color:var(--text2);margin:0;white-space:pre-wrap;">// Quando o lead preenche o formulario:
-window.ippmify('setUser', { email: 'lead@email.com' });
-
-// Na pagina de checkout:
-window.ippmify('track', 'InitiateCheckout', { value: 97, currency: 'BRL' });</pre>
-        </div>
-      </div>
-
-      <!-- STEP 4: Webhooks das plataformas -->
-      <div id="sg-step-4" style="display:none;">
-        <div style="font-size:32px;margin-bottom:12px;">🔔</div>
-        <div style="font-size:18px;font-weight:800;font-family:'Sora',sans-serif;color:var(--text1);margin-bottom:8px;">Passo 4 — Conectar Plataforma de Vendas</div>
-        <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px;">
-          Sempre que uma venda e aprovada, a plataforma envia uma notificacao (webhook) para o IPPMIFY. Registramos a venda e disparamos um evento <strong>Purchase</strong> server-side no seu Pixel automaticamente.
-        </div>
-
-        <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:10px;">Selecione sua plataforma:</div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
-          <button onclick="sgShowWebhook('kirvano')"    id="sgwh-kirvano"    class="sg-ptab active-ptab">Kirvano</button>
-          <button onclick="sgShowWebhook('hotmart')"    id="sgwh-hotmart"    class="sg-ptab">Hotmart</button>
-          <button onclick="sgShowWebhook('eduzz')"      id="sgwh-eduzz"      class="sg-ptab">Eduzz</button>
-          <button onclick="sgShowWebhook('monetizze')"  id="sgwh-monetizze"  class="sg-ptab">Monetizze</button>
-          <button onclick="sgShowWebhook('braip')"      id="sgwh-braip"      class="sg-ptab">Braip</button>
-          <button onclick="sgShowWebhook('perfectpay')" id="sgwh-perfectpay" class="sg-ptab">PerfectPay</button>
-          <button onclick="sgShowWebhook('ticto')"      id="sgwh-ticto"      class="sg-ptab">Ticto</button>
-          <button onclick="sgShowWebhook('mercadopago')" id="sgwh-mercadopago" class="sg-ptab">Mercado Pago</button>
-          <button onclick="sgShowWebhook('stripe')"     id="sgwh-stripe"     class="sg-ptab">Stripe</button>
-          <button onclick="sgShowWebhook('asaas')"      id="sgwh-asaas"      class="sg-ptab">Asaas</button>
-          <button onclick="sgShowWebhook('pagarme')"    id="sgwh-pagarme"    class="sg-ptab">Pagar.me</button>
-          <button onclick="sgShowWebhook('pagseguro')"  id="sgwh-pagseguro"  class="sg-ptab">PagSeguro</button>
-        </div>
-
-        <div style="margin-bottom:16px;">
-          <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;">URL do Webhook — cole na sua plataforma:</div>
-          <div style="display:flex;gap:8px;">
-            <input type="text" id="sg-webhook-url" readonly
-                   style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text1);font-size:12px;font-family:monospace;">
-            <button onclick="sgCopyWebhook()" id="sg-copy-wh-btn" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 16px;color:var(--text2);font-size:13px;cursor:pointer;white-space:nowrap;font-weight:600;">Copiar</b
+          Cole o snippet dentro da tag <code style="background:var(--bg2);padding:2px 5px;border-radius:4px;">&l
