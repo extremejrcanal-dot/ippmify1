@@ -108,7 +108,8 @@ router.get('/tree', async (req, res) => {
         COALESCE(SUM(am.reach), 0)::integer           AS reach,
         COALESCE(AVG(NULLIF(am.cpm, 0)), 0)::numeric  AS cpm,
         COALESCE(AVG(NULLIF(am.ctr, 0)), 0)::numeric  AS ctr,
-        COALESCE(AVG(NULLIF(am.cpc, 0)), 0)::numeric  AS cpc
+        COALESCE(AVG(NULLIF(am.cpc, 0)), 0)::numeric  AS cpc,
+        COALESCE(SUM(am.ic_count), 0)::integer        AS ic_count
       FROM campaigns c
       LEFT JOIN ad_metrics am
         ON am.campaign_id = c.id
@@ -348,6 +349,8 @@ router.get('/tree', async (req, res) => {
         cpm:         parseFloat(c.cpm),
         ctr:         parseFloat(c.ctr),
         cpc:         parseFloat(c.cpc),
+        ic:          parseInt(c.ic_count || 0),
+        frequency:   parseInt(c.reach) > 0 ? parseFloat((parseInt(c.impressions)/parseInt(c.reach)).toFixed(2)) : 0,
         health:      calcHealth(spend, revenue, conversions),
         ad_sets:     adSets,
       };
