@@ -113,6 +113,7 @@ const syncCampaigns = async (integrationId, userId, accessToken, adAccountId) =>
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SYNC NIVEL 2 — CONJUNTOS DE ANUNCIOS (Ad Sets)
+// Requer tabela ad_sets — ignorado se nao existir
 // ═══════════════════════════════════════════════════════════════════════════
 
 const syncAdSets = async (integrationId, userId, accessToken, adAccountId) => {
@@ -150,6 +151,7 @@ const syncAdSets = async (integrationId, userId, accessToken, adAccountId) => {
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SYNC NIVEL 3 — ANUNCIOS INDIVIDUAIS
+// Requer tabela ads — ignorado se nao existir
 // ═══════════════════════════════════════════════════════════════════════════
 
 const syncAds = async (integrationId, userId, accessToken, adAccountId) => {
@@ -181,9 +183,7 @@ const syncAds = async (integrationId, userId, accessToken, adAccountId) => {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
-// METRICAS NIVEL CAMPANHA
-// ✅ CORRIGIDO: ON CONFLICT DO NOTHING → ON CONFLICT DO UPDATE
-// Garante que cada sync do dia sobrescreve os dados anteriores com os mais recentes
+// METRICAS NIVEL CAMPANHA — salva em ad_metrics (adset_id/ad_id = NULL)
 // ═══════════════════════════════════════════════════════════════════════════
 
 const syncAdMetrics = async (userId, accessToken, adAccountId, integrationId, daysBack = 7) => {
@@ -204,7 +204,7 @@ const syncAdMetrics = async (userId, accessToken, adAccountId, integrationId, da
   } catch (err) {
     const errData = err.response?.data?.error;
     console.error(`[Meta] ERRO na API (${adAccountId}):`, errData?.message || err.message);
-    console.error(`[Meta] Código:`, errData?.code, '| Subcode:', errData?.error_subcode);
+    console.error(`[Meta] Codigo:`, errData?.code, '| Subcode:', errData?.error_subcode);
     throw err;
   }
 
@@ -219,12 +219,13 @@ const syncAdMetrics = async (userId, accessToken, adAccountId, integrationId, da
 
     await query(`
       INSERT INTO ad_metrics
-        (user_id, campaign_id, date, spend, impressions, clicks, cpm, ctr, cpc)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+        (user_id, campaign_id, date, spend, impressions, clicks, reach, cpm, ctr, cpc)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
       ON CONFLICT (user_id, campaign_id, date) DO UPDATE SET
         spend       = EXCLUDED.spend,
         impressions = EXCLUDED.impressions,
         clicks      = EXCLUDED.clicks,
+        reach       = EXCLUDED.reach,
         cpm         = EXCLUDED.cpm,
         ctr         = EXCLUDED.ctr,
         cpc         = EXCLUDED.cpc
@@ -235,6 +236,7 @@ const syncAdMetrics = async (userId, accessToken, adAccountId, integrationId, da
       parseFloat(insight.spend||0),
       parseInt(insight.impressions||0),
       parseInt(insight.clicks||0),
+      parseInt(insight.reach||0),
       parseFloat(insight.cpm||0),
       parseFloat(insight.ctr||0),
       parseFloat(insight.cpc||0),
@@ -252,7 +254,7 @@ const syncAdMetrics = async (userId, accessToken, adAccountId, integrationId, da
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
-// METRICAS NIVEL AD SET
+// METRICAS NIVEL AD SET — requer tabela ad_sets
 // ═══════════════════════════════════════════════════════════════════════════
 
 const syncAdSetMetrics = async (userId, accessToken, adAccountId, daysBack = 7) => {
@@ -286,7 +288,7 @@ const syncAdSetMetrics = async (userId, accessToken, adAccountId, daysBack = 7) 
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
-// METRICAS NIVEL ANUNCIO INDIVIDUAL
+// METRICAS NIVEL ANUNCIO INDIVIDUAL — requer tabela ads
 // ═══════════════════════════════════════════════════════════════════════════
 
 const syncAdLevelMetrics = async (userId, accessToken, adAccountId, daysBack = 7) => {
@@ -342,18 +344,30 @@ const updateDailyBudget = async (entityId, newBudgetReais, accessToken) => {
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SINCRONIZACAO DE UMA INTEGRACAO ESPECIFICA
+// Niveis 2 e 3 sao opcionais — ignorados se as tabelas nao existirem
 // ═══════════════════════════════════════════════════════════════════════════
 
 const syncOneIntegration = async (userId, integrationData) => {
   const { accessToken, adAccountId, integration } = integrationData;
-  console.log(`[Meta] Sincronizando conta ${adAccountId} (${integration.account_name})`);
+  console.log(`[Meta] Sincronizando conta ${adAccountId} (${integration.account_name || integration.id})`);
 
+  // Nivel 1: Campanhas — sempre sincronizado
   await syncCampaigns(integration.id, userId, accessToken, adAccountId);
-  await syncAdSets(integration.id, userId, accessToken, adAccountId);
-  await syncAds(integration.id, userId, accessToken, adAccountId);
+
+  // Metricas de campanha — sempre sincronizado
   await syncAdMetrics(userId, accessToken, adAccountId, integration.id, 7);
-  await syncAdSetMetrics(userId, accessToken, adAccountId, 7);
-  await syncAdLevelMetrics(userId, accessToken, adAccountId, 7);
+
+  // Helper para syncs opcionais que requerem tabelas extras
+  const trySync = async (fn, label) => {
+    try { await fn(); }
+    catch (e) { console.log(`[Meta] ${label} ignorado (tabela inexistente ou erro):`, e.message.slice(0, 120)); }
+  };
+
+  // Niveis 2 e 3: requerem tabelas ad_sets / ads / ad_set_metrics / ad_level_metrics
+  await trySync(() => syncAdSets(integration.id, userId, accessToken, adAccountId), 'syncAdSets');
+  await trySync(() => syncAds(integration.id, userId, accessToken, adAccountId),    'syncAds');
+  await trySync(() => syncAdSetMetrics(userId, accessToken, adAccountId, 7),        'syncAdSetMetrics');
+  await trySync(() => syncAdLevelMetrics(userId, accessToken, adAccountId, 7),      'syncAdLevelMetrics');
 
   console.log(`[Meta] Conta ${adAccountId} sincronizada com sucesso`);
 };
