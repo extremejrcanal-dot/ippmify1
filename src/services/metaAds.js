@@ -221,7 +221,7 @@ const syncAdMetrics = async (userId, accessToken, adAccountId, integrationId, da
       INSERT INTO ad_metrics
         (user_id, campaign_id, date, spend, impressions, clicks, reach, cpm, ctr, cpc)
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
-      ON CONFLICT (user_id, campaign_id, date) DO UPDATE SET
+      ON CONFLICT (user_id, campaign_id, date) WHERE ad_id IS NULL DO UPDATE SET
         spend       = EXCLUDED.spend,
         impressions = EXCLUDED.impressions,
         clicks      = EXCLUDED.clicks,
