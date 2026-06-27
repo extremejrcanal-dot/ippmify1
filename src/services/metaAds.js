@@ -196,7 +196,7 @@ const syncAdMetrics = async (userId, accessToken, adAccountId, integrationId, da
     response = await axios.get(`${META_BASE_URL}/${adAccountId}/insights`, {
       params: {
         access_token: accessToken,
-        fields: 'campaign_id,spend,impressions,clicks,reach,cpm,ctr,cpc',
+        fields: 'campaign_id,spend,impressions,clicks,reach,cpm,ctr,cpc,actions',
         time_range: JSON.stringify({ since: sinceStr, until: untilStr }),
         level: 'campaign', time_increment: 1, limit: 500,
       }
@@ -217,10 +217,16 @@ const syncAdMetrics = async (userId, accessToken, adAccountId, integrationId, da
     );
     if (campResult.rows.length === 0) continue;
 
-    await query(`
+    // Extrair initiate_checkout das actions do pixel
+    const actions = insight.actions || [];
+    const icAction = actions.find(a => a.action_type === 'initiate_checkout');
+    const icCount  = icAction ? parseInt(icAction.value || 0) : 0;
+
+    // Tentar inserir com ic_count (requer migracao SQL); fallback sem ic_count
+    const inserted = await query(`
       INSERT INTO ad_metrics
-        (user_id, campaign_id, date, spend, impressions, clicks, reach, cpm, ctr, cpc)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+        (user_id, campaign_id, date, spend, impressions, clicks, reach, cpm, ctr, cpc, ic_count)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
       ON CONFLICT (user_id, campaign_id, date) WHERE ad_id IS NULL DO UPDATE SET
         spend       = EXCLUDED.spend,
         impressions = EXCLUDED.impressions,
@@ -228,7 +234,8 @@ const syncAdMetrics = async (userId, accessToken, adAccountId, integrationId, da
         reach       = EXCLUDED.reach,
         cpm         = EXCLUDED.cpm,
         ctr         = EXCLUDED.ctr,
-        cpc         = EXCLUDED.cpc
+        cpc         = EXCLUDED.cpc,
+        ic_count    = EXCLUDED.ic_count
     `, [
       userId,
       campResult.rows[0].id,
@@ -240,8 +247,26 @@ const syncAdMetrics = async (userId, accessToken, adAccountId, integrationId, da
       parseFloat(insight.cpm||0),
       parseFloat(insight.ctr||0),
       parseFloat(insight.cpc||0),
-    ]).catch(err => {
-      console.error('[Meta] Erro ao salvar ad_metric:', err.message, '| campaign_id:', insight.campaign_id);
+      icCount,
+    ]).catch(async (err) => {
+      if (err.message.includes('ic_count')) {
+        // Coluna ic_count ainda nao existe — inserir sem ela
+        await query(`
+          INSERT INTO ad_metrics
+            (user_id, campaign_id, date, spend, impressions, clicks, reach, cpm, ctr, cpc)
+          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+          ON CONFLICT (user_id, campaign_id, date) WHERE ad_id IS NULL DO UPDATE SET
+            spend=EXCLUDED.spend, impressions=EXCLUDED.impressions,
+            clicks=EXCLUDED.clicks, reach=EXCLUDED.reach,
+            cpm=EXCLUDED.cpm, ctr=EXCLUDED.ctr, cpc=EXCLUDED.cpc
+        `, [userId, campResult.rows[0].id, insight.date_start,
+            parseFloat(insight.spend||0), parseInt(insight.impressions||0),
+            parseInt(insight.clicks||0), parseInt(insight.reach||0),
+            parseFloat(insight.cpm||0), parseFloat(insight.ctr||0), parseFloat(insight.cpc||0)
+        ]).catch(e2 => console.error('[Meta] Erro fallback ad_metric:', e2.message));
+      } else {
+        console.error('[Meta] Erro ao salvar ad_metric:', err.message, '| campaign_id:', insight.campaign_id);
+      }
     });
   }
 
