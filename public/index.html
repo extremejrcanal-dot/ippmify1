@@ -2128,9 +2128,17 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div class="form-group"><label>Client ID</label><input type="text" id="hotmartClientId" placeholder="Seu Client ID da Hotmart"></div>
           <div class="form-group"><label>Client Secret</label><input type="password" id="hotmartClientSecret" placeholder="Seu Client Secret da Hotmart"></div>
           <div id="hotmartMsg"></div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
             <button class="btn btn-sm" style="background:#e63929;color:#fff" onclick="connectHotmart()">⚡ Conectar Hotmart</button>
             <button class="btn btn-ghost btn-sm" onclick="syncHotmart()">↻ Sincronizar</button>
+          </div>
+          <div id="hotmartWebhookArea" style="display:none">
+            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">🔗 URL do Webhook (para vendas em tempo real)</label>
+            <div class="int-webhook-box">
+              <input class="int-webhook-input" id="hotmartWebhookUrl" readonly onclick="this.select()">
+              <button class="btn btn-ghost btn-sm" onclick="copyWebhook('hotmartWebhookUrl')">📋 Copiar</button>
+            </div>
+            <div style="font-size:11px;color:var(--text3);margin-top:5px">Configure em: Hotmart → Ferramentas → Webhook → Cole esta URL</div>
           </div>
         </div>
       </div>
@@ -2161,7 +2169,15 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           </div>
           <div class="form-group"><label>API Key</label><input type="password" id="kiwifyApiKey" placeholder="Sua chave de API da Kiwify"></div>
           <div id="kiwifyMsg"></div>
-          <button class="btn btn-blue btn-sm" onclick="connectKiwify()">⚡ Conectar Kiwify</button>
+          <button class="btn btn-blue btn-sm" style="margin-bottom:12px" onclick="connectKiwify()">⚡ Conectar Kiwify</button>
+          <div id="kiwifyWebhookArea" style="display:none">
+            <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">🔗 URL do Webhook (para vendas em tempo real)</label>
+            <div class="int-webhook-box">
+              <input class="int-webhook-input" id="kiwifyWebhookUrl" readonly onclick="this.select()">
+              <button class="btn btn-ghost btn-sm" onclick="copyWebhook('kiwifyWebhookUrl')">📋 Copiar</button>
+            </div>
+            <div style="font-size:11px;color:var(--text3);margin-top:5px">Configure em: Kiwify → Configurações → Webhooks → Cole esta URL</div>
+          </div>
         </div>
       </div>
 
@@ -2726,6 +2742,18 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
             <input type="text" id="settingWhatsappKey" placeholder="Ex: 1234567">
             <div class="hint">Siga o guia acima para obter sua chave gratuita em 2 minutos.</div>
           </div>
+
+          <!-- ── Botões de Teste de Alerta ── -->
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+            <button class="btn btn-secondary" style="font-size:13px;padding:8px 16px;" onclick="testAlert('whatsapp')">
+              📱 Testar WhatsApp
+            </button>
+            <button class="btn btn-secondary" style="font-size:13px;padding:8px 16px;" onclick="testAlert('email')">
+              📧 Testar Email
+            </button>
+          </div>
+          <div id="alertTestResult" style="display:none;font-size:13px;padding:10px 14px;border-radius:8px;margin-bottom:4px;"></div>
+          <div class="hint" style="margin-bottom:16px;">Salve as configurações antes de testar. O teste envia uma mensagem real para verificar que tudo funciona.</div>
 
           <div class="card-title" style="margin-top:24px">📡 Meta CAPI — Rastreamento Server-Side</div>
           <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6;">
@@ -3698,18 +3726,14 @@ async function removeIntegration(id) {
 
 async function connectWebhookPlatform(platform) {
   try {
-    const { message } = await api('POST', `/api/integrations/${platform}/connect`);
+    const resp = await api('POST', `/api/integrations/${platform}/connect`);
     loadIntegrations();
-    // Exibir URL do webhook
-    const apiBase = window.location.origin;
-    const webhookUrl = `${apiBase}/api/hook/webhook/${platform}`;
     const inputEl = document.getElementById(`${platform}WebhookUrl`);
     const areaEl  = document.getElementById(`${platform}WebhookArea`);
-    if (inputEl) inputEl.value = webhookUrl;
+    if (inputEl) inputEl.value = resp.webhook_url || '';
     if (areaEl)  areaEl.style.display = 'block';
     const body = document.getElementById(`body-${platform}`);
     if (body) body.style.display = 'block';
-    alert(message);
   } catch(e) {
     alert('Erro: ' + e.message);
   }
@@ -3824,13 +3848,20 @@ async function connectHotmart() {
   btn.innerHTML = '<span class="spinner"></span> Conectando...';
   btn.disabled = true;
   try {
-    const { message } = await api('POST', '/api/integrations/hotmart/connect', { client_id, client_secret });
-    alert(message);
+    const resp = await api('POST', '/api/integrations/hotmart/connect', { client_id, client_secret });
     document.getElementById('hotmartClientId').value = '';
     document.getElementById('hotmartClientSecret').value = '';
+    // Exibir URL do webhook
+    const wArea = document.getElementById('hotmartWebhookArea');
+    const wInput = document.getElementById('hotmartWebhookUrl');
+    if (wArea)  wArea.style.display = 'block';
+    if (wInput) wInput.value = resp.webhook_url || '';
+    const msgEl = document.getElementById('hotmartMsg');
+    if (msgEl) msgEl.innerHTML = '<div class="int-msg ok">✅ Hotmart conectado! Copie a URL do webhook abaixo e configure na Hotmart → Ferramentas → Webhook.</div>';
     loadIntegrations();
   } catch(e) {
-    alert('Erro: ' + e.message);
+    const msgEl = document.getElementById('hotmartMsg');
+    if (msgEl) msgEl.innerHTML = `<div class="int-msg err">❌ ${e.message}</div>`;
   } finally {
     btn.innerHTML = '⚡ Conectar Hotmart';
     btn.disabled = false;
@@ -3844,12 +3875,18 @@ async function connectKiwify() {
   btn.innerHTML = '<span class="spinner"></span> Conectando...';
   btn.disabled = true;
   try {
-    const { message } = await api('POST', '/api/integrations/kiwify/connect', { api_key });
-    alert(message);
+    const resp = await api('POST', '/api/integrations/kiwify/connect', { api_key });
     document.getElementById('kiwifyApiKey').value = '';
+    const wArea  = document.getElementById('kiwifyWebhookArea');
+    const wInput = document.getElementById('kiwifyWebhookUrl');
+    if (wArea)  wArea.style.display = 'block';
+    if (wInput) wInput.value = resp.webhook_url || '';
+    const msgEl = document.getElementById('kiwifyMsg');
+    if (msgEl) msgEl.innerHTML = '<div class="int-msg ok">✅ Kiwify conectado! Copie a URL do webhook abaixo e configure em Kiwify → Configurações → Webhooks.</div>';
     loadIntegrations();
   } catch(e) {
-    alert('Erro: ' + e.message);
+    const msgEl = document.getElementById('kiwifyMsg');
+    if (msgEl) msgEl.innerHTML = `<div class="int-msg err">❌ ${e.message}</div>`;
   } finally {
     btn.innerHTML = '⚡ Conectar Kiwify';
     btn.disabled = false;
@@ -5565,6 +5602,32 @@ async function saveSettings() {
     btn.innerHTML = 'Salvar Configurações';
     btn.disabled  = false;
   }
+}
+
+// ─── TESTE DE ALERTAS ─────────────────────────────────────────────────────────
+async function testAlert(channel) {
+  const resultDiv = document.getElementById('alertTestResult');
+  resultDiv.style.display = '';
+  resultDiv.style.background = 'var(--bg3)';
+  resultDiv.style.color = 'var(--text2)';
+  resultDiv.style.border = '1px solid var(--border)';
+  const channelLabel = channel === 'whatsapp' ? 'WhatsApp' : 'Email';
+  resultDiv.innerHTML = `<span class="spinner"></span> Enviando teste para ${channelLabel}…`;
+
+  try {
+    const resp = await api('POST', '/api/decisions/test-alert', { channel });
+    resultDiv.style.background = '#1a3a1a';
+    resultDiv.style.color = 'var(--green)';
+    resultDiv.style.border = '1px solid var(--green)';
+    resultDiv.innerHTML = `✅ ${resp.message || 'Alerta de teste enviado com sucesso!'}`;
+  } catch(e) {
+    resultDiv.style.background = '#3a1a1a';
+    resultDiv.style.color = '#ff6b6b';
+    resultDiv.style.border = '1px solid #ff6b6b';
+    resultDiv.innerHTML = `❌ Erro: ${e.message}`;
+  }
+  // Oculta o resultado após 8 segundos
+  setTimeout(() => { resultDiv.style.display = 'none'; }, 8000);
 }
 
 // ─── CAPI PROXY — FUNIL COMPLETO ─────────────────────────────────────────────
