@@ -2,11 +2,11 @@ const { query } = require('../config/database');
 const { exists, setEx } = require('../config/redis');
 
 // ─── INICIALIZACAO LAZY DOS CLIENTES EXTERNOS ─────────────────────────────
-// SendGrid e Twilio sao inicializados APENAS quando usados, nao no startup.
+// SendGrid é inicializado APENAS quando usado, nao no startup.
 // Isso evita crash se as env vars nao estiverem configuradas no Railway.
+// CallMeBot NAO requer SDK — usa uma simples requisicao HTTP GET.
 
-let _sgMail  = null;
-let _twilio  = null;
+let _sgMail = null;
 
 const getSendGrid = () => {
   if (!process.env.SENDGRID_API_KEY) return null;
@@ -17,13 +17,30 @@ const getSendGrid = () => {
   return _sgMail;
 };
 
-const getTwilio = () => {
-  if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) return null;
-  if (!_twilio) {
-    const twilio = require('twilio');
-    _twilio = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-  }
-  return _twilio;
+// ─── CALLMEBOT (WHATSAPP GRATUITO) ───────────────────────────────────────
+// Cada usuario tem sua propria chave CallMeBot (campo whatsapp_key na tabela users).
+// Guia para obter a chave: salvar +34 644 65 44 78 nos contatos e enviar "I allow callmebot to send me messages"
+// API: GET https://api.callmebot.com/whatsapp.php?phone=PHONE&apikey=KEY&text=MESSAGE
+
+const sendCallMeBot = async (phone, apiKey, message) => {
+  const https = require('https');
+  const encodedText = encodeURIComponent(message);
+  const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&apikey=${apiKey}&text=${encodedText}`;
+
+  return new Promise((resolve, reject) => {
+    https.get(url, (res) => {
+      let data = '';
+      res.on('data', chunk => { data += chunk; });
+      res.on('end', () => {
+        const status = res.statusCode;
+        if (status >= 200 && status < 300) {
+          resolve({ success: true, status, body: data });
+        } else {
+          reject(new Error(`CallMeBot retornou status ${status}: ${data}`));
+        }
+      });
+    }).on('error', reject);
+  });
 };
 
 // ─── CONTROLE DE THROTTLE ─────────────────────────────────────────────────
@@ -45,16 +62,16 @@ const setThrottle    = async (userId, ruleId, severity) => {
 // ─── FORMATAR MENSAGEM WHATSAPP ───────────────────────────────────────────
 const formatWhatsAppMessage = (decision, userName) => {
   const emoji = decision.severity >= 9 ? '🚨' : decision.severity >= 7 ? '⚠️' : '📊';
-  return `${emoji} *IPPMIFY ALERTA*
+  return `${emoji} IPPMIFY ALERTA
 
 Ola, ${userName}!
 
-*Campanha:* ${decision.campaign_name || 'Geral'}
-*Problema:* ${decision.title}
+Campanha: ${decision.campaign_name || 'Geral'}
+Problema: ${decision.title}
 
 ${decision.description}
 
-✅ *O que fazer:*
+✅ O que fazer:
 ${decision.recommendation}
 
 ⏰ ${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
@@ -91,7 +108,7 @@ const formatEmailHtml = (decision, userName) => {
 const sendAlert = async (userId, decision) => {
   try {
     const userResult = await query(
-      'SELECT name, email, whatsapp FROM users WHERE id = $1',
+      'SELECT name, email, whatsapp, whatsapp_key FROM users WHERE id = $1',
       [userId]
     );
     if (userResult.rows.length === 0) return;
@@ -106,23 +123,23 @@ const sendAlert = async (userId, decision) => {
 
     const results = { whatsapp: null, email: null };
 
-    // ── Enviar WhatsApp (severity >= 7) ──────────────────────────────────
-    const twilioClient = getTwilio();
-    if (decision.severity >= 7 && user.whatsapp && twilioClient) {
+    // ── Enviar WhatsApp via CallMeBot (severity >= 7) ─────────────────────
+    if (decision.severity >= 7 && user.whatsapp && user.whatsapp_key) {
       try {
-        await twilioClient.messages.create({
-          from: process.env.TWILIO_WHATSAPP_FROM,
-          to:   `whatsapp:${user.whatsapp}`,
-          body: formatWhatsAppMessage(decision, user.name),
-        });
+        await sendCallMeBot(
+          user.whatsapp,
+          user.whatsapp_key,
+          formatWhatsAppMessage(decision, user.name)
+        );
         results.whatsapp = 'sent';
-        console.log(`[Alert] WhatsApp enviado para ${user.whatsapp}`);
+        console.log(`[Alert] WhatsApp CallMeBot enviado para ${user.whatsapp}`);
       } catch (err) {
         results.whatsapp = 'failed';
-        console.error('[Alert] Erro WhatsApp:', err.message);
+        console.error('[Alert] Erro WhatsApp CallMeBot:', err.message);
       }
-    } else if (decision.severity >= 7 && user.whatsapp && !twilioClient) {
-      console.warn('[Alert] Twilio nao configurado — WhatsApp ignorado (configure TWILIO_ACCOUNT_SID)');
+    } else if (decision.severity >= 7 && user.whatsapp && !user.whatsapp_key) {
+      console.warn('[Alert] whatsapp_key nao configurada — WhatsApp ignorado');
+      results.whatsapp = 'no_key';
     }
 
     // ── Enviar Email ─────────────────────────────────────────────────────
@@ -177,6 +194,46 @@ const sendAlert = async (userId, decision) => {
     console.error('[Alert] Erro inesperado em sendAlert:', err.message);
     return { error: err.message };
   }
+};
+
+// ─── ENVIAR ALERTA DE TESTE (sem throttle, sem log obrigatorio) ────────────
+// Usado pelo endpoint POST /api/decisions/test-alert
+const sendTestAlert = async (userId, channel) => {
+  const userResult = await query(
+    'SELECT name, email, whatsapp, whatsapp_key FROM users WHERE id = $1',
+    [userId]
+  );
+  if (userResult.rows.length === 0) throw new Error('Usuario nao encontrado');
+  const user = userResult.rows[0];
+
+  const testDecision = {
+    title:          'Teste de Alerta IPPMIFY',
+    campaign_name:  'Campanha de Teste',
+    description:    'Esta e uma mensagem de teste para verificar que seus alertas estao funcionando corretamente.',
+    recommendation: 'Nenhuma acao necessaria. Se recebeu esta mensagem, seus alertas estao configurados com sucesso!',
+    severity:       9, // critico para garantir que passa pelo filtro de severity >= 7
+    rule_id:        'test_alert',
+  };
+
+  if (channel === 'whatsapp' || channel === 'all') {
+    if (!user.whatsapp) throw new Error('Numero de WhatsApp nao configurado nas configuracoes');
+    if (!user.whatsapp_key) throw new Error('Chave CallMeBot nao configurada. Siga o guia para obter sua chave gratuita.');
+    await sendCallMeBot(user.whatsapp, user.whatsapp_key, formatWhatsAppMessage(testDecision, user.name));
+  }
+
+  if (channel === 'email' || channel === 'all') {
+    const sgMail = getSendGrid();
+    if (!user.email) throw new Error('Email nao configurado');
+    if (!sgMail) throw new Error('SendGrid nao configurado no servidor (SENDGRID_API_KEY ausente)');
+    await sgMail.send({
+      to:      user.email,
+      from:    process.env.EMAIL_FROM || 'noreply@ippmify.com',
+      subject: '✅ Teste de Alerta IPPMIFY',
+      html:    formatEmailHtml(testDecision, user.name),
+    });
+  }
+
+  return { success: true, channel };
 };
 
 // ─── ENVIAR RELATORIO DIARIO ───────────────────────────────────────────────
@@ -257,4 +314,4 @@ const sendDailyReport = async (userId, metrics, insights) => {
   }
 };
 
-module.exports = { sendAlert, sendDailyReport };
+module.exports = { sendAlert, sendTestAlert, sendDailyReport };
