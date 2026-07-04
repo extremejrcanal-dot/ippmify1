@@ -1,168 +1,145 @@
 const express = require('express');
 const { requireAuth } = require('../middleware/auth');
 const { query } = require('../config/database');
-const {
-  generateReportPDF,
-  generateWhatsAppMessage,
-  sendWhatsApp,
-} = require('../services/reportService');
+const { generateInsights } = require('../services/aiInsights');
+const { calculateOverview } = require('../services/metricsEngine');
+const { sendWhatsAppDailyReport } = require('../services/alertService');
+const { generateInsights } = require('../services/aiInsights');
+const { calculateOverview } = require('../services/metricsEngine');
+const { sendWhatsAppDailyReport } = require('../services/alertService');
 
 const router = express.Router();
 router.use(requireAuth);
 
-// ─── CONFIGURAÇÕES DE AGENDAMENTO ──────────────────────────────────────────
-// GET /api/reports/schedule
-// Retorna as preferências de agendamento do usuário (report_freq, report_times, report_days)
+// ─── GET /api/reports/schedule ─────────────────────────────────────────────
+// Retorna configuracao de agendamento de relatorios do usuario
 router.get('/schedule', async (req, res) => {
   try {
     const result = await query(
       'SELECT report_freq, report_times, report_days FROM users WHERE id = $1',
       [req.user.id]
     );
-    const user = result.rows[0] || {};
+    const row = result.rows[0] || {};
     res.json({
-      report_freq:  user.report_freq  ?? 0,
-      report_times: user.report_times ?? '',   // nunca retorna null — evita crash no JS
-      report_days:  user.report_days  ?? 7,
+      report_freq:  row.report_freq  ?? 0,
+      report_times: row.report_times ?? '',
+      report_days:  row.report_days  ?? 7,
     });
-  } catch (error) {
-    console.error('[Reports] Schedule GET:', error.message);
-    res.status(500).json({ error: 'Erro ao carregar configurações de relatório' });
+  } catch (err) {
+    console.error('[Reports] Erro ao buscar schedule:', err.message);
+    res.status(500).json({ error: 'Erro ao buscar agendamento' });
   }
 });
 
-// POST /api/reports/schedule
-// Salva as preferências de agendamento (report_freq, report_times, report_days)
+// ─── POST /api/reports/schedule ────────────────────────────────────────────
+// Salva configuracao de agendamento de relatorios
 router.post('/schedule', async (req, res) => {
   try {
     const { report_freq, report_times, report_days } = req.body;
 
-    const sets = [];
-    const vals = [];
-    let idx = 1;
+    // Validacoes basicas
+    const freq = parseInt(report_freq ?? 0);
+    const days = parseInt(report_days ?? 7);
+    const times = typeof report_times === 'string' ? report_times.trim() : '';
 
-    if (report_freq !== undefined) {
-      sets.push(`report_freq = $${idx++}`);
-      vals.push(report_freq === '' || report_freq === null ? 0 : parseInt(report_freq));
+    if (![0, 1, 2, 3].includes(freq)) {
+      return res.status(400).json({ error: 'report_freq deve ser 0, 1, 2 ou 3' });
     }
-    if (report_times !== undefined) {
-      sets.push(`report_times = $${idx++}`);
-      vals.push(report_times === '' ? null : report_times);
-    }
-    if (report_days !== undefined) {
-      sets.push(`report_days = $${idx++}`);
-      vals.push(report_days === '' || report_days === null ? 7 : parseInt(report_days));
+    if (![1, 7, 30].includes(days)) {
+      return res.status(400).json({ error: 'report_days deve ser 1, 7 ou 30' });
     }
 
-    if (sets.length === 0) {
-      return res.json({ message: 'Nada para atualizar' });
-    }
+    await query(
+      `UPDATE users SET
+         report_freq  = $1,
+         report_times = $2,
+         report_days  = $3,
+         updated_at   = NOW()
+       WHERE id = $4`,
+      [freq, times, days, req.user.id]
+    );
 
-    sets.push(`updated_at = NOW()`);
-    vals.push(req.user.id);
-
-    await query(`UPDATE users SET ${sets.join(', ')} WHERE id = $${idx}`, vals);
-    console.log(`[Reports] Agendamento salvo para ${req.user.id}: freq=${report_freq}, times=${report_times}, days=${report_days}`);
-    res.json({ message: 'Configurações de relatório salvas com sucesso!' });
-  } catch (error) {
-    console.error('[Reports] Schedule POST:', error.message);
-    res.status(500).json({ error: 'Erro ao salvar configurações de relatório' });
-  }
-});
-
-// PUT /api/reports/schedule (alias do POST para compatibilidade)
-router.put('/schedule', async (req, res) => {
-  try {
-    const { report_freq, report_times, report_days } = req.body;
-
-    const sets = [];
-    const vals = [];
-    let idx = 1;
-
-    if (report_freq !== undefined) {
-      sets.push(`report_freq = $${idx++}`);
-      vals.push(report_freq === '' || report_freq === null ? 0 : parseInt(report_freq));
-    }
-    if (report_times !== undefined) {
-      sets.push(`report_times = $${idx++}`);
-      vals.push(report_times === '' ? null : report_times);
-    }
-    if (report_days !== undefined) {
-      sets.push(`report_days = $${idx++}`);
-      vals.push(report_days === '' || report_days === null ? 7 : parseInt(report_days));
-    }
-
-    if (sets.length === 0) {
-      return res.json({ message: 'Nada para atualizar' });
-    }
-
-    sets.push(`updated_at = NOW()`);
-    vals.push(req.user.id);
-
-    await query(`UPDATE users SET ${sets.join(', ')} WHERE id = $${idx}`, vals);
-    console.log(`[Reports] Agendamento atualizado para ${req.user.id}`);
-    res.json({ message: 'Configurações de relatório salvas com sucesso!' });
-  } catch (error) {
-    console.error('[Reports] Schedule PUT:', error.message);
-    res.status(500).json({ error: 'Erro ao salvar configurações de relatório' });
-  }
-});
-
-// ─── BAIXAR PDF ────────────────────────────────────────────────────────────
-// GET /api/reports/pdf?days=7
-router.get('/pdf', async (req, res) => {
-  try {
-    const days   = parseInt(req.query.days) || 7;
-    const buffer = await generateReportPDF(req.user.id, days);
-    const fname  = `relatorio-ippmify-${new Date().toISOString().split('T')[0]}.pdf`;
-    res.set({
-      'Content-Type':        'application/pdf',
-      'Content-Disposition': `attachment; filename="${fname}"`,
-      'Content-Length':      buffer.length,
+    res.json({
+      message: 'Agendamento salvo com sucesso',
+      report_freq: freq,
+      report_times: times,
+      report_days: days,
     });
-    res.send(buffer);
-  } catch (error) {
-    console.error('[Reports] PDF:', error.message);
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error('[Reports] Erro ao salvar schedule:', err.message);
+    res.status(500).json({ error: 'Erro ao salvar agendamento' });
   }
 });
 
-// ─── ENVIAR VIA WHATSAPP ───────────────────────────────────────────────────
-// POST /api/reports/send-whatsapp  { days: 7 }
+// ─── POST /api/reports/send-whatsapp ──────────────────────────────────────
+// Envia relatorio imediato via WhatsApp (CallMeBot)
+// Body: { days: 7 }
 router.post('/send-whatsapp', async (req, res) => {
   try {
-    const days       = parseInt(req.body.days) || 7;
+    const days = parseInt(req.body.days) || 7;
+
+    // Verificar se usuario tem WhatsApp configurado
     const userResult = await query(
-      'SELECT whatsapp, whatsapp_key FROM users WHERE id=$1',
+      'SELECT whatsapp, whatsapp_key FROM users WHERE id = $1',
       [req.user.id]
     );
-    const user = userResult.rows[0];
+    const user = userResult.rows[0] || {};
 
-    if (!user?.whatsapp || !user?.whatsapp_key) {
-      return res.status(400).json({
-        error: 'Configure seu WhatsApp e a CallMeBot API Key nas Configurações antes de enviar.',
-      });
+    if (!user.whatsapp) {
+      return res.status(400).json({ error: 'Numero de WhatsApp nao configurado. Va em Configuracoes e adicione seu numero.' });
+    }
+    if (!user.whatsapp_key) {
+      return res.status(400).json({ error: 'Chave CallMeBot nao configurada. Va em Configuracoes e adicione sua API Key do CallMeBot.' });
     }
 
-    const message = await generateWhatsAppMessage(req.user.id, days);
-    await sendWhatsApp(user.whatsapp, user.whatsapp_key, message);
+    // Gerar metricas e insights
+    const [metrics, insights] = await Promise.all([
+      calculateOverview(req.user.id, days),
+      generateInsights(req.user.id, days).catch(() => ({ top_action: 'Monitore suas campanhas', insights: [] })),
+    ]);
 
-    res.json({ message: '✅ Relatório enviado via WhatsApp com sucesso!' });
-  } catch (error) {
-    console.error('[Reports] WhatsApp:', error.message);
-    res.status(500).json({ error: error.message });
+    await sendWhatsAppDailyReport(req.user.id, metrics, insights);
+
+    res.json({ message: `Relatorio dos ultimos ${days} dias enviado para o seu WhatsApp!` });
+  } catch (err) {
+    console.error('[Reports] Erro ao enviar WhatsApp:', err.message);
+    res.status(500).json({ error: err.message || 'Erro ao enviar relatorio' });
   }
 });
 
-// ─── PREVIEW DA MENSAGEM WA ────────────────────────────────────────────────
-// GET /api/reports/preview?days=7
-router.get('/preview', async (req, res) => {
+// ─── POST /api/reports/send-whatsapp ──────────────────────────────────────
+// Envia relatorio imediato via WhatsApp (CallMeBot)
+// Body: { days: 7 }
+router.post('/send-whatsapp', async (req, res) => {
   try {
-    const days    = parseInt(req.query.days) || 7;
-    const message = await generateWhatsAppMessage(req.user.id, days);
-    res.json({ message });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    const days = parseInt(req.body.days) || 7;
+
+    // Verificar se usuario tem WhatsApp configurado
+    const userResult = await query(
+      'SELECT whatsapp, whatsapp_key FROM users WHERE id = $1',
+      [req.user.id]
+    );
+    const user = userResult.rows[0] || {};
+
+    if (!user.whatsapp) {
+      return res.status(400).json({ error: 'Numero de WhatsApp nao configurado. Va em Configuracoes e adicione seu numero.' });
+    }
+    if (!user.whatsapp_key) {
+      return res.status(400).json({ error: 'Chave CallMeBot nao configurada. Va em Configuracoes e adicione sua API Key.' });
+    }
+
+    // Gerar metricas e insights em paralelo
+    const [metrics, insights] = await Promise.all([
+      calculateOverview(req.user.id, days),
+      generateInsights(req.user.id, days).catch(() => ({ top_action: 'Monitore suas campanhas', insights: [] })),
+    ]);
+
+    await sendWhatsAppDailyReport(req.user.id, metrics, insights);
+
+    res.json({ message: `Relatorio dos ultimos ${days} dias enviado para o seu WhatsApp!` });
+  } catch (err) {
+    console.error('[Reports] Erro ao enviar WhatsApp:', err.message);
+    res.status(500).json({ error: err.message || 'Erro ao enviar relatorio' });
   }
 });
 
