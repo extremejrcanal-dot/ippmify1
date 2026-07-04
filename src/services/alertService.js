@@ -314,4 +314,53 @@ const sendDailyReport = async (userId, metrics, insights) => {
   }
 };
 
-module.exports = { sendAlert, sendTestAlert, sendDailyReport };
+// ─── ENVIAR RELATORIO WHATSAPP (por usuario, via CallMeBot) ──────────────────
+// Formato compacto — texto puro, sem HTML
+const sendWhatsAppDailyReport = async (userId, metrics, insights) => {
+  const userResult = await query(
+    'SELECT name, whatsapp, whatsapp_key FROM users WHERE id = $1',
+    [userId]
+  );
+  if (userResult.rows.length === 0) return;
+  const user = userResult.rows[0];
+
+  if (!user.whatsapp || !user.whatsapp_key) {
+    console.warn(`[Alert] WhatsApp nao configurado para usuario ${userId} — relatorio ignorado`);
+    return;
+  }
+
+  const spend  = (metrics.spend    || 0).toFixed(2);
+  const rev    = (metrics.revenue  || 0).toFixed(2);
+  const profit = (metrics.profit   || 0).toFixed(2);
+  const roas   = (metrics.roas     || 0).toFixed(2);
+  const sales  = metrics.conversions || 0;
+  const profitEmoji = (metrics.profit || 0) >= 0 ? '✅' : '❌';
+
+  // Top campanha (pode vir de insights ou de metrics.top_campaigns)
+  const topCamp = (insights.insights || []).find(i => i.type === 'opportunity') || null;
+  const topLine = topCamp ? `\n🏆 Destaque: ${topCamp.finding}` : '';
+
+  // Principal acao
+  const action = insights.top_action || (insights.insights?.[0]?.action) || 'Monitore suas campanhas';
+
+  const date = new Date().toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+
+  const message =
+`📊 IPPMIFY — Relatório
+${date} | Olá, ${user.name}!
+
+💸 Gasto: R$ ${spend}
+💵 Receita: R$ ${rev}
+${profitEmoji} Lucro: R$ ${profit}
+📈 ROAS: ${roas}x
+🛒 Vendas: ${sales}${topLine}
+
+⚡ Ação agora: ${action}
+
+— IPPMIFY Profit Intelligence`;
+
+  await sendCallMeBot(user.whatsapp, user.whatsapp_key, message);
+  console.log(`[Alert] Relatorio WhatsApp enviado para ${user.whatsapp}`);
+};
+
+module.exports = { sendAlert, sendTestAlert, sendDailyReport, sendWhatsAppDailyReport };
