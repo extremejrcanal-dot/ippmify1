@@ -2,7 +2,7 @@ const express = require('express');
 const { requireAuth } = require('../middleware/auth');
 const { query } = require('../config/database');
 const { runDecisionEngine } = require('../services/decisionEngine');
-const { sendAlert } = require('../services/alertService');
+const { sendAlert, sendTestAlert } = require('../services/alertService');
 
 const router = express.Router();
 router.use(requireAuth);
@@ -68,6 +68,27 @@ router.post('/run', async (req, res) => {
   } catch (error) {
     console.error('[Decisions] Erro ao executar motor:', error.message);
     res.status(500).json({ error: 'Erro ao executar motor de decisao' });
+  }
+});
+
+// ─── TESTE DE ALERTA ───────────────────────────────────────────────────────
+// POST /api/decisions/test-alert
+// Body: { channel: 'whatsapp' | 'email' | 'all' }
+router.post('/test-alert', async (req, res) => {
+  try {
+    const channel = req.body.channel || 'all';
+    if (!['whatsapp', 'email', 'all'].includes(channel)) {
+      return res.status(400).json({ error: 'Canal invalido. Use: whatsapp, email ou all' });
+    }
+
+    const result = await sendTestAlert(req.user.id, channel);
+    res.json({
+      message: `Alerta de teste enviado com sucesso para o canal: ${channel}`,
+      ...result
+    });
+  } catch (error) {
+    console.error('[Decisions] Erro ao enviar teste de alerta:', error.message);
+    res.status(400).json({ error: error.message });
   }
 });
 
