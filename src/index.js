@@ -13,8 +13,15 @@ const decisionsRoutes    = require('./routes/decisions');
 const insightsRoutes     = require('./routes/insights');
 const reportsRoutes      = require('./routes/reports');
 const integrationsRoutes = require('./routes/integrations');
-const webhooksRoutes     = require('./routes/webhooks'); // sem auth — vem de plataformas externas
 const benchmarksRoutes   = require('./routes/benchmarks');
+
+// webhooks — carregado opcionalmente para nao crashar se arquivo nao existir
+let webhooksRoutes = null;
+try {
+  webhooksRoutes = require('./routes/webhooks');
+} catch (e) {
+  console.warn('[Server] webhooks.js nao encontrado — rota /api/webhook desativada');
+}
 
 // Workers
 const { startSyncScheduler } = require('./workers/syncWorker');
@@ -58,7 +65,9 @@ app.use('/api/decisions',    decisionsRoutes);
 app.use('/api/insights',     insightsRoutes);
 app.use('/api/reports',      reportsRoutes);
 app.use('/api/integrations', integrationsRoutes);
-app.use('/api/webhook',      webhooksRoutes);   // SEM auth — Kirvano/Cakto planos + Hotmart/Kiwify vendas
+if (webhooksRoutes) {
+  app.use('/api/webhook', webhooksRoutes);     // SEM auth — Kirvano/Cakto planos + Hotmart/Kiwify vendas
+}
 app.use('/api/benchmarks',   benchmarksRoutes);
 
 // ─── FRONTEND ESTATICO ────────────────────────────────────────────────────
