@@ -217,25 +217,33 @@ const syncAdMetrics = async (userId, accessToken, adAccountId, integrationId, da
     );
     if (campResult.rows.length === 0) continue;
 
-    // Extrair initiate_checkout das actions do pixel
+    // Extrair eventos de pixel das actions
     const actions = insight.actions || [];
-    const icAction = actions.find(a => a.action_type === 'initiate_checkout');
-    const icCount  = icAction ? parseInt(icAction.value || 0) : 0;
+    const findAction = (type) => {
+      const a = actions.find(x => x.action_type === type);
+      return a ? parseInt(a.value || 0) : 0;
+    };
+    const icCount            = findAction('initiate_checkout');
+    // offsite_conversion.fb_pixel_purchase = compras rastreadas pelo pixel Meta
+    // Usado como FALLBACK quando nao ha webhook configurado (evita dupla contagem)
+    const pixelPurchaseCount = findAction('offsite_conversion.fb_pixel_purchase');
 
-    // Tentar inserir com ic_count (requer migracao SQL); fallback sem ic_count
-    const inserted = await query(`
+    // Tentar inserir com ic_count + pixel_purchase_count (requer migracoes SQL)
+    // Fallback progressivo caso colunas ainda nao existam
+    await query(`
       INSERT INTO ad_metrics
-        (user_id, campaign_id, date, spend, impressions, clicks, reach, cpm, ctr, cpc, ic_count)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+        (user_id, campaign_id, date, spend, impressions, clicks, reach, cpm, ctr, cpc, ic_count, pixel_purchase_count)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
       ON CONFLICT (user_id, campaign_id, date) WHERE ad_id IS NULL DO UPDATE SET
-        spend       = EXCLUDED.spend,
-        impressions = EXCLUDED.impressions,
-        clicks      = EXCLUDED.clicks,
-        reach       = EXCLUDED.reach,
-        cpm         = EXCLUDED.cpm,
-        ctr         = EXCLUDED.ctr,
-        cpc         = EXCLUDED.cpc,
-        ic_count    = EXCLUDED.ic_count
+        spend                = EXCLUDED.spend,
+        impressions          = EXCLUDED.impressions,
+        clicks               = EXCLUDED.clicks,
+        reach                = EXCLUDED.reach,
+        cpm                  = EXCLUDED.cpm,
+        ctr                  = EXCLUDED.ctr,
+        cpc                  = EXCLUDED.cpc,
+        ic_count             = EXCLUDED.ic_count,
+        pixel_purchase_count = EXCLUDED.pixel_purchase_count
     `, [
       userId,
       campResult.rows[0].id,
@@ -248,22 +256,44 @@ const syncAdMetrics = async (userId, accessToken, adAccountId, integrationId, da
       parseFloat(insight.ctr||0),
       parseFloat(insight.cpc||0),
       icCount,
+      pixelPurchaseCount,
     ]).catch(async (err) => {
-      if (err.message.includes('ic_count')) {
-        // Coluna ic_count ainda nao existe — inserir sem ela
+      // Fallback 1: tentar so com ic_count (sem pixel_purchase_count)
+      if (err.message.includes('pixel_purchase_count') || err.message.includes('ic_count')) {
         await query(`
           INSERT INTO ad_metrics
-            (user_id, campaign_id, date, spend, impressions, clicks, reach, cpm, ctr, cpc)
-          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+            (user_id, campaign_id, date, spend, impressions, clicks, reach, cpm, ctr, cpc, ic_count)
+          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
           ON CONFLICT (user_id, campaign_id, date) WHERE ad_id IS NULL DO UPDATE SET
             spend=EXCLUDED.spend, impressions=EXCLUDED.impressions,
             clicks=EXCLUDED.clicks, reach=EXCLUDED.reach,
-            cpm=EXCLUDED.cpm, ctr=EXCLUDED.ctr, cpc=EXCLUDED.cpc
+            cpm=EXCLUDED.cpm, ctr=EXCLUDED.ctr, cpc=EXCLUDED.cpc,
+            ic_count=EXCLUDED.ic_count
         `, [userId, campResult.rows[0].id, insight.date_start,
             parseFloat(insight.spend||0), parseInt(insight.impressions||0),
             parseInt(insight.clicks||0), parseInt(insight.reach||0),
-            parseFloat(insight.cpm||0), parseFloat(insight.ctr||0), parseFloat(insight.cpc||0)
-        ]).catch(e2 => console.error('[Meta] Erro fallback ad_metric:', e2.message));
+            parseFloat(insight.cpm||0), parseFloat(insight.ctr||0),
+            parseFloat(insight.cpc||0), icCount,
+        ]).catch(async (e2) => {
+          // Fallback 2: inserir apenas colunas base
+          if (e2.message.includes('ic_count')) {
+            await query(`
+              INSERT INTO ad_metrics
+                (user_id, campaign_id, date, spend, impressions, clicks, reach, cpm, ctr, cpc)
+              VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+              ON CONFLICT (user_id, campaign_id, date) WHERE ad_id IS NULL DO UPDATE SET
+                spend=EXCLUDED.spend, impressions=EXCLUDED.impressions,
+                clicks=EXCLUDED.clicks, reach=EXCLUDED.reach,
+                cpm=EXCLUDED.cpm, ctr=EXCLUDED.ctr, cpc=EXCLUDED.cpc
+            `, [userId, campResult.rows[0].id, insight.date_start,
+                parseFloat(insight.spend||0), parseInt(insight.impressions||0),
+                parseInt(insight.clicks||0), parseInt(insight.reach||0),
+                parseFloat(insight.cpm||0), parseFloat(insight.ctr||0), parseFloat(insight.cpc||0)
+            ]).catch(e3 => console.error('[Meta] Erro fallback base ad_metric:', e3.message));
+          } else {
+            console.error('[Meta] Erro fallback ic_count ad_metric:', e2.message);
+          }
+        });
       } else {
         console.error('[Meta] Erro ao salvar ad_metric:', err.message, '| campaign_id:', insight.campaign_id);
       }
