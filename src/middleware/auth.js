@@ -24,7 +24,9 @@ const requireAuth = async (req, res, next) => {
     // Buscar o usuario no banco para garantir que ainda existe
     const result = await query(
       `SELECT id, email, name, plan, plan_expires_at, trial_expires_at,
-              is_admin, timezone, whatsapp, report_freq, report_times, report_days
+              is_admin, timezone, whatsapp, whatsapp_key,
+              report_freq, report_times, report_days,
+              cpa_target, roas_target, capi_api_key
        FROM users WHERE id = $1 AND is_active = true`,
       [decoded.userId]
     );
