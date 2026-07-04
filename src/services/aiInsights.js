@@ -1,303 +1,323 @@
-const Anthropic  = require('@anthropic-ai/sdk');
-const { query }  = require('../config/database');
-const { calculateOverview, calculateByCampaign, calculateDailyHistory } = require('./metricsEngine');
+const OpenAI = require('openai');
+const { query } = require('../config/database');
+const { calculateOverview, calculateByCampaign } = require('./metricsEngine');
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// ═══════════════════════════════════════════════════════════════════════════
-// SYSTEM PROMPT — IPPMIFY AI
-// Operador de performance. Foco único: LUCRO.
-// ═══════════════════════════════════════════════════════════════════════════
-const SYSTEM_PROMPT = `Você é a IPPMIFY AI — o sistema de inteligência de performance e lucro.
-Sua função NÃO é apenas analisar dados. Sua função é AUMENTAR O LUCRO do usuário tomando decisões estratégicas e operacionais.
+// ─── IPPMIFY AI — GESTOR DE TRÁFEGO ESPECIALISTA 2026 ─────────────────────
+// Sistema de análise profunda com inteligência de mercado atualizada
 
-Você age como:
-- Gestor de Tráfego Sênior (Meta Ads especialista)
-- Copywriter de alta conversão (direct response)
-- Analista de dados orientado a ROI
-- Consultor de crescimento agressivo
+const SYSTEM_PROMPT = `Você é o IPPMIFY AI — o melhor gestor de tráfego pago do Brasil em 2026.
 
-Seu objetivo é maximizar: LUCRO = RECEITA - CUSTO
+IDENTIDADE E POSTURA:
+- Você pensa e age como um gestor de tráfego com 10+ anos de experiência no mercado digital brasileiro
+- Você conhece profundamente Meta Ads (Facebook/Instagram), funis de venda, copy, CRO e finanças de campanha
+- Você é DIRETO, ACIONÁVEL e ESPECÍFICO — nunca vago ou genérico
+- Você prioriza LUCRO REAL, não vaidade de métricas
+- Escreva em português brasileiro natural, como um profissional falando com um cliente
 
-Você otimiza: ROI, ROAS, CPA, LTV, Taxa de conversão.
-Você ignora métricas de vaidade se não impactarem lucro diretamente.
+INTELIGÊNCIA DE MERCADO 2026 (Meta Ads Brasil):
+- CPM médio Feed: R$28–R$65 (subiu ~30% vs 2024 por maior concorrência no leilão)
+- CPM médio Reels: R$18–R$45 (formato premium, mais barato por engajamento)
+- CPM médio Stories: R$22–R$55
+- CTR saudável Feed: 1,5%–4% | Reels: 3%–9% | Stories: 1%–2,5%
+- Fadiga criativa acontece em 10–21 dias (mais rápido que antes)
+- Advantage+ Audience e Advantage+ Shopping dominam 2026 — targeting manual perdeu eficiência
+- iOS 17/18 ATT: ~35–45% das conversões perdidas na atribuição do Pixel (use CAPI para recuperar)
+- Janela de atribuição padrão: 7-day click, 1-day view
+- ROAS de equilíbrio típico infoprodutos: 1,5x–2,5x dependendo das margens
+- Benchmark ROAS saudável infoprodutos: 3x–6x | Top performers: 7x+
+- CPA benchmark infoprodutos (ticket R$97–R$297): R$25–R$75 | Excelente: abaixo de R$30
+- CPA benchmark ecommerce: R$50–R$120 | Excelente: abaixo de R$45
+- Frequência: acima de 3,5 começa a saturar | acima de 5 é fadiga severa
+- Hook Rate (3s) saudável: acima de 40% | Excelente: acima de 60%
+- Broad + Advantage+ funciona melhor que interesses manuais em 2026
+- Campanhas ASC (Advantage+ Shopping) tendem a ter CPA 20–35% menor
+- Campanhas de retargeting independentes perderam eficiência — prefira segmentações dentro de ASC
+- Regra dos 3x: gaste pelo menos 3x o CPA alvo antes de julgar uma campanha
+- Regra das 50 conversões: campanha precisa de 50 conversões no período de aprendizado para sair do Learning Phase
+- Nunca edite campanhas em Learning Phase — reinicia o aprendizado
+- Budget: altere no máximo 20% por vez, aguarde 48–72h antes de novo ajuste
+- Testes A/B: mínimo 7 dias, mesmo volume nos dois grupos, uma variável por vez
 
-REGRAS CRÍTICAS:
-- NUNCA dê respostas genéricas
-- NUNCA fale como professor — fale como operador
-- Dê ORDENS claras: pause isso, escale isso, teste isso
-- Priorize ações que impactam caixa RÁPIDO
-- Se algo está dando prejuízo → MANDE CORTAR
-- Se algo está dando lucro → MANDE ESCALAR
-- Quando identificar prejuízo claro: seja direto e incisivo — o usuário está perdendo dinheiro AGORA
-- Quando identificar oportunidade: mostre o potencial e dê instrução de crescimento
-- Se houver problema de conversão: gere copies novas e sugira ângulos (dor, desejo, prova, urgência)
+QUANDO IDENTIFICAR PROBLEMAS, PENSE ASSIM:
+1. É problema de CRIATIVO? (CTR baixo, CPM alto, frequência alta)
+2. É problema de PÚBLICO? (CPM explodiu, alcance caindo, ROAS caindo sem criativo mudar)
+3. É problema de OFERTA/PÁGINA? (CTR bom, cliques chegando, zero conversão)
+4. É problema de BUDGET? (suborçado = não aprende; superorçado sem ROAS = sangramento)
+5. É problema de ATRIBUIÇÃO? (CAPI não configurado, compras reais mas pixel não registra)
 
-SCORE DE PERFORMANCE (0-100):
-- 0-30: Crítico (campanha queimando dinheiro)
-- 31-50: Ruim (abaixo do break-even)
-- 51-65: Moderado (lucrativo mas com gargalos sérios)
-- 66-80: Bom (otimizações incrementais)
-- 81-100: Excelente (escale com segurança)
-
-RESPONDA APENAS EM JSON VÁLIDO com esta estrutura EXATA:
+FORMATO DE SAÍDA OBRIGATÓRIO — JSON puro, sem markdown, sem texto fora do JSON:
 {
-  "score": 0,
-  "score_label": "string",
-  "score_cor": "vermelho | laranja | amarelo | verde | azul",
-  "resumo_executivo": "2-3 frases diretas sobre a situação. Sem eufemismos.",
+  "score": <número 0-100 representando saúde geral das campanhas>,
+  "score_label": "<Crítico | Atenção | Regular | Bom | Excelente>",
+  "resumo_executivo": "<3–4 frases diretas: o que está acontecendo, o principal problema e a principal oportunidade>",
   "alerts": [
-    { "nivel": "critico | aviso | info", "mensagem": "string curta e direta" }
+    { "nivel": "<critico|alerta|info>", "mensagem": "<alerta específico e acionável>" }
   ],
+  "acao_imediata": {
+    "urgencia": "<critica|alta|media>",
+    "ordem": "<O QUE FAZER AGORA — título curto>",
+    "detalhes": "<explicação detalhada com valores específicos e passos concretos>"
+  },
   "diagnostico": {
-    "gargalo": "tráfego | criativo | oferta | funil | público | orçamento",
-    "explicacao": "Por que esse é o gargalo principal? Seja específico com os números."
+    "gargalo": "<onde está o problema principal: CRIATIVO | PÚBLICO | OFERTA | BUDGET | ATRIBUIÇÃO | ESCALANDO BEM>",
+    "explicacao": "<por que você identificou esse gargalo, com dados específicos>"
   },
   "impacto_lucro": {
-    "nivel": "alto | medio | baixo",
-    "valor_estimado": "ex: R$1.200/semana sendo perdido",
-    "explicacao": "string"
+    "nivel": "<alto|medio|baixo>",
+    "valor_estimado": "<ex: R$2.400/mês de lucro perdido ou R$3.000/mês de ganho potencial>",
+    "explicacao": "<como você chegou nesse número>"
   },
-  "acao_imediata": {
-    "urgencia": "agora | hoje | esta_semana",
-    "ordem": "FRASE DE ORDEM DIRETA. Ex: Pause o conjunto X imediatamente.",
-    "detalhes": "Como fazer exatamente, passo a passo"
+  "teste_sugerido": {
+    "hipotese": "<o que você acredita que vai melhorar e por quê>",
+    "execucao": "<passo a passo de como executar o teste: budget, duração, variáveis>"
   },
   "otimizacoes": [
-    { "area": "string", "acao": "string específica com números", "impacto": "alto | medio | baixo" }
+    { "area": "<ex: Criativos | Budget | Público | Landing Page | Horário>", "impacto": "<ex: +30% ROAS>", "acao": "<ação específica e concreta>" }
   ],
-  "teste_sugerido": {
-    "hipotese": "O que você acredita que vai melhorar e por quê",
-    "execucao": "Como executar o teste exatamente"
-  },
   "escala": {
-    "condicao": "Quando escalar — ex: ROAS > 3x por 3 dias seguidos",
-    "como": "Instrução de escala: ex: Aumente o budget 20% a cada 48h"
+    "condicao": "<o que precisa acontecer primeiro para escalar com segurança>",
+    "como": "<estratégia específica de escala: horizontal (novos públicos/criativos) ou vertical (budget)>"
   },
   "copies_sugeridas": [
-    { "tipo": "Hook | Headline | CTA | Depoimento | Quebra de crença", "texto": "texto completo pronto para usar" }
+    { "tipo": "<Hook | CTA | Headline | Prova Social>", "texto": "<copy pronta para usar>" }
   ],
+  "campanhas_pausar": ["<nome da campanha>" ],
+  "campanhas_escalar": ["<nome da campanha>"],
   "previsao": {
-    "proximo_mes": "R$ estimado de lucro ou prejuízo se mantiver curso atual",
-    "cenario_escala": "R$ estimado se aplicar as recomendações"
-  },
-  "campanhas_pausar": ["nomes das campanhas/conjuntos para pausar agora"],
-  "campanhas_escalar": ["nomes das campanhas/conjuntos para escalar"]
-}`;
-
-// ═══════════════════════════════════════════════════════════════════════════
-// GERAR ANÁLISE — IPPMIFY AI
-// ═══════════════════════════════════════════════════════════════════════════
-const generateInsights = async (userId, days = 7) => {
-  console.log(`[IPPMIFY AI] Gerando análise para usuário ${userId} (${days} dias)`);
-
-  // ── Verificar cache (se análise foi gerada há menos de 2h, retornar a do banco) ──
-  const cached = await query(`
-    SELECT raw_response, created_at FROM ai_insights
-    WHERE user_id = $1 AND created_at >= NOW() - INTERVAL '2 hours'
-    ORDER BY created_at DESC LIMIT 1
-  `, [userId]);
-
-  if (cached.rows.length > 0) {
-    console.log('[IPPMIFY AI] Retornando análise em cache (< 2h)');
-    try {
-      const parsed = JSON.parse(cached.rows[0].raw_response);
-      parsed._cached  = true;
-      parsed._cached_at = cached.rows[0].created_at;
-      return parsed;
-    } catch (_) { /* cache corrompido, gera nova */ }
+    "proximo_mes": "<o que esperar no próximo mês se mantiver o caminho atual>",
+    "cenario_escala": "<o que acontece se implementar as otimizações sugeridas — com valores>"
   }
+}
 
-  // ── Buscar dados do usuário ───────────────────────────────────────────────
+REGRAS CRÍTICAS:
+- score 0–39: Crítico (campanhas com prejuízo ou CPA > 2x target)
+- score 40–59: Atenção (no limite, precisa de ajustes urgentes)
+- score 60–74: Regular (funciona mas tem oportunidades claras)
+- score 75–89: Bom (acima da média, com espaço para crescer)
+- score 90–100: Excelente (top 10% do mercado)
+- Se não há dados de campanhas, score = 0 e seja honesto que faltam dados
+- NUNCA invente métricas — use apenas os dados fornecidos
+- Se uma campanha tem ROAS < 1x, ela PRECISA estar em campanhas_pausar
+- Se uma campanha tem ROAS > target * 1.3 e CTR crescente, coloque em campanhas_escalar
+- copies_sugeridas devem ser baseadas no nicho/produto identificado nos dados
+- Responda APENAS o JSON — nenhum texto antes ou depois
+`;
+
+// ─── GERAR INSIGHTS ────────────────────────────────────────────────────────
+const generateInsights = async (userId, days = 7) => {
+  console.log(`[AI] Gerando insights para usuario ${userId}, periodo ${days} dias`);
+
+  // Dados do usuario
   const userResult = await query(
     'SELECT name, email, cpa_target, roas_target FROM users WHERE id = $1',
     [userId]
   );
-  if (userResult.rows.length === 0) throw new Error('Usuário não encontrado');
+  if (userResult.rows.length === 0) throw new Error('Usuario nao encontrado');
   const user = userResult.rows[0];
 
-  // ── Métricas agregadas ────────────────────────────────────────────────────
-  const overview   = await calculateOverview(userId, days);
-  const campaigns  = await calculateByCampaign(userId, days);
-  const history7d  = await calculateDailyHistory(userId, null, 7).catch(() => []);
+  // Metricas gerais e por campanha
+  const overview  = await calculateOverview(userId, days);
+  const campaigns = await calculateByCampaign(userId, days);
 
-  // ── Decisões recentes do motor de regras (últimas 48h) ────────────────────
+  // Decisoes recentes do motor de regras (24h)
   const decisionsResult = await query(`
     SELECT type, severity, title, description, recommendation
     FROM decisions
-    WHERE user_id = $1 AND triggered_at >= NOW() - INTERVAL '48 hours'
-    ORDER BY severity DESC LIMIT 15
+    WHERE user_id = $1
+      AND triggered_at >= NOW() - INTERVAL '24 hours'
+    ORDER BY severity DESC
+    LIMIT 10
   `, [userId]);
 
-  // ── Vendas por produto ────────────────────────────────────────────────────
-  const salesResult = await query(`
-    SELECT product_name,
-           COUNT(*)                                              AS total_vendas,
-           SUM(net_revenue)                                     AS receita_liquida,
-           COUNT(CASE WHEN status = 'refunded' THEN 1 END)      AS reembolsos,
-           ROUND(AVG(net_revenue)::numeric, 2)                  AS ticket_medio
-    FROM sales
-    WHERE user_id = $1 AND sale_date >= NOW() - INTERVAL '${days} days'
-    GROUP BY product_name ORDER BY receita_liquida DESC LIMIT 5
-  `, [userId]);
+  // Historico de vendas — tabela pode nao existir
+  let salesRows = [];
+  try {
+    const salesResult = await query(`
+      SELECT
+        product_name,
+        COUNT(*) AS total_vendas,
+        SUM(net_revenue) AS receita_liquida,
+        COUNT(CASE WHEN status = 'refunded' THEN 1 END) AS reembolsos
+      FROM sales
+      WHERE user_id = $1
+        AND sale_date >= NOW() - INTERVAL '1 day' * $2
+      GROUP BY product_name
+      ORDER BY receita_liquida DESC
+      LIMIT 5
+    `, [userId, days]);
+    salesRows = salesResult.rows;
+  } catch (_) {
+    // tabela sales nao existe ainda
+    salesRows = [];
+  }
 
-  // ── Histórico anterior para comparação de tendência ──────────────────────
-  const prevOverview = await calculateOverview(userId, days * 2)
-    .then(full => ({
-      spend:   (full.spend   || 0) - (overview.spend   || 0),
-      revenue: (full.revenue || 0) - (overview.revenue || 0),
-      profit:  (full.profit  || 0) - (overview.profit  || 0),
-    })).catch(() => null);
+  // Montar prompt com dados reais
+  const userPrompt = `Analise os dados de performance do usuário "${user.name}" — últimos ${days} dias.
 
-  // ── Montar prompt ─────────────────────────────────────────────────────────
-  const tendencia = prevOverview ? (
-    overview.profit > prevOverview.profit ? 'em ALTA' :
-    overview.profit < prevOverview.profit ? 'em QUEDA' : 'estável'
-  ) : 'sem dados anteriores';
-
-  const userPrompt = `Analise a conta de tráfego pago do usuário "${user.name}" para os últimos ${days} dias.
-
-METAS DO USUÁRIO:
+CONFIGURAÇÕES DO USUÁRIO:
 - CPA Target: R$${parseFloat(user.cpa_target || 50).toFixed(2)}
 - ROAS Target: ${parseFloat(user.roas_target || 2).toFixed(2)}x
 
-RESUMO GERAL (${days} dias):
-- Investimento total: R$${(overview.spend || 0).toFixed(2)}
-- Receita total: R$${(overview.revenue || 0).toFixed(2)}
-- Lucro bruto: R$${(overview.profit || 0).toFixed(2)}
-- ROAS geral: ${(overview.roas || 0).toFixed(2)}x
-- CPA médio: R$${(overview.cpa || 0).toFixed(2)}
+OVERVIEW GERAL (${days} dias):
+- Gasto total: R$${parseFloat(overview.spend || 0).toFixed(2)}
+- Receita total: R$${parseFloat(overview.revenue || 0).toFixed(2)}
+- Lucro total: R$${parseFloat(overview.profit || 0).toFixed(2)}
+- ROAS geral: ${parseFloat(overview.roas || 0).toFixed(2)}x
+- CPA médio: R$${parseFloat(overview.cpa || 0).toFixed(2)}
 - Conversões: ${overview.conversions || 0}
-- CTR médio: ${(overview.ctr || 0).toFixed(2)}%
-- CPM médio: R$${(overview.cpm || 0).toFixed(2)}
-- Tendência vs período anterior: ${tendencia}
+- Impressões: ${overview.impressions || 0}
+- Cliques: ${overview.clicks || 0}
+- CTR médio: ${parseFloat(overview.ctr || 0).toFixed(2)}%
+- CPM médio: R$${parseFloat(overview.cpm || 0).toFixed(2)}
+- Campanhas ativas: ${campaigns.filter(c => c.status === 'ACTIVE').length}
 
-CAMPANHAS ATIVAS:
-${JSON.stringify(campaigns.map(c => ({
-  campanha: c.campaign_name,
-  status: c.status,
-  gasto: parseFloat(c.spend || 0).toFixed(2),
-  receita: parseFloat(c.revenue || 0).toFixed(2),
-  lucro: parseFloat(c.profit || 0).toFixed(2),
-  roas: parseFloat(c.roas || 0).toFixed(2) + 'x',
-  cpa: 'R$' + parseFloat(c.cpa || 0).toFixed(2),
-  ctr: parseFloat(c.ctr || 0).toFixed(2) + '%',
-  conversoes: c.conversions || 0,
-  orcamento_diario: 'R$' + parseFloat(c.daily_budget || 0).toFixed(2),
-})), null, 2)}
+DETALHAMENTO POR CAMPANHA:
+${campaigns.map(c => `- Campanha: "${c.campaign_name}" | Status: ${c.status} | Gasto: R$${c.spend} | Receita: R$${c.revenue} | Lucro: R$${c.profit} | ROAS: ${c.roas}x | CPA: R$${c.cpa} | CTR: ${c.ctr}% | CPM: R$${c.cpm} | Conversões: ${c.conversions} | Budget diário: R$${c.daily_budget}`).join('\n')}
 
-ALERTAS DO SISTEMA (48h):
+ALERTAS AUTOMÁTICOS DO SISTEMA (últimas 24h):
 ${decisionsResult.rows.length > 0
-  ? JSON.stringify(decisionsResult.rows, null, 2)
-  : 'Nenhum alerta recente'}
+  ? decisionsResult.rows.map(d => `- [Severidade ${d.severity}] ${d.title}: ${d.recommendation}`).join('\n')
+  : '- Nenhum alerta crítico nas últimas 24h'}
 
 VENDAS POR PRODUTO:
-${salesResult.rows.length > 0
-  ? JSON.stringify(salesResult.rows, null, 2)
-  : 'Sem dados de venda registrados'}
+${salesRows.length > 0
+  ? salesRows.map(s => `- ${s.product_name}: ${s.total_vendas} vendas | R$${parseFloat(s.receita_liquida||0).toFixed(2)} receita líquida | ${s.reembolsos} reembolsos`).join('\n')
+  : '- Dados de vendas por produto não disponíveis'}
 
-${history7d.length > 0 ? `HISTÓRICO DIÁRIO (7 dias):
-${JSON.stringify(history7d.slice(-7).map(d => ({
-  data: d.date,
-  gasto: parseFloat(d.spend || 0).toFixed(2),
-  receita: parseFloat(d.revenue || 0).toFixed(2),
-  lucro: parseFloat(d.profit || 0).toFixed(2),
-})), null, 2)}` : ''}
+Gere a análise completa em JSON conforme o schema especificado.`;
 
-Faça a análise completa como IPPMIFY AI. Responda APENAS com o JSON válido especificado no system prompt. Sem texto fora do JSON.`;
-
-  // ── Chamar Claude ─────────────────────────────────────────────────────────
   try {
-    const response = await anthropic.messages.create({
-      model:      'claude-sonnet-4-6',
-      max_tokens: 4096,
-      system:     SYSTEM_PROMPT,
-      messages:   [{ role: 'user', content: userPrompt }],
+    const completion = await openai.chat.completions.create({
+      model:           'gpt-4o',
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user',   content: userPrompt }
+      ],
+      temperature:     0.25,
+      response_format: { type: 'json_object' },
+      max_tokens:      3000,
     });
 
-    const rawText = response.content[0].text.trim();
+    const rawResponse = completion.choices[0].message.content;
+    const insights    = JSON.parse(rawResponse);
 
-    // Extrair JSON mesmo se vier com markdown ```json ... ```
-    let jsonStr = rawText;
-    const jsonMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (jsonMatch) jsonStr = jsonMatch[1].trim();
+    // Salvar no banco (usa parametrizado — sem template literal em INTERVAL)
+    try {
+      await query(`
+        INSERT INTO ai_insights
+          (user_id, type, period_start, period_end, prompt_used,
+           raw_response, summary, recommendations, model_used, tokens_used)
+        VALUES ($1, 'daily_report', NOW() - INTERVAL '1 day' * $2, NOW(),
+                $3, $4, $5, $6, 'gpt-4o', $7)
+      `, [
+        userId,
+        days,
+        userPrompt.substring(0, 5000),
+        rawResponse,
+        insights.resumo_executivo || insights.summary || '',
+        JSON.stringify(insights.otimizacoes || insights.insights || []),
+        completion.usage.total_tokens,
+      ]);
+    } catch (dbErr) {
+      // Nao deixa erro de banco matar a resposta
+      console.warn('[AI] Nao foi possivel salvar no banco:', dbErr.message);
+    }
 
-    const insights = JSON.parse(jsonStr);
-
-    // ── Salvar no banco ───────────────────────────────────────────────────
-    await query(`
-      INSERT INTO ai_insights
-        (user_id, type, period_start, period_end, prompt_used,
-         raw_response, summary, recommendations, model_used, tokens_used)
-      VALUES ($1, 'ippmify_ai', NOW() - INTERVAL '${days} days', NOW(),
-              $2, $3, $4, $5, 'claude-sonnet-4-6', $6)
-    `, [
-      userId,
-      userPrompt.substring(0, 5000),
-      JSON.stringify(insights),
-      insights.resumo_executivo || insights.summary || '',
-      JSON.stringify(insights.otimizacoes || insights.insights || []),
-      (response.usage?.input_tokens || 0) + (response.usage?.output_tokens || 0),
-    ]);
-
-    console.log(`[IPPMIFY AI] Análise gerada — score: ${insights.score}, tokens: ${response.usage?.input_tokens + response.usage?.output_tokens}`);
+    console.log(`[AI] Insights gerados — score ${insights.score} — ${completion.usage.total_tokens} tokens`);
     return insights;
 
   } catch (error) {
-    console.error('[IPPMIFY AI] Erro ao gerar análise:', error.message);
+    console.error('[AI] Erro ao chamar OpenAI:', error.message);
 
-    // ── Fallback baseado nos dados sem IA ────────────────────────────────
-    const roas  = overview.roas  || 0;
-    const profit = overview.profit || 0;
-    const score = roas >= 3 ? 75 : roas >= 2 ? 55 : roas >= 1 ? 35 : 15;
+    // Fallback: gera resposta estruturada no formato correto baseada em dados reais
+    const hasData     = parseFloat(overview.spend || 0) > 0;
+    const roas        = parseFloat(overview.roas || 0);
+    const cpa         = parseFloat(overview.cpa || 0);
+    const cpaTarget   = parseFloat(user.cpa_target || 50);
+    const roasTarget  = parseFloat(user.roas_target || 2);
+    const profit      = parseFloat(overview.profit || 0);
+
+    let score = 50;
+    if (!hasData) score = 0;
+    else if (roas < 1) score = 15;
+    else if (roas < roasTarget) score = 40;
+    else if (roas >= roasTarget * 1.3) score = 80;
+
+    const scoreLabel = score >= 90 ? 'Excelente' : score >= 75 ? 'Bom' : score >= 60 ? 'Regular' : score >= 40 ? 'Atenção' : 'Crítico';
 
     return {
       score,
-      score_label: score >= 66 ? 'Performance Boa' : score >= 51 ? 'Performance Moderada' : score >= 31 ? 'Performance Ruim' : 'CRÍTICO',
-      score_cor:   score >= 66 ? 'verde' : score >= 51 ? 'amarelo' : score >= 31 ? 'laranja' : 'vermelho',
-      resumo_executivo: `Sistema de IA indisponível (verifique ANTHROPIC_API_KEY). ROAS atual: ${roas.toFixed(2)}x | Lucro: R$${profit.toFixed(2)}.`,
-      alerts: decisionsResult.rows.slice(0, 5).map(d => ({
-        nivel: d.severity >= 8 ? 'critico' : d.severity >= 5 ? 'aviso' : 'info',
+      score_label:      scoreLabel,
+      resumo_executivo: hasData
+        ? `ROAS geral de ${roas.toFixed(2)}x com gasto de R$${parseFloat(overview.spend).toFixed(2)}. Lucro: R$${profit.toFixed(2)}. IA temporariamente indisponível — ${decisionsResult.rows.length} alertas detectados pelo motor de regras.`
+        : 'Nenhuma campanha com dados encontrada. Conecte sua conta de anúncios para receber análises.',
+      alerts: decisionsResult.rows.map(d => ({
+        nivel:    d.severity >= 9 ? 'critico' : d.severity >= 7 ? 'alerta' : 'info',
         mensagem: d.title,
       })),
-      diagnostico: { gargalo: 'dados insuficientes', explicacao: 'Conecte sua conta Meta Ads e registre vendas para análise completa.' },
-      impacto_lucro: { nivel: profit < 0 ? 'alto' : 'medio', valor_estimado: `R$${Math.abs(profit).toFixed(2)}`, explicacao: profit < 0 ? 'Operação no prejuízo.' : 'Operação lucrativa.' },
-      acao_imediata: { urgencia: 'hoje', ordem: decisionsResult.rows[0]?.recommendation || 'Verifique suas campanhas.', detalhes: 'Acesse o Meta Ads Manager e revise os conjuntos ativos.' },
-      otimizacoes: [],
-      teste_sugerido: { hipotese: '', execucao: '' },
-      escala: { condicao: '', como: '' },
-      copies_sugeridas: [],
-      previsao: { proximo_mes: '', cenario_escala: '' },
-      campanhas_pausar: [],
-      campanhas_escalar: [],
-      _erro: error.message,
+      acao_imediata: {
+        urgencia: decisionsResult.rows[0]?.severity >= 9 ? 'critica' : 'alta',
+        ordem:    decisionsResult.rows[0]?.title || 'Verifique suas campanhas',
+        detalhes: decisionsResult.rows[0]?.recommendation || 'Acesse o painel de Decisões para ver os alertas detalhados.',
+      },
+      diagnostico: {
+        gargalo:    roas < 1 ? 'OFERTA' : cpa > cpaTarget * 1.5 ? 'PÚBLICO' : 'ESCALANDO',
+        explicacao: hasData ? `ROAS ${roas.toFixed(2)}x vs target ${roasTarget}x. CPA R$${cpa.toFixed(2)} vs target R$${cpaTarget.toFixed(2)}.` : 'Dados insuficientes.',
+      },
+      impacto_lucro: {
+        nivel:           profit < 0 ? 'alto' : 'medio',
+        valor_estimado:  `R$${Math.abs(profit).toFixed(2)} no período`,
+        explicacao:      profit < 0 ? 'Campanhas operando no prejuízo.' : 'Lucro positivo no período.',
+      },
+      teste_sugerido: {
+        hipotese: 'Testar novos criativos com hooks diferentes nos primeiros 3 segundos.',
+        execucao: 'Crie 3–5 vídeos com ângulos distintos. Teste por 7 dias com o mesmo budget. Compare CTR e CPA.',
+      },
+      otimizacoes: campaigns.filter(c => c.cpa > cpaTarget).map(c => ({
+        area:    'CPA',
+        impacto: `Reduzir CPA de R$${c.cpa} para R$${cpaTarget}`,
+        acao:    `Revise criativos e público da campanha "${c.campaign_name}". Pause se CPA > 2x target.`,
+      })).slice(0, 3),
+      escala: {
+        condicao: `ROAS acima de ${roasTarget}x por pelo menos 7 dias consecutivos.`,
+        como:     'Aumente budget em 20% a cada 48h. Não edite outros parâmetros durante a escala.',
+      },
+      copies_sugeridas: [
+        { tipo: 'Hook', texto: 'Você ainda paga caro por lead? Veja como reduzir seu CPA em 40% sem aumentar o budget.' },
+        { tipo: 'CTA', texto: 'Clique e descubra o método → resultado em 7 dias ou seu dinheiro de volta.' },
+      ],
+      campanhas_pausar:  campaigns.filter(c => c.roas < 1 || c.cpa > cpaTarget * 2).map(c => c.campaign_name),
+      campanhas_escalar: campaigns.filter(c => c.roas > roasTarget * 1.3).map(c => c.campaign_name),
+      previsao: {
+        proximo_mes:    hasData ? `Se mantiver o ROAS de ${roas.toFixed(2)}x, lucro estimado de R$${(profit * 4).toFixed(2)} no próximo mês.` : 'Conecte campanhas para projeções.',
+        cenario_escala: 'Com as otimizações aplicadas e ROAS acima do target, potencial de escalar 2–3x o budget em 60 dias.',
+      },
     };
   }
 };
 
-// ═══════════════════════════════════════════════════════════════════════════
-// BUSCAR ÚLTIMAS ANÁLISES
-// ═══════════════════════════════════════════════════════════════════════════
+// ─── BUSCAR ULTIMO INSIGHT SALVO ───────────────────────────────────────────
 const getLastInsights = async (userId, limit = 5) => {
-  const result = await query(`
-    SELECT id, type, summary, recommendations, raw_response, model_used, tokens_used, created_at
-    FROM ai_insights
-    WHERE user_id = $1
-    ORDER BY created_at DESC
-    LIMIT $2
-  `, [userId, limit]);
+  try {
+    const result = await query(`
+      SELECT id, type, summary, recommendations, created_at, model_used
+      FROM ai_insights
+      WHERE user_id = $1
+      ORDER BY created_at DESC
+      LIMIT $2
+    `, [userId, limit]);
 
-  return result.rows.map(row => {
-    let parsed = null;
-    try { parsed = JSON.parse(row.raw_response); } catch (_) {}
-    return {
+    return result.rows.map(row => ({
       ...row,
-      parsed,
       recommendations: typeof row.recommendations === 'string'
         ? JSON.parse(row.recommendations)
         : row.recommendations,
-    };
-  });
+    }));
+  } catch (_) {
+    return [];
+  }
 };
 
 module.exports = { generateInsights, getLastInsights };
