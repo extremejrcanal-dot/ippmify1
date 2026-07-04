@@ -32,8 +32,8 @@ router.post('/register', async (req, res) => {
     trialExpiresAt.setDate(trialExpiresAt.getDate() + trialDays);
 
     const result = await query(
-      `INSERT INTO users (name, email, password_hash, plan, plan_status, trial_expires_at, is_active)
-       VALUES ($1, $2, $3, 'trial', 'trial', $4, true)
+      `INSERT INTO users (name, email, password_hash, plan, trial_expires_at, is_active)
+       VALUES ($1, $2, $3, 'trial', $4, true)
        RETURNING id, name, email, plan`,
       [name.trim(), email.toLowerCase().trim(), hashedPassword, trialExpiresAt]
     );
@@ -64,7 +64,7 @@ router.post('/login', async (req, res) => {
     }
 
     const result = await query(
-      `SELECT id, name, email, password_hash, plan, plan_status, plan_expires_at,
+      `SELECT id, name, email, password_hash, plan, plan_expires_at,
               trial_expires_at, is_active, is_admin
        FROM users WHERE email = $1`,
       [email.toLowerCase().trim()]
@@ -96,7 +96,7 @@ router.post('/login', async (req, res) => {
         name:             user.name,
         email:            user.email,
         plan:             user.plan,
-        plan_status:      user.plan_status || user.plan,
+        plan_status:      user.plan,
         plan_expires_at:  user.plan_expires_at,
         trial_expires_at: user.trial_expires_at,
         is_admin:         user.is_admin ?? false,
