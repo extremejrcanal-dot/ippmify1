@@ -1,9 +1,7 @@
-const express = require('express');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const express  = require('express');
+const bcrypt   = require('bcrypt');
 const { query } = require('../config/database');
-const { setEx, get, del } = require('../config/redis');
-const { generateTokens, requireAuth } = require('../middleware/auth');
+const { requireAuth, generateTokens } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -11,54 +9,47 @@ const router = express.Router();
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   try {
-    const { email, name, password } = req.body;
+    const { name, email, password } = req.body;
 
-    // Validacoes basicas
-    if (!email || !name || !password) {
-      return res.status(400).json({ error: 'Email, nome e senha sao obrigatorios' });
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'Nome, e-mail e senha sao obrigatorios' });
     }
-    if (password.length < 8) {
-      return res.status(400).json({ error: 'A senha deve ter pelo menos 8 caracteres' });
-    }
-    if (!email.includes('@')) {
-      return res.status(400).json({ error: 'Email invalido' });
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'A senha deve ter pelo menos 6 caracteres' });
     }
 
     // Verificar se email ja existe
     const existing = await query('SELECT id FROM users WHERE email = $1', [email.toLowerCase()]);
     if (existing.rows.length > 0) {
-      return res.status(409).json({ error: 'Este email ja esta cadastrado' });
+      return res.status(400).json({ error: 'Este e-mail ja esta em uso' });
     }
 
-    // Criptografar senha (nunca salvar senha em texto puro)
-    const passwordHash = await bcrypt.hash(password, 12);
+    const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Criar usuario
+    // trial de 7 dias
+    const trialDays = 7;
+    const trialExpiresAt = new Date();
+    trialExpiresAt.setDate(trialExpiresAt.getDate() + trialDays);
+
     const result = await query(
-      `INSERT INTO users (email, name, password_hash)
-       VALUES ($1, $2, $3)
-       RETURNING id, email, name, plan, created_at`,
-      [email.toLowerCase(), name, passwordHash]
+      `INSERT INTO users (name, email, password_hash, plan, plan_status, trial_expires_at, is_active)
+       VALUES ($1, $2, $3, 'trial', 'trial', $4, true)
+       RETURNING id, name, email, plan`,
+      [name.trim(), email.toLowerCase().trim(), hashedPassword, trialExpiresAt]
     );
 
     const user = result.rows[0];
     const { accessToken, refreshToken } = generateTokens(user.id);
 
-    // Salvar refresh token no Redis (expira em 30 dias)
-    await setEx(`refresh:${user.id}`, refreshToken, 30 * 24 * 60 * 60);
-
-    console.log(`[Auth] Novo usuario registrado: ${email}`);
-
     res.status(201).json({
-      message: 'Conta criada com sucesso!',
-      user: { id: user.id, email: user.email, name: user.name, plan: user.plan },
+      message: 'Conta criada com sucesso',
       accessToken,
-      refreshToken
+      refreshToken,
+      user: { id: user.id, name: user.name, email: user.email, plan: user.plan },
     });
-
   } catch (error) {
     console.error('[Auth] Erro no registro:', error.message);
-    res.status(500).json({ error: 'Erro ao criar conta. Tente novamente.' });
+    res.status(500).json({ error: 'Erro ao criar conta' });
   }
 });
 
@@ -69,52 +60,55 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ error: 'Email e senha sao obrigatorios' });
+      return res.status(400).json({ error: 'E-mail e senha sao obrigatorios' });
     }
 
-    // Buscar usuario
     const result = await query(
-      'SELECT id, email, name, plan, password_hash, is_active FROM users WHERE email = $1',
-      [email.toLowerCase()]
+      `SELECT id, name, email, password_hash, plan, plan_status, plan_expires_at,
+              trial_expires_at, is_active, is_admin
+       FROM users WHERE email = $1`,
+      [email.toLowerCase().trim()]
     );
 
     if (result.rows.length === 0) {
-      return res.status(401).json({ error: 'Email ou senha incorretos' });
+      return res.status(401).json({ error: 'E-mail ou senha incorretos' });
     }
 
     const user = result.rows[0];
 
     if (!user.is_active) {
-      return res.status(403).json({ error: 'Conta desativada. Entre em contato com o suporte.' });
+      return res.status(401).json({ error: 'Conta desativada. Entre em contato com o suporte.' });
     }
 
-    // Verificar senha
     const passwordMatch = await bcrypt.compare(password, user.password_hash);
     if (!passwordMatch) {
-      return res.status(401).json({ error: 'Email ou senha incorretos' });
+      return res.status(401).json({ error: 'E-mail ou senha incorretos' });
     }
 
     const { accessToken, refreshToken } = generateTokens(user.id);
 
-    // Salvar novo refresh token
-    await setEx(`refresh:${user.id}`, refreshToken, 30 * 24 * 60 * 60);
-
-    console.log(`[Auth] Login: ${email}`);
-
     res.json({
-      message: 'Login realizado com sucesso!',
-      user: { id: user.id, email: user.email, name: user.name, plan: user.plan },
+      message: 'Login realizado com sucesso',
       accessToken,
-      refreshToken
+      refreshToken,
+      user: {
+        id:               user.id,
+        name:             user.name,
+        email:            user.email,
+        plan:             user.plan,
+        plan_status:      user.plan_status || user.plan,
+        plan_expires_at:  user.plan_expires_at,
+        trial_expires_at: user.trial_expires_at,
+        is_admin:         user.is_admin ?? false,
+      },
     });
-
   } catch (error) {
     console.error('[Auth] Erro no login:', error.message);
-    res.status(500).json({ error: 'Erro ao fazer login. Tente novamente.' });
+    res.status(500).json({ error: 'Erro ao fazer login' });
   }
 });
 
-// ─── RENOVAR TOKEN ─────────────────────────────────────────────────────────
+// ─── REFRESH TOKEN ─────────────────────────────────────────────────────────
 // POST /api/auth/refresh
 router.post('/refresh', async (req, res) => {
   try {
@@ -123,37 +117,26 @@ router.post('/refresh', async (req, res) => {
       return res.status(400).json({ error: 'Refresh token nao fornecido' });
     }
 
-    // Verificar token
+    const jwt = require('jsonwebtoken');
     const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
+
     if (decoded.type !== 'refresh') {
       return res.status(401).json({ error: 'Token invalido' });
     }
 
-    // Verificar se token ainda esta no Redis (nao foi revogado)
-    const storedToken = await get(`refresh:${decoded.userId}`);
-    if (!storedToken || storedToken !== refreshToken) {
-      return res.status(401).json({ error: 'Sessao expirada. Faca login novamente.' });
+    const result = await query(
+      'SELECT id FROM users WHERE id = $1 AND is_active = true',
+      [decoded.userId]
+    );
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Usuario nao encontrado' });
     }
 
-    // Gerar novos tokens
-    const tokens = generateTokens(decoded.userId);
-    await setEx(`refresh:${decoded.userId}`, tokens.refreshToken, 30 * 24 * 60 * 60);
-
-    res.json(tokens);
-
+    const { accessToken, refreshToken: newRefreshToken } = generateTokens(decoded.userId);
+    res.json({ accessToken, refreshToken: newRefreshToken });
   } catch (error) {
-    res.status(401).json({ error: 'Token invalido ou expirado' });
-  }
-});
-
-// ─── LOGOUT ────────────────────────────────────────────────────────────────
-// POST /api/auth/logout
-router.post('/logout', requireAuth, async (req, res) => {
-  try {
-    await del(`refresh:${req.user.id}`);
-    res.json({ message: 'Logout realizado com sucesso' });
-  } catch (error) {
-    res.status(500).json({ error: 'Erro ao fazer logout' });
+    console.error('[Auth] Erro ao renovar token:', error.message);
+    res.status(401).json({ error: 'Token expirado ou invalido. Faca login novamente.' });
   }
 });
 
@@ -169,7 +152,7 @@ router.get('/me', requireAuth, async (req, res) => {
       email:            u.email,
       name:             u.name,
       plan:             u.plan,
-      plan_status:      u.plan,          // alias: frontend lê plan_status
+      plan_status:      u.plan,          // alias: frontend le plan_status
       plan_expires_at:  u.plan_expires_at,
       trial_expires_at: u.trial_expires_at,
       is_admin:         u.is_admin ?? false,
@@ -181,6 +164,7 @@ router.get('/me', requireAuth, async (req, res) => {
       report_freq:      u.report_freq  ?? 0,
       report_times:     u.report_times ?? '',
       report_days:      u.report_days  ?? 7,
+      capi_api_key:     u.capi_api_key ?? null,
     }
   });
 });
@@ -207,6 +191,28 @@ router.put('/settings', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('[Auth] Erro ao atualizar configuracoes:', error.message);
     res.status(500).json({ error: 'Erro ao atualizar configuracoes' });
+  }
+});
+
+// ─── GERAR CHAVE DE API CAPI PROXY ────────────────────────────────────────
+// POST /api/auth/generate-capi-key
+// Gera (ou regenera) uma chave publica unica para o snippet CAPI Proxy do usuario
+router.post('/generate-capi-key', requireAuth, async (req, res) => {
+  try {
+    const crypto = require('crypto');
+    // Chave de 32 bytes hex (64 chars) — unica e criptograficamente segura
+    const newKey = crypto.randomBytes(32).toString('hex');
+
+    await query(
+      `UPDATE users SET capi_api_key = $1, updated_at = NOW() WHERE id = $2`,
+      [newKey, req.user.id]
+    );
+
+    console.log(`[Auth] Chave CAPI gerada para usuario ${req.user.id}`);
+    res.json({ capi_api_key: newKey });
+  } catch (error) {
+    console.error('[Auth] Erro ao gerar chave CAPI:', error.message);
+    res.status(500).json({ error: 'Erro ao gerar chave de API' });
   }
 });
 
