@@ -5526,6 +5526,137 @@ async function sendWhatsAppReport() {
   } catch (e) { showMsg('repWaMsg', e.message); }
   finally { if (btn) { btn.textContent = '📲 Enviar Agora'; btn.disabled = false; } }
 }
+// ─── AGENDAMENTO DE RELATORIO WHATSAPP ──────────────────────────────────────
+
+async function loadReportSchedule() {
+  try {
+    const data = await api('GET', '/api/reports/schedule');
+    renderReportScheduleDisplay(data);
+    // Preencher form com valores atuais
+    const freqEl = document.getElementById('reportFreqSelect');
+    if (freqEl) {
+      freqEl.value = data.report_freq || 0;
+      updateReportTimeSlots();
+      // Preencher horarios salvos
+      if (data.report_times) {
+        const times = data.report_times.split(',').map(t => t.trim()).filter(Boolean);
+        const inputs = document.querySelectorAll('#reportTimeSlotsInputs input[type="time"]');
+        inputs.forEach((inp, i) => { if (times[i]) inp.value = times[i]; });
+      }
+    }
+    selectReportDays(data.report_days || 7);
+  } catch (e) {
+    const el = document.getElementById('reportScheduleDisplay');
+    if (el) el.innerHTML = '<span style="color:var(--text3)">Erro ao carregar agendamento.</span>';
+    console.error('loadReportSchedule:', e.message);
+  }
+}
+
+function renderReportScheduleDisplay(data) {
+  const el = document.getElementById('reportScheduleDisplay');
+  if (!el) return;
+  const freq = parseInt(data.report_freq || 0);
+  if (freq === 0) {
+    el.innerHTML = '<span style="color:var(--text3)">⏸️ Relatório automático <strong>desativado</strong>.</span>';
+    return;
+  }
+  const freqLabel = { 1: '1x por dia', 2: '2x por dia', 3: '3x por dia' }[freq] || `${freq}x por dia`;
+  const daysLabel = { 1: 'Hoje', 7: 'Últimos 7 dias', 30: 'Últimos 30 dias' }[parseInt(data.report_days || 7)] || `${data.report_days} dias`;
+  const times = data.report_times ? data.report_times.split(',').map(t => t.trim()).filter(Boolean) : [];
+  const timesStr = times.length > 0 ? times.join(' e ') : 'horário não definido';
+  el.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <div>📅 <strong>${freqLabel}</strong> — às ${timesStr}</div>
+      <div style="color:var(--text2);font-size:13px;">📊 Período: ${daysLabel}</div>
+      <div style="color:var(--green);font-size:12px;margin-top:4px;">✅ Ativo — próxima mensagem no horário configurado</div>
+    </div>`;
+}
+
+function editReportSchedule() {
+  document.getElementById('reportScheduleView').style.display = 'none';
+  document.getElementById('reportScheduleForm').style.display = 'block';
+}
+
+function cancelReportScheduleEdit() {
+  document.getElementById('reportScheduleForm').style.display = 'none';
+  document.getElementById('reportScheduleView').style.display = 'block';
+  document.getElementById('reportScheduleMsg').innerHTML = '';
+}
+
+function updateReportTimeSlots() {
+  const freq = parseInt(document.getElementById('reportFreqSelect')?.value || 0);
+  const container = document.getElementById('reportTimeSlots');
+  const inputsDiv = document.getElementById('reportTimeSlotsInputs');
+  if (!container || !inputsDiv) return;
+
+  if (freq === 0) {
+    container.style.display = 'none';
+    return;
+  }
+  container.style.display = 'block';
+
+  // Sugestoes de horarios padrão
+  const defaults = ['08:00', '14:00', '20:00'];
+  const existing = Array.from(inputsDiv.querySelectorAll('input[type="time"]')).map(i => i.value);
+
+  inputsDiv.innerHTML = '';
+  for (let i = 0; i < freq; i++) {
+    const val = existing[i] || defaults[i] || '08:00';
+    const label = freq === 1 ? 'Horário' : `${i + 1}º envio`;
+    inputsDiv.innerHTML += `
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:12px;color:var(--text2);min-width:50px;">${label}</span>
+        <input type="time" value="${val}"
+          style="background:var(--bg3);border:1px solid var(--border);color:var(--text);
+                 padding:7px 10px;border-radius:8px;font-size:13px;font-family:'Montserrat',sans-serif;outline:none;">
+      </div>`;
+  }
+}
+
+function selectReportDays(days) {
+  document.getElementById('reportDaysValue').value = days;
+  [1, 7, 30].forEach(d => {
+    const btn = document.getElementById(`rdBtn${d}`);
+    if (!btn) return;
+    if (d === parseInt(days)) {
+      btn.style.background = 'var(--blue)';
+      btn.style.color = '#fff';
+      btn.style.borderColor = 'var(--blue)';
+    } else {
+      btn.style.background = '';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }
+  });
+}
+
+async function saveReportSchedule() {
+  const msgEl = document.getElementById('reportScheduleMsg');
+  try {
+    const freq  = parseInt(document.getElementById('reportFreqSelect').value || 0);
+    const days  = parseInt(document.getElementById('reportDaysValue').value || 7);
+    const times = Array.from(document.querySelectorAll('#reportTimeSlotsInputs input[type="time"]'))
+      .map(i => i.value).filter(Boolean).join(',');
+
+    if (freq > 0 && !times) {
+      msgEl.innerHTML = '<span style="color:#ff6b6b">Defina pelo menos um horário.</span>';
+      return;
+    }
+
+    const data = await api('POST', '/api/reports/schedule', {
+      report_freq:  freq,
+      report_times: times,
+      report_days:  days,
+    });
+
+    msgEl.innerHTML = '<span style="color:var(--green)">✅ Agendamento salvo!</span>';
+    renderReportScheduleDisplay(data);
+    setTimeout(() => cancelReportScheduleEdit(), 1200);
+  } catch (e) {
+    msgEl.innerHTML = `<span style="color:#ff6b6b">${e.message}</span>`;
+  }
+}
+
 let settingsEditing = false;
 
 function toggleSettingsEdit() {
