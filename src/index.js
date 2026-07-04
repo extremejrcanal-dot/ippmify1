@@ -1,10 +1,10 @@
 require('dotenv').config();
 
-const express  = require('express');
-const cors     = require('cors');
-const helmet   = require('helmet');
+const express   = require('express');
+const cors      = require('cors');
+const helmet    = require('helmet');
 const rateLimit = require('express-rate-limit');
-const path     = require('path');
+const path      = require('path');
 
 // Rotas
 const authRoutes         = require('./routes/auth');
@@ -13,6 +13,8 @@ const decisionsRoutes    = require('./routes/decisions');
 const insightsRoutes     = require('./routes/insights');
 const reportsRoutes      = require('./routes/reports');
 const integrationsRoutes = require('./routes/integrations');
+const webhooksRoutes     = require('./routes/webhooks'); // sem auth — vem de plataformas externas
+const benchmarksRoutes   = require('./routes/benchmarks');
 
 // Workers
 const { startSyncScheduler } = require('./workers/syncWorker');
@@ -21,11 +23,7 @@ const app  = express();
 const PORT = process.env.PORT || 3000;
 
 // ─── MIDDLEWARES DE SEGURANCA ──────────────────────────────────────────────
-// CSP desabilitado: o frontend usa scripts inline e CDNs externos
-// (Chart.js, Google Fonts) que conflitam com CSP estrito
-app.use(helmet({
-  contentSecurityPolicy: false,
-}));
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
@@ -36,13 +34,12 @@ app.use(express.urlencoded({ extended: true }));
 
 // Rate limiting global
 const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 300,                  // 300 requests por IP a cada 15 min
+  windowMs: 15 * 60 * 1000,
+  max: 300,
   message: { error: 'Muitas requisicoes. Aguarde alguns minutos.' }
 });
 app.use(globalLimiter);
 
-// Rate limiting mais restrito para autenticacao
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
@@ -51,12 +48,7 @@ const authLimiter = rateLimit({
 
 // ─── HEALTH CHECK ──────────────────────────────────────────────────────────
 app.get('/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    service: 'IPPMIFY API',
-    version: '1.0.0',
-    timestamp: new Date().toISOString()
-  });
+  res.json({ status: 'ok', service: 'IPPMIFY API', version: '1.0.0', timestamp: new Date().toISOString() });
 });
 
 // ─── ROTAS DA API ──────────────────────────────────────────────────────────
@@ -66,13 +58,12 @@ app.use('/api/decisions',    decisionsRoutes);
 app.use('/api/insights',     insightsRoutes);
 app.use('/api/reports',      reportsRoutes);
 app.use('/api/integrations', integrationsRoutes);
+app.use('/api/webhook',      webhooksRoutes);   // SEM auth — Kirvano/Cakto planos + Hotmart/Kiwify vendas
+app.use('/api/benchmarks',   benchmarksRoutes);
 
 // ─── FRONTEND ESTATICO ────────────────────────────────────────────────────
-// Serve os arquivos da pasta public/ (index.html, CSS, JS, etc.)
 app.use(express.static(path.join(__dirname, '../public')));
 
-// SPA fallback: qualquer rota nao-API retorna o index.html
-// (permite que o front-end gerencie suas proprias rotas)
 app.get('*', (req, res) => {
   if (req.originalUrl.startsWith('/api/')) {
     return res.status(404).json({ error: 'Rota nao encontrada', path: req.originalUrl });
@@ -97,8 +88,6 @@ app.listen(PORT, async () => {
   console.log(`[Server] Rodando na porta ${PORT}`);
   console.log(`[Server] Ambiente: ${process.env.NODE_ENV || 'development'}`);
   console.log('');
-
-  // Iniciar schedulers automaticos
   startSyncScheduler();
 });
 
