@@ -112,38 +112,62 @@ router.get('/', async (req, res) => {
     const bench = BENCHMARKS[niche] || BENCHMARKS.ecommerce;
 
     // ── Metricas brutas do usuario (ultimos N dias) ──────────────────────
-    const adResult = await query(`
-      SELECT
-        COALESCE(SUM(am.spend), 0)::float         AS total_spend,
-        COALESCE(SUM(am.impressions), 0)::bigint  AS total_impressions,
-        COALESCE(SUM(am.clicks), 0)::bigint       AS total_clicks,
-        COALESCE(SUM(am.pixel_purchase_count), 0)::integer AS pixel_conv
-      FROM ad_metrics am
-      JOIN campaigns c ON c.id = am.campaign_id
-      WHERE c.user_id = $1
-        AND am.date >= CURRENT_DATE - ($2 || ' days')::INTERVAL
-    `, [req.user.id, String(days)]);
+    // Tenta com pixel_purchase_count; cai para query simples se coluna nao existir
+    let adRow = {};
+    try {
+      const adResult = await query(`
+        SELECT
+          COALESCE(SUM(am.spend), 0)::float         AS total_spend,
+          COALESCE(SUM(am.impressions), 0)::bigint  AS total_impressions,
+          COALESCE(SUM(am.clicks), 0)::bigint       AS total_clicks,
+          COALESCE(SUM(am.pixel_purchase_count), 0)::integer AS pixel_conv
+        FROM ad_metrics am
+        JOIN campaigns c ON c.id = am.campaign_id
+        WHERE c.user_id = $1
+          AND am.date >= CURRENT_DATE - INTERVAL '1 day' * $2
+      `, [req.user.id, days]);
+      adRow = adResult.rows[0] || {};
+    } catch (e) {
+      // pixel_purchase_count pode nao existir ainda — fallback sem ela
+      console.warn('[Benchmarks] Fallback sem pixel_purchase_count:', e.message);
+      const adResult = await query(`
+        SELECT
+          COALESCE(SUM(am.spend), 0)::float         AS total_spend,
+          COALESCE(SUM(am.impressions), 0)::bigint  AS total_impressions,
+          COALESCE(SUM(am.clicks), 0)::bigint       AS total_clicks,
+          0::integer                                AS pixel_conv
+        FROM ad_metrics am
+        JOIN campaigns c ON c.id = am.campaign_id
+        WHERE c.user_id = $1
+          AND am.date >= CURRENT_DATE - INTERVAL '1 day' * $2
+      `, [req.user.id, days]);
+      adRow = adResult.rows[0] || {};
+    }
 
-    const adRow = adResult.rows[0] || {};
     const totalSpend       = parseFloat(adRow.total_spend || 0);
     const totalImpressions = parseInt(adRow.total_impressions || 0);
     const totalClicks      = parseInt(adRow.total_clicks || 0);
     const pixelConv        = parseInt(adRow.pixel_conv || 0);
 
-    // Vendas via webhook (receita + conversoes)
-    const salesResult = await query(`
-      SELECT
-        COALESCE(SUM(s.price), 0)::float AS webhook_revenue,
-        COUNT(s.id)::integer             AS webhook_conv
-      FROM sales s
-      WHERE s.user_id = $1
-        AND s.created_at >= NOW() - ($2 || ' days')::INTERVAL
-        AND s.status = 'approved'
-    `, [req.user.id, String(days)]);
-
-    const salesRow      = salesResult.rows[0] || {};
-    const webhookRev    = parseFloat(salesRow.webhook_revenue || 0);
-    const webhookConv   = parseInt(salesRow.webhook_conv || 0);
+    // Vendas via webhook (receita + conversoes) — tabela pode nao existir ainda
+    let webhookRev  = 0;
+    let webhookConv = 0;
+    try {
+      const salesResult = await query(`
+        SELECT
+          COALESCE(SUM(s.price), 0)::float AS webhook_revenue,
+          COUNT(s.id)::integer             AS webhook_conv
+        FROM sales s
+        WHERE s.user_id = $1
+          AND s.created_at >= NOW() - INTERVAL '1 day' * $2
+          AND s.status = 'approved'
+      `, [req.user.id, days]);
+      const salesRow = salesResult.rows[0] || {};
+      webhookRev  = parseFloat(salesRow.webhook_revenue || 0);
+      webhookConv = parseInt(salesRow.webhook_conv || 0);
+    } catch (e) {
+      console.warn('[Benchmarks] Tabela sales nao encontrada — ignorando receita webhook:', e.message);
+    }
 
     // Deduplicacao: webhook tem prioridade
     const totalConv    = webhookConv > 0 ? webhookConv : pixelConv;
