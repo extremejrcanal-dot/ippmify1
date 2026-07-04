@@ -103,13 +103,15 @@ router.get('/tree', async (req, res) => {
         c.id, c.name, c.status, c.external_id,
         c.integration_id, c.daily_budget, c.lifetime_budget,
         COALESCE(SUM(am.spend), 0)::numeric           AS spend,
-        COALESCE(SUM(am.impressions), 0)::integer     AS impressions,
-        COALESCE(SUM(am.clicks), 0)::integer          AS clicks,
-        COALESCE(SUM(am.reach), 0)::integer           AS reach,
-        COALESCE(AVG(NULLIF(am.cpm, 0)), 0)::numeric  AS cpm,
-        COALESCE(AVG(NULLIF(am.ctr, 0)), 0)::numeric  AS ctr,
-        COALESCE(AVG(NULLIF(am.cpc, 0)), 0)::numeric  AS cpc,
-        COALESCE(SUM(am.ic_count), 0)::integer        AS ic_count
+        COALESCE(SUM(am.impressions), 0)::integer             AS impressions,
+        COALESCE(SUM(am.clicks), 0)::integer                  AS clicks,
+        COALESCE(SUM(am.reach), 0)::integer                   AS reach,
+        COALESCE(AVG(NULLIF(am.cpm, 0)), 0)::numeric          AS cpm,
+        COALESCE(AVG(NULLIF(am.ctr, 0)), 0)::numeric          AS ctr,
+        COALESCE(AVG(NULLIF(am.cpc, 0)), 0)::numeric          AS cpc,
+        COALESCE(SUM(am.ic_count), 0)::integer                AS ic_count,
+        -- pixel_purchase_count: fallback de conversoes quando nao ha webhook
+        COALESCE(SUM(am.pixel_purchase_count), 0)::integer    AS pixel_purchase_count
       FROM campaigns c
       LEFT JOIN ad_metrics am
         ON am.campaign_id = c.id
@@ -326,21 +328,38 @@ router.get('/tree', async (req, res) => {
       const campRev        = campRevMap[c.external_id] || { revenue: 0, conversions: 0 };
       const adSets         = setsByCamp[c.id] || [];
       const revenue        = campRev.revenue > 0 ? campRev.revenue : adSets.reduce((s, a) => s + a.revenue, 0);
-      const conversions    = campRev.conversions > 0 ? campRev.conversions : adSets.reduce((s, a) => s + a.conversions, 0);
+
+      // ── DEDUPLICACAO PIXEL + WEBHOOK ────────────────────────────────────────
+      // webhookConv: vendas confirmadas por gateway (Hotmart/Kiwify/etc)
+      // pixelConv:  compras rastreadas pelo pixel Meta (fallback)
+      // Regra: se tem webhook → usa webhook; se nao → usa pixel
+      // Nunca soma os dois — evita dupla contagem
+      const webhookConv   = campRev.conversions;
+      const pixelConv     = parseInt(c.pixel_purchase_count || 0);
+      const adSetConv     = adSets.reduce((s, a) => s + a.conversions, 0);
+      const conversions   = webhookConv > 0 ? webhookConv
+                          : pixelConv   > 0 ? pixelConv
+                          : adSetConv;
+
+      const convSource    = webhookConv > 0 ? 'webhook'
+                          : pixelConv   > 0 ? 'pixel'
+                          : 'none';
+
       const dailyBudget    = parseFloat(c.daily_budget    || 0);
       const lifetimeBudget = parseFloat(c.lifetime_budget || 0);
       return {
-        id:              c.id,
-        name:            c.name,
-        status:          c.status,
-        external_id:     c.external_id,
-        integration_id:  c.integration_id,
-        daily_budget:    dailyBudget,
-        lifetime_budget: lifetimeBudget,
-        is_cbo:          dailyBudget > 0 || lifetimeBudget > 0,
+        id:               c.id,
+        name:             c.name,
+        status:           c.status,
+        external_id:      c.external_id,
+        integration_id:   c.integration_id,
+        daily_budget:     dailyBudget,
+        lifetime_budget:  lifetimeBudget,
+        is_cbo:           dailyBudget > 0 || lifetimeBudget > 0,
         spend,
         revenue,
         conversions,
+        conversion_source: convSource,
         roas:        spend > 0 ? revenue / spend : 0,
         cpa:         conversions > 0 ? spend / conversions : 0,
         impressions: parseInt(c.impressions),
