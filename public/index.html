@@ -2071,6 +2071,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           </div>
           <div style="display:flex;align-items:center;gap:10px">
             <span class="int-badge disconnected" id="badge-meta_ads">Não conectado</span>
+            <span class="int-badge disconnected" id="badge-capi" style="font-size:10px;padding:3px 8px;">📡 CAPI</span>
             <button class="int-toggle-btn" id="toggle-meta_ads" style="display:none" onclick="event.stopPropagation();toggleIntegration('meta_ads')"></button>
             <span class="int-chevron" id="chev-meta_ads">▼</span>
           </div>
@@ -2710,6 +2711,27 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6;">
             Configure seu Pixel e Token de Acesso do Meta para que a IPPMIFY envie eventos de <strong>Purchase</strong> server-side ao seu pixel toda vez que uma venda for registrada nos seus webhooks (Kirvano, Hotmart, Eduzz, Stripe etc.)
           </div>
+
+          <!-- ── STATUS PANEL CAPI ── -->
+          <div id="capiStatusPanel" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+               padding:14px 16px;background:var(--bg3);border-radius:12px;border:1px solid var(--border);
+               margin-bottom:20px;">
+            <span style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;
+                         letter-spacing:.6px;margin-right:4px;">Status CAPI</span>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:11px;color:var(--text2);">Pixel ID</span>
+              <span id="statusPixelId" class="int-badge disconnected">○ Não configurado</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:11px;color:var(--text2);">Token CAPI</span>
+              <span id="statusCapiToken" class="int-badge disconnected">○ Não configurado</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:11px;color:var(--text2);">CAPI Proxy</span>
+              <span id="statusCapiProxy" class="int-badge disconnected">○ Sem chave</span>
+            </div>
+          </div>
+
           <div class="form-group">
             <label>Meta Pixel ID</label>
             <input type="text" id="settingMetaPixelId" placeholder="Ex: 1234567890123456">
@@ -5653,6 +5675,45 @@ async function loadSettings() {
       document.getElementById('capiApiKeyInput').value = '';
       document.getElementById('capiSnippetSection').style.display = 'none';
     }
+
+    // ── Atualizar status panel CAPI ──────────────────────────────────────
+    const hasPixel   = !!(user.meta_pixel_id && user.meta_pixel_id.trim());
+    const hasToken   = !!(user.meta_capi_configured);
+    const hasProxy   = !!(user.capi_api_key);
+    const pixelOk    = hasPixel && hasToken;   // CAPI server-side completo
+
+    const setStatus = (id, ok, labelOk, labelNo, extraClass) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent  = ok ? labelOk : labelNo;
+      el.className    = `int-badge ${ok ? (extraClass || 'connected') : 'disconnected'}`;
+    };
+
+    setStatus('statusPixelId',   hasPixel, '● ' + user.meta_pixel_id, '○ Não configurado');
+    setStatus('statusCapiToken', hasToken, '● Token ativo',           '○ Não configurado');
+    setStatus('statusCapiProxy', hasProxy, '● Chave gerada',          '○ Sem chave');
+
+    // Badge 📡 CAPI no card da aba Integrações
+    const capiBadge = document.getElementById('badge-capi');
+    if (capiBadge) {
+      if (pixelOk && hasProxy) {
+        capiBadge.textContent = '📡 CAPI: Ativo';
+        capiBadge.className   = 'int-badge connected';
+        capiBadge.style.fontSize = '10px';
+        capiBadge.style.padding  = '3px 8px';
+      } else if (hasPixel || hasToken || hasProxy) {
+        capiBadge.textContent = '📡 CAPI: Parcial';
+        capiBadge.className   = 'int-badge inactive';
+        capiBadge.style.fontSize = '10px';
+        capiBadge.style.padding  = '3px 8px';
+      } else {
+        capiBadge.textContent = '📡 CAPI';
+        capiBadge.className   = 'int-badge disconnected';
+        capiBadge.style.fontSize = '10px';
+        capiBadge.style.padding  = '3px 8px';
+      }
+    }
+
     renderSettingsView(user);
   } catch(e) { console.error('loadSettings:', e.message); }
 }
@@ -5677,6 +5738,8 @@ async function saveSettings() {
     const resp2 = await api('GET', '/api/auth/me');
     const user = resp2.data || resp2.user || resp2;
     renderSettingsView(user);
+    // Recarregar status CAPI após salvar (pixel/token podem ter mudado)
+    loadSettings();
     setTimeout(() => { toggleSettingsEdit(); }, 1200);
   } catch(e) {
     showMsg('settingsMsg', e.message);
@@ -5796,6 +5859,20 @@ async function generateCapiKey() {
     document.getElementById('capiSnippetCode').textContent = buildCapiSnippet(key);
     document.getElementById('capiApiExample').textContent = buildCapiApiExample(key);
     showMsg('settingsMsg', '🔑 Chave gerada! Atualize o snippet em todas as páginas do funil.', 'success');
+    // Atualizar badge CAPI Proxy imediatamente
+    var sp = document.getElementById('statusCapiProxy');
+    if (sp) { sp.textContent = '● Chave gerada'; sp.className = 'int-badge connected'; }
+    // Verificar se CAPI completo (pixel + token já configurados)
+    var stPixel = document.getElementById('statusPixelId');
+    var stToken = document.getElementById('statusCapiToken');
+    var pixelOk = stPixel && stPixel.className.includes('connected');
+    var tokenOk = stToken && stToken.className.includes('connected');
+    var capiBadge = document.getElementById('badge-capi');
+    if (capiBadge) {
+      capiBadge.textContent = (pixelOk && tokenOk) ? '📡 CAPI: Ativo' : '📡 CAPI: Parcial';
+      capiBadge.className   = (pixelOk && tokenOk) ? 'int-badge connected' : 'int-badge inactive';
+      capiBadge.style.fontSize = '10px'; capiBadge.style.padding = '3px 8px';
+    }
   } catch(e) {
     showMsg('settingsMsg', 'Erro ao gerar chave: ' + (e.message || 'tente novamente'), 'error');
   } finally {
