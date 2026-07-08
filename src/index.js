@@ -14,13 +14,14 @@ const insightsRoutes     = require('./routes/insights');
 const reportsRoutes      = require('./routes/reports');
 const integrationsRoutes = require('./routes/integrations');
 const benchmarksRoutes   = require('./routes/benchmarks');
+const creativesRoutes    = require('./routes/creatives');
 
-// webhooks — carregado opcionalmente para nao crashar se arquivo nao existir
+// webhooks -- carregado opcionalmente para nao crashar se arquivo nao existir
 let webhooksRoutes = null;
 try {
   webhooksRoutes = require('./routes/webhooks');
 } catch (e) {
-  console.warn('[Server] webhooks.js nao encontrado — rota /api/webhook desativada');
+  console.warn('[Server] webhooks.js nao encontrado -- rota /api/webhook desativada');
 }
 
 // Workers
@@ -29,7 +30,7 @@ const { startSyncScheduler } = require('./workers/syncWorker');
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
-// ─── MIDDLEWARES DE SEGURANCA ──────────────────────────────────────────────
+// --- MIDDLEWARES DE SEGURANCA ---
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
@@ -53,12 +54,12 @@ const authLimiter = rateLimit({
   message: { error: 'Muitas tentativas de login. Aguarde 15 minutos.' }
 });
 
-// ─── HEALTH CHECK ──────────────────────────────────────────────────────────
+// --- HEALTH CHECK ---
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'IPPMIFY API', version: '1.0.0', timestamp: new Date().toISOString() });
 });
 
-// ─── ROTAS DA API ──────────────────────────────────────────────────────────
+// --- ROTAS DA API ---
 app.use('/api/auth',         authLimiter, authRoutes);
 app.use('/api/metrics',      metricsRoutes);
 app.use('/api/decisions',    decisionsRoutes);
@@ -66,11 +67,19 @@ app.use('/api/insights',     insightsRoutes);
 app.use('/api/reports',      reportsRoutes);
 app.use('/api/integrations', integrationsRoutes);
 if (webhooksRoutes) {
-  app.use('/api/webhook', webhooksRoutes);     // SEM auth — Kirvano/Cakto planos + Hotmart/Kiwify vendas
+  app.use('/api/webhook', webhooksRoutes);
 }
 app.use('/api/benchmarks',   benchmarksRoutes);
+app.use('/api/creatives',    creativesRoutes);
 
-// ─── FRONTEND ESTATICO ────────────────────────────────────────────────────
+// --- STORE NOTIFY (early access / lista de espera) ---
+app.post('/api/store/notify', (req, res) => {
+  const { email, product } = req.body || {};
+  if (email) console.log('[Store] Early access solicitado: ' + email + ' -- produto: ' + (product || 'geral'));
+  res.json({ message: 'Voce sera notificado quando estiver disponivel!' });
+});
+
+// --- FRONTEND ESTATICO ---
 app.use(express.static(path.join(__dirname, '../public')));
 
 app.get('*', (req, res) => {
@@ -86,16 +95,16 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Erro interno do servidor' });
 });
 
-// ─── INICIALIZAR SERVIDOR ──────────────────────────────────────────────────
+// --- INICIALIZAR SERVIDOR ---
 app.listen(PORT, async () => {
   console.log('');
-  console.log('╔══════════════════════════════════════════╗');
-  console.log('║         IPPMIFY - Profit Engine          ║');
-  console.log('║      Decisoes Automaticas de Lucro       ║');
-  console.log('╚══════════════════════════════════════════╝');
+  console.log('==========================================');
+  console.log('       IPPMIFY - Profit Engine          ');
+  console.log('    Decisoes Automaticas de Lucro       ');
+  console.log('==========================================');
   console.log('');
-  console.log(`[Server] Rodando na porta ${PORT}`);
-  console.log(`[Server] Ambiente: ${process.env.NODE_ENV || 'development'}`);
+  console.log('[Server] Rodando na porta ' + PORT);
+  console.log('[Server] Ambiente: ' + (process.env.NODE_ENV || 'development'));
   console.log('');
   startSyncScheduler();
 });
