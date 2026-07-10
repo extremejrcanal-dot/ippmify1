@@ -65,12 +65,12 @@ const calculateOverview = async (userId, days = 7) => {
       FROM campaigns c
       LEFT JOIN ad_metrics am
         ON am.campaign_id = c.id
-        AND am.date >= CURRENT_DATE - INTERVAL '${days} days'
+        AND am.date >= CURRENT_DATE - INTERVAL '${days - 1} days'
       LEFT JOIN sales s
         ON s.utm_campaign = c.external_id
         AND s.user_id = c.user_id
         AND s.status = 'approved'
-        AND s.sale_date >= NOW() - INTERVAL '${days} days'
+        AND DATE(s.sale_date) >= CURRENT_DATE - INTERVAL '${days - 1} days'
       WHERE c.user_id = $1
       GROUP BY c.id
     ),
@@ -79,7 +79,7 @@ const calculateOverview = async (userId, days = 7) => {
       FROM sales
       WHERE user_id = $1
         AND status = 'refunded'
-        AND sale_date >= NOW() - INTERVAL '${days} days'
+        AND DATE(sale_date) >= CURRENT_DATE - INTERVAL '${days - 1} days'
     )
     SELECT
       COALESCE(SUM(cm.spend), 0)       AS total_spend,
@@ -139,12 +139,12 @@ const calculateByCampaign = async (userId, days = 7) => {
     FROM campaigns c
     LEFT JOIN ad_metrics am
       ON am.campaign_id = c.id
-      AND am.date >= CURRENT_DATE - INTERVAL '${days} days'
+      AND am.date >= CURRENT_DATE - INTERVAL '${days - 1} days'
     LEFT JOIN sales s
       ON s.utm_campaign = c.external_id
       AND s.status = 'approved'
       AND s.user_id = c.user_id
-      AND s.sale_date >= NOW() - INTERVAL '${days} days'
+      AND DATE(s.sale_date) >= CURRENT_DATE - INTERVAL '${days - 1} days'
     WHERE c.user_id = $1
     GROUP BY c.id, c.name, c.external_id, c.status, c.daily_budget
     ORDER BY total_spend DESC
