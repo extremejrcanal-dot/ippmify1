@@ -4915,12 +4915,17 @@ async function runDecisions() {
   const btn = event.target;
   btn.innerHTML = '<span class="spinner"></span> Analisando...';
   btn.disabled = true;
+  const el = document.getElementById('decisionsContent');
+  if (el) el.innerHTML = '<div style="text-align:center;padding:48px 20px;"><div class="spinner"></div><div style="margin-top:14px;color:var(--text2);font-size:14px;">Analisando suas campanhas...</div></div>';
   try {
     const data = await api('POST', '/api/decisions/run');
-    showMsg('alertsContent', `✅ ${data.message}`, 'success');
-    setTimeout(() => { loadAlerts(); loadDecisionsTab(); }, 1500);
-  } catch (e) { showMsg('alertsContent', e.message); }
-  finally { btn.innerHTML = '▶ Executar Motor'; btn.disabled = false; }
+    setTimeout(() => loadDecisionsTab(), 800);
+  } catch (e) {
+    if (el) el.innerHTML = '<div class="alert alert-error" style="border-radius:12px;padding:16px;">⚠️ Erro ao executar motor: ' + (e.message||'Erro desconhecido') + '</div>';
+  } finally {
+    btn.innerHTML = '▶ Executar Motor';
+    btn.disabled = false;
+  }
 }
 
 // ─── IA CRIATIVA ──────────────────────────────────────────────────────────────
@@ -5370,10 +5375,10 @@ function renderAIAnalysis(data) {
     ? (data.campanhas_escalar || []).map(c => `<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:#22C55E;margin-right:8px;">🚀</span>${c}</div>`).join('')
     : '<div style="color:var(--text3);font-size:13px;">Nenhuma campanha para escalar agora</div>';
 
-  const urgColorMap = { agora:'#EF4444', hoje:'#F97316', esta_semana:'#FFBA00' };
-  const urgCor = urgColorMap[(data.acao_imediata || {}).urgencia] || '#FFBA00';
-  const urgLabel = { agora:'AGORA', hoje:'HOJE', esta_semana:'ESTA SEMANA' };
-  const urgText = urgLabel[(data.acao_imediata || {}).urgencia] || '';
+  const urgColorMap = { agora:'#EF4444', hoje:'#F97316', esta_semana:'#FFBA00', critica:'#EF4444', alta:'#F97316', media:'#FFBA00' };
+  const urgLabelMap = { agora:'AGORA', hoje:'HOJE', esta_semana:'ESTA SEMANA', critica:'AGORA', alta:'HOJE', media:'ESTA SEMANA' };
+  const urgCor  = urgColorMap[(data.acao_imediata || {}).urgencia] || '#FFBA00';
+  const urgText = urgLabelMap[(data.acao_imediata || {}).urgencia] || '';
 
   document.getElementById('insightContent').innerHTML = `
     <div style="display:grid;grid-template-columns:auto 1fr;gap:20px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;align-items:center;">
@@ -5400,6 +5405,7 @@ function renderAIAnalysis(data) {
       </div>
       <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:10px;">${data.acao_imediata.ordem || ''}</div>
       <div style="font-size:13px;color:var(--text2);line-height:1.5;">${data.acao_imediata.detalhes || ''}</div>
+      ${(data.acao_imediata.passos||[]).length > 0 ? '<div style="margin-top:12px;display:flex;flex-direction:column;gap:7px;">' + data.acao_imediata.passos.map((p,i) => '<div style="display:flex;gap:10px;align-items:flex-start;"><span style="background:' + urgCor + ';color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">' + (i+1) + '</span><span style="font-size:13px;color:var(--text2);padding-top:2px;">' + p + '</span></div>').join('') + '</div>' : ''}
     </div>` : ''}
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
@@ -5449,15 +5455,63 @@ function renderAIAnalysis(data) {
       </div>
     </div>
 
-    ${data.previsao ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;">
-        <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">📊 Próximo mês (curso atual)</div>
-        <div style="font-size:20px;font-weight:800;font-family:'Sora',sans-serif;">${data.previsao.proximo_mes || '—'}</div>
+    ${data.previsao ? `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px;">
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px;">
+        <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">📊 Mês atual (ritmo atual)</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text);line-height:1.4;">${data.previsao.proximo_mes_atual || data.previsao.proximo_mes || '—'}</div>
       </div>
-      <div style="background:rgba(20,110,245,.08);border:1px solid rgba(20,110,245,.25);border-radius:14px;padding:20px;">
-        <div style="font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">🚀 Com as recomendações</div>
-        <div style="font-size:20px;font-weight:800;font-family:'Sora',sans-serif;color:var(--blue);">${data.previsao.cenario_escala || '—'}</div>
+      <div style="background:rgba(20,110,245,.08);border:1px solid rgba(20,110,245,.25);border-radius:14px;padding:16px;">
+        <div style="font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">🚀 Com as recomendações</div>
+        <div style="font-size:13px;font-weight:600;color:var(--blue);line-height:1.4;">${data.previsao.cenario_otimizado || data.previsao.cenario_escala || '—'}</div>
       </div>
+      <div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.25);border-radius:14px;padding:16px;">
+        <div style="font-size:10px;font-weight:700;color:#22C55E;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">💰 Potencial de ganho</div>
+        <div style="font-size:13px;font-weight:700;color:#22C55E;line-height:1.4;">${data.previsao.diferenca_potencial || '—'}</div>
+      </div>
+    </div>` : ''}
+
+    ${(data.analise_campanhas||[]).length > 0 ? `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;">
+      <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:16px;">🎯 Veredicto por Campanha</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        ${data.analise_campanhas.map(c => {
+          const _vC = {PAUSAR:'#EF4444',ESCALAR:'#22C55E',MANTER:'#FFBA00',OTIMIZAR:'#F97316',TESTAR:'#8B5CF6'};
+          const _vI = {PAUSAR:'⏸',ESCALAR:'🚀',MANTER:'✅',OTIMIZAR:'🔧',TESTAR:'🧪'};
+          const _vc = _vC[c.veredicto] || '#64748B';
+          return \`<div style="display:flex;gap:12px;align-items:flex-start;padding:12px;background:var(--bg3);border-radius:10px;"><span style="background:\${_vc}20;color:\${_vc};font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;flex-shrink:0;margin-top:1px;">\${_vI[c.veredicto]||''} \${c.veredicto||''}</span><div><div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;">\${c.nome||''}</div><div style="font-size:12px;color:var(--text2);">\${c.acao||c.motivo||''}</div></div></div>\`;
+        }).join('')}
+      </div>
+    </div>` : ''}
+
+    ${(data.plano_7dias||[]).length > 0 ? `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;">
+      <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:16px;">📅 Plano de Ação — 7 Dias</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        ${data.plano_7dias.map((p,i) => \`<div style="display:flex;gap:12px;align-items:flex-start;"><div style="background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:4px 8px;border-radius:6px;flex-shrink:0;margin-top:1px;">\${p.periodo||('Dia '+(i+1))}</div><div><div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">\${p.foco||''}</div><div style="display:flex;flex-direction:column;gap:3px;">\${(p.acoes||[]).map(a => '<div style="font-size:12px;color:var(--text2);">→ ' + a + '</div>').join('')}</div></div></div>\`).join('')}
+      </div>
+    </div>` : ''}
+
+    ${data.estrategia_criativa ? `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;">
+      <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;">🎨 Estratégia Criativa</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px;">Ângulos para Testar</div>
+          ${(data.estrategia_criativa.angulos_testar||[]).map(a => `<div style="font-size:12px;color:var(--text2);padding:5px 0;border-bottom:1px solid var(--border);">• ${a}</div>`).join('')}
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px;">Hooks Prontos para Usar</div>
+          ${(data.estrategia_criativa.hooks_prontos||[]).map(h => `<div style="font-size:12px;color:var(--blue);padding:5px 8px;background:rgba(20,110,245,.06);border-radius:6px;margin-bottom:5px;font-style:italic;">"${h}"</div>`).join('')}
+        </div>
+      </div>
+    </div>` : ''}
+
+    ${(data.riscos||[]).length > 0 || (data.oportunidades||[]).length > 0 ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+      ${(data.riscos||[]).length > 0 ? `<div style="background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.2);border-radius:14px;padding:20px;">
+        <div style="font-size:11px;font-weight:700;color:#EF4444;text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;">⚠️ Riscos Detectados</div>
+        ${data.riscos.map(r => \`<div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba(239,68,68,.1);last-child:{border:none}"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;"><span style="font-size:12px;font-weight:600;color:var(--text);">\${r.risco||''}</span><span style="font-size:10px;color:\${r.probabilidade==='alta'?'#EF4444':r.probabilidade==='media'?'#F97316':'#64748B'};font-weight:700;text-transform:uppercase;">\${r.probabilidade||''}</span></div><div style="font-size:12px;color:var(--text2);">\${r.mitigacao||''}</div></div>\`).join('')}
+      </div>` : '<div></div>'}
+      ${(data.oportunidades||[]).length > 0 ? `<div style="background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.2);border-radius:14px;padding:20px;">
+        <div style="font-size:11px;font-weight:700;color:#22C55E;text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;">💡 Oportunidades</div>
+        ${data.oportunidades.map(o => \`<div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba(34,197,94,.1);"><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;">\${o.oportunidade||''}</div><div style="font-size:12px;color:#22C55E;margin-bottom:3px;">Potencial: \${o.potencial||''}</div><div style="font-size:12px;color:var(--text2);">\${o.como_capturar||''}</div></div>\`).join('')}
+      </div>` : '<div></div>'}
     </div>` : ''}
   `;
 
