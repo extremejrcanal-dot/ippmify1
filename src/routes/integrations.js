@@ -4,7 +4,7 @@ const { requireAuth } = require('../middleware/auth');
 const { query } = require('../config/database');
 const { encrypt, decrypt } = require('../services/encryptionService');
 
-// Google Ads service -- carregado opcionalmente
+// Google Ads service — carregado opcionalmente
 let syncGoogleAds = null, listGoogleAdsAccounts = null, getAccountDetails = null;
 try {
   const gads = require('../services/googleAdsService');
@@ -12,7 +12,7 @@ try {
   listGoogleAdsAccounts = gads.listGoogleAdsAccounts;
   getAccountDetails     = gads.getAccountDetails;
 } catch (e) {
-  console.warn('[Integrations] googleAdsService nao encontrado -- Google Ads desativado');
+  console.warn('[Integrations] googleAdsService nao encontrado — Google Ads desativado');
 }
 
 const router = express.Router();
@@ -38,7 +38,7 @@ const upsertIntegration = async (userId, platform, fields) => {
   return r.rows[0].id;
 };
 
-// GET /api/integrations
+// ─── LISTAR INTEGRACOES ───────────────────────────────────────────────────
 router.get('/', async (req, res) => {
   try {
     const result = await query(
@@ -54,7 +54,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/integrations/status
+// ─── STATUS RAPIDO ────────────────────────────────────────────────────────
 router.get('/status', async (req, res) => {
   try {
     const result = await query(
@@ -74,9 +74,9 @@ router.get('/status', async (req, res) => {
   }
 });
 
-// ============================================================
+// ═══════════════════════════════════════════════════════════════════════════
 // META ADS
-// ============================================================
+// ═══════════════════════════════════════════════════════════════════════════
 
 // POST /api/integrations/meta-ads/connect-token
 router.post('/meta-ads/connect-token', async (req, res) => {
@@ -96,7 +96,7 @@ router.post('/meta-ads/connect-token', async (req, res) => {
           : accounts[0];
         if (target) {
           accountId   = target.id || target.account_id || ad_account_id;
-          accountName = target.name || 'Conta ' + accountId;
+          accountName = target.name || `Conta ${accountId}`;
         }
       }
     } catch (apiErr) {
@@ -117,7 +117,7 @@ router.post('/meta-ads/connect-token', async (req, res) => {
       RETURNING id
     `, [req.user.id, encrypt(access_token), accountId, accountName]);
 
-    res.json({ message: 'Meta Ads conectado! Conta: ' + accountName, integration_id: r.rows[0].id, account_name: accountName });
+    res.json({ message: `Meta Ads conectado! Conta: ${accountName}`, integration_id: r.rows[0].id, account_name: accountName });
   } catch (err) {
     console.error('[Integrations] Meta Ads connect-token erro:', err.message);
     res.status(500).json({ error: 'Erro ao conectar Meta Ads: ' + err.message });
@@ -136,31 +136,97 @@ router.post('/meta-ads/sync', async (req, res) => {
   }
 });
 
-// POST /api/integrations/meta-capi/setup
+// POST /api/integrations/meta-capi/setup  (mantido para retrocompatibilidade)
 router.post('/meta-capi/setup', async (req, res) => {
   try {
-    const { pixel_id, access_token } = req.body;
+    const { pixel_id, access_token, pixel_name } = req.body;
     if (!pixel_id) return res.status(400).json({ error: 'pixel_id e obrigatorio' });
+    if (!access_token) return res.status(400).json({ error: 'access_token e obrigatorio' });
 
-    const encToken = access_token ? encrypt(access_token) : null;
-    await query(
-      `UPDATE users SET
-         meta_pixel_id     = $1,
-         meta_access_token = COALESCE($2, meta_access_token),
-         updated_at        = NOW()
-       WHERE id = $3`,
-      [pixel_id, encToken, req.user.id]
-    );
-    res.json({ message: 'Meta CAPI configurado com sucesso!' });
+    const encToken = encrypt(access_token);
+    // Salvar tanto na coluna legada quanto na tabela de pixels
+    await query(`UPDATE users SET meta_pixel_id=$1, meta_access_token=$2, updated_at=NOW() WHERE id=$3`,
+      [pixel_id, encToken, req.user.id]);
+
+    // Upsert na tabela de pixels (plataforma meta_pixel:PIXEL_ID)
+    await query(`
+      INSERT INTO integrations (user_id, platform, access_token, account_id, account_name, is_active)
+      VALUES ($1, $2, $3, $4, $5, true)
+      ON CONFLICT (user_id, platform) DO UPDATE SET
+        access_token = EXCLUDED.access_token,
+        account_name = EXCLUDED.account_name,
+        is_active    = true,
+        updated_at   = NOW()
+    `, [req.user.id, 'meta_pixel:' + pixel_id, encToken, pixel_id, pixel_name || ('Pixel ' + pixel_id)]);
+
+    res.json({ message: 'Meta CAPI configurado com sucesso! Pixel ' + pixel_id + ' adicionado.' });
   } catch (err) {
     console.error('[Integrations] Meta CAPI setup erro:', err.message);
     res.status(500).json({ error: 'Erro ao configurar Meta CAPI: ' + err.message });
   }
 });
 
-// ============================================================
+// GET /api/integrations/meta-capi/pixels — lista todos os pixels do usuario
+router.get('/meta-capi/pixels', async (req, res) => {
+  try {
+    const result = await query(
+      `SELECT id, account_id AS pixel_id, account_name AS pixel_name, is_active, created_at
+       FROM integrations
+       WHERE user_id=$1 AND platform LIKE 'meta_pixel:%'
+       ORDER BY created_at ASC`,
+      [req.user.id]
+    );
+    res.json({ data: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/integrations/meta-capi/pixels — adiciona um pixel
+router.post('/meta-capi/pixels', async (req, res) => {
+  try {
+    const { pixel_id, access_token, pixel_name } = req.body;
+    if (!pixel_id || !access_token) return res.status(400).json({ error: 'pixel_id e access_token sao obrigatorios' });
+
+    const platform = 'meta_pixel:' + pixel_id;
+    const encToken = encrypt(access_token);
+
+    // Verificar se ja existe
+    const existing = await query(`SELECT id FROM integrations WHERE user_id=$1 AND platform=$2`, [req.user.id, platform]);
+    if (existing.rows.length > 0) {
+      await query(`UPDATE integrations SET access_token=$1, account_name=$2, is_active=true, updated_at=NOW() WHERE user_id=$3 AND platform=$4`,
+        [encToken, pixel_name || ('Pixel ' + pixel_id), req.user.id, platform]);
+      return res.json({ message: 'Pixel ' + pixel_id + ' atualizado!', pixel_id });
+    }
+
+    // Verificar limite (max 10 pixels)
+    const count = await query(`SELECT COUNT(*) FROM integrations WHERE user_id=$1 AND platform LIKE 'meta_pixel:%'`, [req.user.id]);
+    if (parseInt(count.rows[0].count) >= 10) return res.status(400).json({ error: 'Limite de 10 pixels por conta atingido.' });
+
+    await query(`INSERT INTO integrations (user_id, platform, access_token, account_id, account_name, is_active) VALUES ($1,$2,$3,$4,$5,true)`,
+      [req.user.id, platform, encToken, pixel_id, pixel_name || ('Pixel ' + pixel_id)]);
+
+    res.json({ message: 'Pixel ' + pixel_id + ' adicionado com sucesso!', pixel_id });
+  } catch (err) {
+    console.error('[Integrations] Adicionar pixel erro:', err.message);
+    res.status(500).json({ error: 'Erro ao adicionar pixel: ' + err.message });
+  }
+});
+
+// DELETE /api/integrations/meta-capi/pixels/:pixelId — remove um pixel
+router.delete('/meta-capi/pixels/:pixelId', async (req, res) => {
+  try {
+    const platform = 'meta_pixel:' + req.params.pixelId;
+    await query(`DELETE FROM integrations WHERE user_id=$1 AND platform=$2`, [req.user.id, platform]);
+    res.json({ message: 'Pixel removido.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
 // GOOGLE ADS
-// ============================================================
+// ═══════════════════════════════════════════════════════════════════════════
 
 router.get('/google-ads/auth-url', (req, res) => {
   if (!listGoogleAdsAccounts)
@@ -173,13 +239,13 @@ router.get('/google-ads/auth-url', (req, res) => {
     client_id: process.env.GOOGLE_CLIENT_ID, redirect_uri: process.env.GOOGLE_REDIRECT_URI,
     response_type: 'code', scope: GOOGLE_SCOPES, access_type: 'offline', prompt: 'consent', state: req.user.id,
   });
-  res.json({ url: GOOGLE_AUTH_URL + '?' + params.toString() });
+  res.json({ url: `${GOOGLE_AUTH_URL}?${params.toString()}` });
 });
 
 router.get('/google-ads/callback', async (req, res) => {
   try {
     const { code, state: userId, error } = req.query;
-    if (error) return res.redirect('/?integration_error=' + encodeURIComponent(error));
+    if (error) return res.redirect(`/?integration_error=${encodeURIComponent(error)}`);
     if (!code || !userId) return res.status(400).json({ error: 'Parametros invalidos no callback' });
     const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
     const tokenRes = await axios.post(GOOGLE_TOKEN_URL, {
@@ -192,7 +258,7 @@ router.get('/google-ads/callback', async (req, res) => {
     if (accounts.length === 0) return res.redirect('/?integration_error=Nenhuma conta Google Ads encontrada');
     const accountDetails = await getAccountDetails(access_token, accounts[0]);
     const accountId   = accountDetails?.id || accounts[0].replace('customers/', '');
-    const accountName = accountDetails?.name || 'Conta ' + accountId;
+    const accountName = accountDetails?.name || `Conta ${accountId}`;
     await query(
       `INSERT INTO integrations (user_id, platform, access_token, refresh_token, token_expires_at, account_id, account_name, is_active)
        VALUES ($1,'google_ads',$2,$3,$4,$5,$6,true)
@@ -205,7 +271,7 @@ router.get('/google-ads/callback', async (req, res) => {
     res.redirect('/?integration_success=google_ads');
   } catch (err) {
     console.error('[Integrations] Erro no callback Google Ads:', err.message);
-    res.redirect('/?integration_error=' + encodeURIComponent(err.message));
+    res.redirect(`/?integration_error=${encodeURIComponent(err.message)}`);
   }
 });
 
@@ -218,13 +284,13 @@ router.post('/google-ads/sync', async (req, res) => {
     res.json({ message: 'Sincronizacao concluida', campaigns_synced: campaigns, metrics_synced: metrics });
   } catch (err) {
     console.error('[Integrations] Erro ao sincronizar Google Ads:', err.message);
-    res.status(500).json({ error: 'Erro na sincronizacao: ' + err.message });
+    res.status(500).json({ error: `Erro na sincronizacao: ${err.message}` });
   }
 });
 
-// ============================================================
-// CHECKOUTS / WEBHOOK
-// ============================================================
+// ═══════════════════════════════════════════════════════════════════════════
+// CHECKOUTS — WEBHOOK
+// ═══════════════════════════════════════════════════════════════════════════
 
 router.post('/hotmart/connect', async (req, res) => {
   try {
@@ -235,7 +301,7 @@ router.post('/hotmart/connect', async (req, res) => {
       access_token: encrypt(client_id), refresh_token: encrypt(client_secret),
       account_id: client_id, account_name: 'Hotmart',
     });
-    const webhookUrl = appBaseUrl(req) + '/api/webhook/hotmart/' + integrationId;
+    const webhookUrl = `${appBaseUrl(req)}/api/webhook/hotmart/${integrationId}`;
     res.json({ message: 'Hotmart conectado! Configure o webhook no painel da Hotmart.', webhook_url: webhookUrl, integration_id: integrationId });
   } catch (err) {
     console.error('[Integrations] Hotmart connect erro:', err.message);
@@ -250,7 +316,7 @@ router.post('/kiwify/connect', async (req, res) => {
     const integrationId = await upsertIntegration(req.user.id, 'kiwify', {
       access_token: encrypt(api_key), account_id: 'kiwify', account_name: 'Kiwify',
     });
-    const webhookUrl = appBaseUrl(req) + '/api/webhook/kiwify/' + integrationId;
+    const webhookUrl = `${appBaseUrl(req)}/api/webhook/kiwify/${integrationId}`;
     res.json({ message: 'Kiwify conectado! Configure o webhook no painel da Kiwify.', webhook_url: webhookUrl, integration_id: integrationId });
   } catch (err) {
     console.error('[Integrations] Kiwify connect erro:', err.message);
@@ -258,25 +324,25 @@ router.post('/kiwify/connect', async (req, res) => {
   }
 });
 
-// POST /api/integrations/:platform/connect (Kirvano, Eduzz, etc)
+// POST /api/integrations/:platform/connect  (Kirvano, Eduzz, etc — só webhook)
 const WEBHOOK_PLATFORMS = ['kirvano','eduzz','monetizze','braip','perfectpay','ticto','yampi','appmax'];
 router.post('/:platform/connect', async (req, res) => {
   const { platform } = req.params;
   if (!WEBHOOK_PLATFORMS.includes(platform))
-    return res.status(400).json({ error: 'Plataforma ' + platform + ' nao suportada via este endpoint' });
+    return res.status(400).json({ error: `Plataforma ${platform} nao suportada via este endpoint` });
   try {
     const integrationId = await upsertIntegration(req.user.id, platform, {
       account_name: platform.charAt(0).toUpperCase() + platform.slice(1),
     });
-    const webhookUrl = appBaseUrl(req) + '/api/webhook/' + platform + '/' + integrationId;
-    res.json({ message: platform + ' conectado! Use a URL do webhook abaixo.', webhook_url: webhookUrl, integration_id: integrationId });
+    const webhookUrl = `${appBaseUrl(req)}/api/webhook/${platform}/${integrationId}`;
+    res.json({ message: `${platform} conectado! Use a URL do webhook abaixo.`, webhook_url: webhookUrl, integration_id: integrationId });
   } catch (err) {
-    console.error('[Integrations] ' + platform + ' connect erro:', err.message);
-    res.status(500).json({ error: 'Erro ao conectar ' + platform });
+    console.error(`[Integrations] ${platform} connect erro:`, err.message);
+    res.status(500).json({ error: `Erro ao conectar ${platform}` });
   }
 });
 
-// PATCH /api/integrations/:id/toggle
+// ─── TOGGLE INTEGRACAO ────────────────────────────────────────────────────
 router.patch('/:id/toggle', async (req, res) => {
   try {
     const result = await query(
@@ -291,7 +357,7 @@ router.patch('/:id/toggle', async (req, res) => {
   }
 });
 
-// DELETE /api/integrations/:id
+// ─── REMOVER INTEGRACAO ───────────────────────────────────────────────────
 router.delete('/:id', async (req, res) => {
   try {
     await query(`DELETE FROM integrations WHERE id = $1 AND user_id = $2`, [req.params.id, req.user.id]);
