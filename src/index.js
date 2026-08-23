@@ -15,6 +15,7 @@ const reportsRoutes      = require('./routes/reports');
 const integrationsRoutes = require('./routes/integrations');
 const benchmarksRoutes   = require('./routes/benchmarks');
 const creativesRoutes    = require('./routes/creatives');
+const pushRoutes = require('./routes/push');
 
 // webhooks -- carregado opcionalmente para nao crashar se arquivo nao existir
 let webhooksRoutes = null;
@@ -66,6 +67,7 @@ app.use('/api/decisions',    decisionsRoutes);
 app.use('/api/insights',     insightsRoutes);
 app.use('/api/reports',      reportsRoutes);
 app.use('/api/integrations', integrationsRoutes);
+app.use('/api/push', pushRoutes);
 if (webhooksRoutes) {
   app.use('/api/webhook', webhooksRoutes);
 }
