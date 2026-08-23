@@ -1982,6 +1982,7 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
         <div class="empty-state">
           <div class="cs-icon">⚡</div>
           <div style="font-size:16px;font-weight:600;margin-bottom:8px;">IPPMIFY AI pronta</div>
+          <div id="aiStatusBadge" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;padding:3px 10px;border-radius:20px;background:var(--bg3);color:var(--text3);margin-bottom:8px;">⏳ Verificando configuração...</div>
           <p>Clique em "Analisar Agora" para gerar o diagnóstico completo das suas campanhas.</p>
           <p style="font-size:12px;color:var(--text3);margin-top:8px;">Análises são cacheadas por 2h para economizar tokens.</p>
         </div>
@@ -2746,6 +2747,29 @@ details .det-body{margin-top:14px;padding:18px;background:var(--bg3);border-radi
           <div style="background:var(--bg3);border-radius:10px;padding:14px 16px;font-size:12px;color:var(--text3);margin-bottom:8px;line-height:1.6;">
             🔒 O token é armazenado de forma segura e usado apenas para enviar eventos ao <em>seu</em> pixel. A IPPMIFY nunca compartilha suas credenciais.
           </div>
+
+          <!-- ── MULTI-PIXEL ── -->
+          <div class="card-title" style="margin-top:24px">📡 Múltiplos Pixels — Escala Multi-Conta</div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6;">
+            Conecte quantos pixels quiser. Cada venda será enviada <strong>simultaneamente</strong> para todos os pixels ativos — ideal para multi-BM, múltiplas contas ou testes A/B de pixel.
+          </div>
+          <div id="multiPixelList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:8px;">
+            <div style="flex:1;min-width:160px;">
+              <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">Pixel ID</div>
+              <input type="text" id="newPixelId" placeholder="Ex: 1234567890" style="width:100%;box-sizing:border-box;">
+            </div>
+            <div style="flex:2;min-width:220px;">
+              <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">Access Token</div>
+              <input type="text" id="newPixelToken" placeholder="Token do sistema" style="width:100%;box-sizing:border-box;font-size:11px;">
+            </div>
+            <div style="flex:1;min-width:120px;">
+              <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">Nome (opcional)</div>
+              <input type="text" id="newPixelName" placeholder="Ex: BM Principal" style="width:100%;box-sizing:border-box;">
+            </div>
+            <button class="btn btn-blue" onclick="addPixel()" style="height:40px;white-space:nowrap;">+ Adicionar Pixel</button>
+          </div>
+          <div id="multiPixelMsg" style="font-size:12px;margin-top:4px;"></div>
 
           <!-- ── CAPI Proxy — Rastreamento de Funil Completo ── -->
           <div class="card-title" style="margin-top:28px">🔗 CAPI Proxy — Rastreamento de Funil</div>
@@ -3565,7 +3589,8 @@ function showTab(name) {
   if (name === 'alerts')      loadAlerts();
   if (name === 'benchmarks')  loadBenchmarks();
   if (name === 'insights')    loadAIInsights();
-  if (name === 'settings')    loadSettings();
+  if (name === 'insights')    setTimeout(function(){ checkAiStatus(); }, 500);
+  if (name === 'settings')    { loadSettings(); setTimeout(function(){ loadPixels(); checkAiStatus(); }, 800); }
   if (name === 'plan')        loadPlanTab();
   if (name === 'reports')     loadReportSchedule();
   // creatives tab has no auto-load (it's a generator)
@@ -4066,6 +4091,9 @@ function selectCampaign(campId) {
 
   const adSetsHtml = (camp.ad_sets || []).map(s => {
     const sRoas = s.spend > 0 ? (s.revenue||0)/s.spend : 0;
+    const sCtr  = s.ctr || 0;
+    const sCpc  = s.cpc || 0;
+    const sConv = s.conversions || 0;
     const hasBudget = (s.daily_budget > 0 || s.lifetime_budget > 0);
     return `<tr>
       <td style="padding:10px 8px;font-size:13px;color:var(--text);cursor:pointer" onclick="selectAdSet('${campId}','${s.id}')">
@@ -4075,7 +4103,11 @@ function selectCampaign(campId) {
         </div>
       </td>
       <td style="padding:10px 8px;font-size:13px;color:var(--text2);text-align:right">${fmt(s.spend)}</td>
+      <td style="padding:10px 8px;font-size:13px;color:var(--green);text-align:right">${(s.revenue||0)>0?fmt(s.revenue||0):'—'}</td>
       <td style="padding:10px 8px;font-size:13px;text-align:right;color:${sRoas>=2?'var(--green)':sRoas>=1?'var(--orange)':'var(--red)'}">${fmtN(sRoas)}x</td>
+      <td style="padding:10px 8px;font-size:13px;text-align:right;color:var(--green)">${sConv>0?sConv:'—'}</td>
+      <td style="padding:10px 8px;font-size:13px;text-align:right;color:${sCtr>=2?'var(--green)':sCtr>=1?'var(--orange)':'var(--text2)'}">${sCtr>0?fmtN(sCtr,2)+'%':'—'}</td>
+      <td style="padding:10px 8px;font-size:13px;text-align:right;color:var(--text2)">${sCpc>0?fmt(sCpc):'—'}</td>
       <td style="padding:10px 8px;text-align:right">
         ${!isCBO && hasBudget
           ? `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
@@ -4195,7 +4227,11 @@ function selectCampaign(campId) {
         <thead><tr style="border-bottom:1px solid var(--border)">
           <th style="padding:10px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:left">Conjunto</th>
           <th style="padding:10px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:right">Gasto</th>
+          <th style="padding:10px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:right">Receita</th>
           <th style="padding:10px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:right">ROAS</th>
+          <th style="padding:10px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:right">Vendas</th>
+          <th style="padding:10px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:right">CTR</th>
+          <th style="padding:10px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:right">CPC</th>
           <th style="padding:10px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:right">Orçamento</th>
           <th style="padding:10px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:center">Status</th>
         </tr></thead>
@@ -4217,11 +4253,16 @@ function selectAdSet(campId, adSetId) {
   const adsHtml = (adSet.ads || []).map(a => {
     const aRoas = a.spend > 0 ? (a.revenue||0)/a.spend : 0;
     const isAdActive = a.status === 'ACTIVE';
+    const aImpr = a.impressions || 0;
     return `<tr style="${isAdActive?'':'opacity:.65'}">
       <td style="padding:9px 8px;font-size:12px;color:var(--text)">${a.name || 'Anúncio'}</td>
       <td style="padding:9px 8px;font-size:12px;color:var(--text2);text-align:right">${fmt(a.spend)}</td>
+      <td style="padding:9px 8px;font-size:12px;color:var(--green);text-align:right">${(a.revenue||0)>0?fmt(a.revenue||0):'—'}</td>
       <td style="padding:9px 8px;font-size:12px;text-align:right;color:${aRoas>=2?'var(--green)':aRoas>=1?'var(--orange)':'var(--red)'}">${fmtN(aRoas)}x</td>
-      <td style="padding:9px 8px;font-size:12px;color:var(--text2);text-align:right">${fmtN(a.ctr||0,2)}%</td>
+      <td style="padding:9px 8px;font-size:12px;color:var(--text2);text-align:right">${(a.ctr||0)>0?fmtN(a.ctr||0,2)+'%':'—'}</td>
+      <td style="padding:9px 8px;font-size:12px;color:var(--text2);text-align:right">${(a.cpc||0)>0?fmt(a.cpc):'—'}</td>
+      <td style="padding:9px 8px;font-size:12px;color:var(--text2);text-align:right">${(a.cpm||0)>0?fmt(a.cpm):'—'}</td>
+      <td style="padding:9px 8px;font-size:12px;color:var(--text2);text-align:right">${aImpr>=1000?(aImpr/1000).toFixed(1)+'k':aImpr||'—'}</td>
       <td style="padding:9px 8px;text-align:center">
         <div class="ios-tog" style="justify-content:center" onclick="toggleAdStatus('${a.id}','${a.status}')">
           <div class="ios-tog-track ${isAdActive?'on':'off'}" style="width:36px;height:22px;border-radius:11px">
@@ -4239,8 +4280,12 @@ function selectAdSet(campId, adSetId) {
         <thead><tr style="border-bottom:1px solid var(--border)">
           <th style="padding:9px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:left">Anúncio</th>
           <th style="padding:9px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:right">Gasto</th>
+          <th style="padding:9px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:right">Receita</th>
           <th style="padding:9px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:right">ROAS</th>
           <th style="padding:9px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:right">CTR</th>
+          <th style="padding:9px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:right">CPC</th>
+          <th style="padding:9px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:right">CPM</th>
+          <th style="padding:9px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:right">Impr.</th>
           <th style="padding:9px 8px;font-size:11px;color:var(--text3);font-weight:600;text-align:center">Status</th>
         </tr></thead>
         <tbody>${adsHtml}</tbody>
@@ -4626,6 +4671,18 @@ async function loadDashboard() {
         <div class="mc-value">${fmtN(data.ctr, 2)}%</div>
         <span class="mc-trend neutral">dos seus anúncios</span>
       </div>
+      <div class="metric-card">
+        <div class="mc-icon">🛒</div>
+        <div class="mc-label">Vendas</div>
+        <div class="mc-value green">${data.conversions || 0}</div>
+        ${trendBadge(data.conversions, prev?.conversions)}
+      </div>
+      <div class="metric-card">
+        <div class="mc-icon">💡</div>
+        <div class="mc-label">CPA Real</div>
+        <div class="mc-value ${data.cpa > 0 && data.cpa <= (data.cpa_target||9999) ? 'green' : data.cpa > 0 ? 'orange' : ''}">${data.cpa > 0 ? fmt(data.cpa) : '—'}</div>
+        <span class="mc-trend neutral">${data.conversions > 0 ? 'por venda' : 'sem vendas ainda'}</span>
+      </div>
     `;
 
     loadCharts(days);
@@ -4948,6 +5005,101 @@ async function runDecisions() {
   } finally {
     btn.innerHTML = '▶ Executar Motor';
     btn.disabled = false;
+  }
+}
+
+// ─── MULTI-PIXEL CAPI ────────────────────────────────────────────────────────
+async function loadPixels() {
+  var list = document.getElementById('multiPixelList');
+  if (!list) return;
+  try {
+    var resp = await api('GET', '/api/integrations/meta-capi/pixels');
+    var data = resp.data;
+    if (!data || !data.length) {
+      list.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:8px 0">Nenhum pixel adicional configurado ainda.</div>';
+      return;
+    }
+    list.innerHTML = '';
+    data.forEach(function(p) {
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 14px;';
+      var icon = document.createElement('span');
+      icon.style.fontSize = '18px'; icon.textContent = '📡';
+      var info = document.createElement('div');
+      info.style.cssText = 'flex:1;min-width:0';
+      var nm = document.createElement('div');
+      nm.style.cssText = 'font-size:13px;font-weight:600;color:var(--text)';
+      nm.textContent = p.pixel_name || 'Pixel';
+      var id = document.createElement('div');
+      id.style.cssText = 'font-size:11px;color:var(--text3)';
+      id.textContent = 'ID: ' + p.pixel_id;
+      info.appendChild(nm); info.appendChild(id);
+      var badge = document.createElement('span');
+      badge.className = 'int-badge ' + (p.is_active ? 'connected' : 'disconnected');
+      badge.textContent = p.is_active ? '● Ativo' : '○ Inativo';
+      var btn = document.createElement('button');
+      btn.className = 'btn btn-ghost btn-sm';
+      btn.style.cssText = 'color:var(--red);padding:4px 10px;font-size:11px;';
+      btn.textContent = '🗑 Remover';
+      btn.addEventListener('click', (function(pid){ return function(){ removePixel(pid); }; })(p.pixel_id));
+      row.appendChild(icon); row.appendChild(info); row.appendChild(badge); row.appendChild(btn);
+      list.appendChild(row);
+    });
+  } catch(e) {
+    if (list) list.innerHTML = '<div style="font-size:12px;color:var(--text3)">Erro ao carregar pixels.</div>';
+  }
+}
+
+async function addPixel() {
+  const pixelId  = (document.getElementById('newPixelId')?.value || '').trim();
+  const token    = (document.getElementById('newPixelToken')?.value || '').trim();
+  const name     = (document.getElementById('newPixelName')?.value || '').trim();
+  const msgEl    = document.getElementById('multiPixelMsg');
+  if (!pixelId || !token) {
+    if (msgEl) msgEl.innerHTML = '<span style="color:var(--red)">Preencha o Pixel ID e o Access Token.</span>';
+    return;
+  }
+  try {
+    if (msgEl) msgEl.innerHTML = '<span class="spinner"></span> Adicionando...';
+    await api('POST', '/api/integrations/meta-capi/pixels', { pixel_id: pixelId, access_token: token, pixel_name: name || ('Pixel ' + pixelId) });
+    if (msgEl) msgEl.innerHTML = '<span style="color:var(--green)">✅ Pixel ' + pixelId + ' adicionado!</span>';
+    document.getElementById('newPixelId').value    = '';
+    document.getElementById('newPixelToken').value = '';
+    document.getElementById('newPixelName').value  = '';
+    await loadPixels();
+  } catch(e) {
+    if (msgEl) msgEl.innerHTML = '<span style="color:var(--red)">Erro: ' + e.message + '</span>';
+  }
+}
+
+async function removePixel(pixelId) {
+  if (!confirm('Remover pixel ' + pixelId + '?')) return;
+  try {
+    await api('DELETE', '/api/integrations/meta-capi/pixels/' + pixelId);
+    await loadPixels();
+  } catch(e) {
+    alert('Erro ao remover: ' + e.message);
+  }
+}
+
+// ─── AI STATUS CHECK ──────────────────────────────────────────────────────
+async function checkAiStatus() {
+  const badge = document.getElementById('aiStatusBadge');
+  if (!badge) return;
+  try {
+    const { data } = await api('GET', '/api/insights/ai-status');
+    if (data.configured) {
+      badge.style.background = '#052e16';
+      badge.style.color = '#86efac';
+      const lastRun = data.last_run ? new Date(data.last_run).toLocaleString('pt-BR') : 'nunca';
+      badge.textContent = '✅ OpenAI configurada — último uso: ' + lastRun;
+    } else {
+      badge.style.background = '#3a0f0f';
+      badge.style.color = '#fca5a5';
+      badge.textContent = '❌ OPENAI_API_KEY ausente no Railway — AI desativada';
+    }
+  } catch(e) {
+    badge.textContent = '⚠️ Não foi possível verificar status da AI';
   }
 }
 
