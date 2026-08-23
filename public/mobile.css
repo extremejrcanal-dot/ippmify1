@@ -1,0 +1,67 @@
+/* IPPMIFY - Otimizacao Mobile. Nao afeta desktop (>768px). */
+#ippTopBar { display:none; position:fixed; top:0; left:0; right:0; height:calc(env(safe-area-inset-top,0px) + 54px); padding:env(safe-area-inset-top,0px) 56px 0; background:rgba(15,34,54,.93); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-bottom:1px solid var(--border); z-index:140; align-items:center; justify-content:center; }
+#ippTopBar .itb-title { font-family:'Sora',sans-serif; font-size:15px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#ippBottomNav { display:none; position:fixed; bottom:0; left:0; right:0; background:rgba(15,34,54,.95); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); border-top:1px solid var(--border); z-index:140; padding-bottom:env(safe-area-inset-bottom,0px); }
+#ippBottomNav .ibn-item { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding:9px 2px 8px; cursor:pointer; color:var(--text3); border:none; background:none; font-family:'Montserrat',sans-serif; position:relative; transition:.15s; }
+#ippBottomNav .ibn-icon { font-size:19px; line-height:1; }
+#ippBottomNav .ibn-lbl { font-size:9.5px; font-weight:600; }
+#ippBottomNav .ibn-item.active { color:var(--blue); }
+#ippBottomNav .ibn-item.active::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:26px; height:3px; background:var(--blue); border-radius:0 0 3px 3px; }
+.ipp-scrollhint { display:none; font-size:10.5px; color:var(--text3); margin:0 0 6px; letter-spacing:.2px; }
+@media (max-width: 768px) {
+  html { -webkit-text-size-adjust:100%; }
+  body { overflow-x:hidden; overscroll-behavior-y:contain; }
+  * { -webkit-tap-highlight-color:rgba(20,110,245,.15); }
+  #ippTopBar, #ippBottomNav { display:flex !important; }
+  .ipp-scrollhint { display:block; }
+  #mobileMenuBtn { display:flex !important; position:fixed !important; left:10px !important; top:env(safe-area-inset-top,0px) !important; margin-top:7px; width:40px; height:40px; font-size:19px; border-radius:12px; z-index:200; }
+  .main { margin-left:0 !important; padding:calc(env(safe-area-inset-top,0px) + 66px) 12px calc(env(safe-area-inset-bottom,0px) + 74px) !important; }
+  .sidebar { width:min(84vw,300px) !important; padding-top:env(safe-area-inset-top,0px); }
+  .sidebar-nav { padding-bottom:24px; }
+  .nav-item { padding:13px 14px; font-size:14px; border-radius:12px; }
+  .nav-icon { font-size:18px; }
+  .page-header { flex-direction:column; align-items:flex-start; gap:10px; margin-bottom:16px; }
+  .page-title { font-size:19px !important; line-height:1.25; }
+  .page-subtitle { font-size:11.5px; }
+  .page-actions { width:100%; flex-wrap:wrap; gap:8px; }
+  .page-actions .btn { flex:1 1 auto; min-width:44%; justify-content:center; }
+  .card { padding:15px !important; border-radius:14px; }
+  .card-title { font-size:13.5px; margin-bottom:12px; }
+  .metrics-row { grid-template-columns:repeat(2,1fr) !important; gap:9px !important; margin-bottom:14px; }
+  .dash-grid-2, .dash-grid-3, .dash-grid-bot, .camp-two-panel, .report-grid, .bmodal-impact, .aff-how, .wiz-plat-btns { grid-template-columns:1fr !important; gap:12px !important; }
+  .camp-kpis { grid-template-columns:repeat(2,1fr) !important; gap:9px !important; }
+  .prod-grid, .plan-cards, .tut-steps, .aff-mat, .mkt-grid, .support-channels, .int-soon-grid { grid-template-columns:1fr !important; gap:10px !important; }
+  div[style*="repeat(4,1fr)"], div[style*="repeat(4, 1fr)"], div[style*="repeat(3,1fr)"], div[style*="repeat(3, 1fr)"] { grid-template-columns:repeat(2,1fr) !important; gap:8px !important; }
+  .metric-card { padding:13px 12px !important; border-radius:13px; }
+  .metric-card .mc-value { font-size:19px !important; line-height:1.15; }
+  .metric-card .mc-label { font-size:10px; }
+  .mc-trend { font-size:9.5px; padding:2px 7px; }
+  .detail-row { padding:10px 12px !important; }
+  .detail-row div[style*="font-size:16px"] { font-size:15px !important; }
+  .dash-health-bar { flex-direction:column; align-items:flex-start; gap:12px; padding:14px 16px; }
+  .dhb-pills { width:100%; }
+  .donut-wrap { height:150px !important; }
+  canvas { max-width:100% !important; }
+  .top-camp-table-wrap, .table-wrap, div[style*="overflow-x:auto"] { overflow-x:auto !important; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+  .top-camp-table-wrap::-webkit-scrollbar, .table-wrap::-webkit-scrollbar, div[style*="overflow-x:auto"]::-webkit-scrollbar { display:none; }
+  .top-camp-table { min-width:560px; }
+  .top-camp-table th, .top-camp-table td { font-size:11.5px !important; padding:9px 8px !important; white-space:nowrap; }
+  .top-camp-table td:first-child { max-width:130px !important; }
+  #campDetailPanel table, #adsSubPanel table { min-width:660px; }
+  #campDetailPanel th, #campDetailPanel td, #adsSubPanel th, #adsSubPanel td { white-space:nowrap; font-size:11.5px !important; padding:9px 7px !important; }
+  #campDetailPanel td:first-child, #adsSubPanel td:first-child { max-width:150px; overflow:hidden; text-overflow:ellipsis; }
+  .camp-detail-panel { height:auto !important; max-height:none !important; }
+  .camp-detail-empty { height:220px !important; }
+  input, select, textarea, .int-input { font-size:16px !important; padding:12px 14px !important; border-radius:11px !important; }
+  input[type=checkbox], input[type=radio] { font-size:inherit !important; padding:0 !important; min-height:0 !important; }
+  .tog input, .ios-tog input, .tog-slider input { font-size:0 !important; padding:0 !important; }
+  label, .form-label { font-size:12.5px; }
+  .btn { font-size:14px !important; padding:12px 18px !important; min-height:44px; border-radius:11px; }
+  .btn-sm { font-size:12px !important; padding:9px 14px !important; min-height:38px; }
+  .bmodal-overlay, .wizard-overlay { padding:0 !important; align-items:flex-end !important; }
+  .bmodal, .wizard-box, .bmodal-overlay > div, .wizard-overlay > div { width:100% !important; max-width:100% !important; max-height:92vh !important; border-radius:20px 20px 0 0 !important; padding-bottom:calc(env(safe-area-inset-bottom,0px) + 16px) !important; }
+  .trial-banner { flex-direction:column; gap:8px; padding:11px 14px; font-size:12px; text-align:center; }
+  .int-card, .int-block { padding:14px !important; }
+  .int-guide-step { font-size:12px; }
+  .auth-box { padding:30px 22px !important; margin:14px; max-width:100% !important; }
+}
