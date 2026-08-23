@@ -65,3 +65,8 @@
   .int-guide-step { font-size:12px; }
   .auth-box { padding:30px 22px !important; margin:14px; max-width:100% !important; }
 }
+
+@media (max-width: 768px) {
+  body:not(.ipp-logged) #ippTopBar, body:not(.ipp-logged) #ippBottomNav, body:not(.ipp-logged) #mobileMenuBtn { display:none !important; }
+  body:not(.ipp-logged) .main { padding:0 !important; }
+}
