@@ -125,6 +125,7 @@ const sendAlert = async (userId, decision) => {
       results.whatsapp = 'no_key';
       console.warn('[Alert] whatsapp_key ausente — configure em Configurações > Alertas');
     }
+    try { const _push = require('../routes/push'); if (_push && _push.sendPushToUser) { const _snap = decision.data_snapshot || {}; const _n = await _push.sendPushToUser(userId, 'IPPMIFY: ' + (decision.title || decision.type || 'Alerta'), _snap.display_text || decision.reason || decision.motivo || decision.title || 'Nova decisao automatica.', { tag: 'ippmify-decision' }); if (_n > 0) { results.push = 'sent'; } } } catch (e) { console.warn('[Alert] Push falhou:', e.message); }
 
     const sgMail = getSendGrid();
     if (user.email && sgMail) {
@@ -244,6 +245,7 @@ ${profitEmoji} Lucro: R$ ${profit}
   try {
     await sendCallMeBot(user.whatsapp, user.whatsapp_key, message);
     console.log(`[Alert] Relatório WhatsApp enviado para ${user.whatsapp}`);
+    try { const _push = require('../routes/push'); if (_push && _push.sendPushToUser) { await _push.sendPushToUser(userId, 'IPPMIFY - Relatorio Diario', 'Vendas: ' + sales + ' | Receita: R$ ' + rev + ' | Lucro: R$ ' + profit + ' | ROAS: ' + roas + 'x', { tag: 'ippmify-daily' }); } } catch (e) { console.warn('[Alert] Push diario falhou:', e.message); }
   } catch (err) {
     console.error(`[Alert] Relatório WhatsApp falhou para ${user.whatsapp}:`, err.message);
   }
