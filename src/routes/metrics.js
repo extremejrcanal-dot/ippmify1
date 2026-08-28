@@ -111,7 +111,13 @@ router.get('/tree', async (req, res) => {
         COALESCE(AVG(NULLIF(am.cpc, 0)), 0)::numeric          AS cpc,
         COALESCE(SUM(am.ic_count), 0)::integer                AS ic_count,
         -- pixel_purchase_count: fallback de conversoes quando nao ha webhook
-        COALESCE(SUM(am.pixel_purchase_count), 0)::integer    AS pixel_purchase_count
+        COALESCE(SUM(am.pixel_purchase_count), 0)::integer    AS pixel_purchase_count,
+                COALESCE(SUM(am.pixel_purchase_value), 0)::numeric    AS pixel_purchase_value,
+                        COALESCE(SUM(am.atc_count), 0)::integer               AS atc_count,
+                                COALESCE(SUM(am.lead_count), 0)::integer              AS lead_count,
+                                        COALESCE(SUM(am.lp_views), 0)::integer                AS lp_views,
+                                                COALESCE(SUM(am.link_clicks), 0)::integer             AS link_clicks,
+                                                        COALESCE(AVG(NULLIF(am.frequency, 0)), 0)::numeric    AS frequency
       FROM campaigns c
       LEFT JOIN ad_metrics am
         ON am.campaign_id = c.id
@@ -142,7 +148,15 @@ router.get('/tree', async (req, res) => {
           COALESCE(SUM(asm.reach), 0)::integer           AS reach,
           COALESCE(AVG(NULLIF(asm.cpm, 0)), 0)::numeric  AS cpm,
           COALESCE(AVG(NULLIF(asm.ctr, 0)), 0)::numeric  AS ctr,
-          COALESCE(AVG(NULLIF(asm.cpc, 0)), 0)::numeric  AS cpc
+          COALESCE(AVG(NULLIF(asm.cpc, 0)), 0)::numeric  AS cpc,
+                    COALESCE(SUM(asm.pixel_purchase_count), 0)::integer AS conversions,
+                              COALESCE(SUM(asm.pixel_purchase_value), 0)::numeric AS revenue,
+                                        COALESCE(SUM(asm.ic_count), 0)::integer        AS ic_count,
+                                                  COALESCE(SUM(asm.atc_count), 0)::integer       AS atc_count,
+                                                            COALESCE(SUM(asm.lead_count), 0)::integer      AS lead_count,
+                                                                      COALESCE(SUM(asm.lp_views), 0)::integer        AS lp_views,
+                                                                                COALESCE(SUM(asm.link_clicks), 0)::integer     AS link_clicks,
+                                                                                          COALESCE(AVG(NULLIF(asm.frequency, 0)), 0)::numeric AS frequency
         FROM ad_sets ads
         LEFT JOIN ad_set_metrics asm
           ON asm.ad_set_id = ads.id
@@ -194,7 +208,15 @@ router.get('/tree', async (req, res) => {
           COALESCE(SUM(alm.reach), 0)::integer           AS reach,
           COALESCE(AVG(NULLIF(alm.cpm, 0)), 0)::numeric  AS cpm,
           COALESCE(AVG(NULLIF(alm.ctr, 0)), 0)::numeric  AS ctr,
-          COALESCE(AVG(NULLIF(alm.cpc, 0)), 0)::numeric  AS cpc
+          COALESCE(AVG(NULLIF(alm.cpc, 0)), 0)::numeric  AS cpc,
+                    COALESCE(SUM(alm.pixel_purchase_count), 0)::integer AS conversions,
+                              COALESCE(SUM(alm.pixel_purchase_value), 0)::numeric AS revenue,
+                                        COALESCE(SUM(alm.ic_count), 0)::integer        AS ic_count,
+                                                  COALESCE(SUM(alm.atc_count), 0)::integer       AS atc_count,
+                                                            COALESCE(SUM(alm.lead_count), 0)::integer      AS lead_count,
+                                                                      COALESCE(SUM(alm.lp_views), 0)::integer        AS lp_views,
+                                                                                COALESCE(SUM(alm.link_clicks), 0)::integer     AS link_clicks,
+                                                                                          COALESCE(AVG(NULLIF(alm.frequency, 0)), 0)::numeric AS frequency
         FROM ads a
         LEFT JOIN ad_level_metrics alm
           ON alm.ad_id = a.id
