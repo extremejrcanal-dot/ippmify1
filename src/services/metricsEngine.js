@@ -53,61 +53,74 @@ const calculateOverview = async (userId, days = 7) => {
   // Isso garante que campanhas com webhook usem so webhook, e as sem
   // webhook ainda mostrem as conversoes do pixel
   const result = await query(`
-    WITH campaign_metrics AS (
-      SELECT
-        c.id,
-        COALESCE(SUM(am.spend), 0)                              AS spend,
-        COALESCE(SUM(am.impressions), 0)                        AS impressions,
-        COALESCE(SUM(am.clicks), 0)                             AS clicks,
-        COUNT(DISTINCT s.id) FILTER (WHERE s.id IS NOT NULL)   AS webhook_conv,
-        COALESCE(SUM(s.net_revenue), 0)                         AS revenue,
-        COALESCE(SUM(am.pixel_purchase_count), 0)               AS pixel_conv
-      FROM campaigns c
-      LEFT JOIN ad_metrics am
-        ON am.campaign_id = c.id
-        AND am.date >= CURRENT_DATE - INTERVAL '${days - 1} days'
-      LEFT JOIN sales s
-        ON s.utm_campaign = c.external_id
-        AND s.user_id = c.user_id
-        AND s.status = 'approved'
-        AND DATE(s.sale_date) >= CURRENT_DATE - INTERVAL '${days - 1} days'
-      WHERE c.user_id = $1
-      GROUP BY c.id
-    ),
-    refund_data AS (
-      SELECT COALESCE(SUM(gross_revenue), 0) AS total_refunds
-      FROM sales
-      WHERE user_id = $1
-        AND status = 'refunded'
-        AND DATE(sale_date) >= CURRENT_DATE - INTERVAL '${days - 1} days'
-    )
-    SELECT
-      COALESCE(SUM(cm.spend), 0)       AS total_spend,
-      COALESCE(SUM(cm.revenue), 0)     AS total_revenue,
-      COALESCE(SUM(cm.impressions), 0) AS total_impressions,
-      COALESCE(SUM(cm.clicks), 0)      AS total_clicks,
-      -- Dedup: por campanha escolhe webhook ou pixel, nunca os dois
-      COALESCE(SUM(
-        CASE WHEN cm.webhook_conv > 0 THEN cm.webhook_conv ELSE cm.pixel_conv END
-      ), 0) AS total_conversions,
-      rd.total_refunds
-    FROM campaign_metrics cm
-    CROSS JOIN refund_data rd
-    GROUP BY rd.total_refunds
-  `, [userId]);
+      WITH bounds AS (
+            SELECT ((NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '${days - 1} days')::date AS d0,
+                         (NOW() AT TIME ZONE 'America/Sao_Paulo')::date AS d1
+                             ),
+                                 ad_totals AS (
+                                       SELECT
+                                               COALESCE(SUM(am.spend), 0)                  AS spend,
+                                                       COALESCE(SUM(am.impressions), 0)            AS impressions,
+                                                               COALESCE(SUM(am.clicks), 0)                 AS clicks,
+                                                                       COALESCE(SUM(am.pixel_purchase_count), 0)   AS pixel_conv,
+                                                                               COALESCE(SUM(am.pixel_purchase_value), 0)   AS pixel_revenue
+                                                                                     FROM ad_metrics am, bounds b
+                                                                                           WHERE am.user_id = $1
+                                                                                                   AND am.date BETWEEN b.d0 AND b.d1
+                                                                                                       ),
+                                                                                                           sale_totals AS (
+                                                                                                                 SELECT
+                                                                                                                         COUNT(*) FILTER (WHERE s.status = 'approved')                          AS approved_count,
+                                                                                                                                 COALESCE(SUM(s.net_revenue) FILTER (WHERE s.status = 'approved'), 0)   AS approved_revenue,
+                                                                                                                                         COUNT(*) FILTER (WHERE s.status = 'pending')                           AS pending_count,
+                                                                                                                                                 COALESCE(SUM(s.net_revenue) FILTER (WHERE s.status = 'pending'), 0)    AS pending_revenue,
+                                                                                                                                                         COALESCE(SUM(s.gross_revenue) FILTER (WHERE s.status = 'refunded'), 0) AS total_refunds
+                                                                                                                                                               FROM sales s, bounds b
+                                                                                                                                                                     WHERE s.user_id = $1
+                                                                                                                                                                             AND (s.sale_date AT TIME ZONE 'America/Sao_Paulo')::date BETWEEN b.d0 AND b.d1
+                                                                                                                                                                                 )
+                                                                                                                                                                                     SELECT
+                                                                                                                                                                                           at.spend            AS total_spend,
+                                                                                                                                                                                                 at.impressions      AS total_impressions,
+                                                                                                                                                                                                       at.clicks           AS total_clicks,
+                                                                                                                                                                                                             at.pixel_conv       AS pixel_conversions,
+                                                                                                                                                                                                                   at.pixel_revenue    AS pixel_revenue,
+                                                                                                                                                                                                                         st.approved_count   AS sale_conversions,
+                                                                                                                                                                                                                               st.approved_revenue AS sale_revenue,
+                                                                                                                                                                                                                                     st.pending_count    AS pending_conversions,
+                                                                                                                                                                                                                                           st.pending_revenue  AS pending_revenue,
+                                                                                                                                                                                                                                                 st.total_refunds    AS total_refunds
+                                                                                                                                                                                                                                                     FROM ad_totals at CROSS JOIN sale_totals st
+                                                                                                                                                                                                                                                       `, [userId]);
 
-  const row = result.rows[0] || {
-    total_spend: 0, total_revenue: 0, total_impressions: 0,
-    total_clicks: 0, total_conversions: 0, total_refunds: 0,
-  };
+    const row = result.rows[0] || {
+          total_spend: 0, total_impressions: 0, total_clicks: 0,
+          pixel_conversions: 0, pixel_revenue: 0,
+          sale_conversions: 0, sale_revenue: 0,
+          pending_conversions: 0, pending_revenue: 0, total_refunds: 0,
+    };
 
-  const metrics = calculateMetrics(
-    parseFloat(row.total_spend),
-    parseFloat(row.total_revenue),
-    parseInt(row.total_conversions),
-    parseInt(row.total_impressions),
-    parseInt(row.total_clicks)
-  );
+    // Fonte da verdade: vendas via webhook. Pixel entra apenas como fallback
+    // quando nao existe nenhuma venda registrada no periodo.
+    const saleConv  = parseInt(row.sale_conversions || 0);
+    const saleRev   = parseFloat(row.sale_revenue || 0);
+    const pixelConv = parseInt(row.pixel_conversions || 0);
+    const pixelRev  = parseFloat(row.pixel_revenue || 0);
+    const useWebhook  = saleConv > 0 || saleRev > 0;
+    const revenue     = useWebhook ? saleRev  : pixelRev;
+    const conversions = useWebhook ? saleConv : pixelConv;
+
+    const metrics = calculateMetrics(
+          parseFloat(row.total_spend),
+          revenue,
+          conversions,
+          parseInt(row.total_impressions),
+          parseInt(row.total_clicks)
+        );
+
+    metrics.revenue_source      = useWebhook ? 'webhook' : ((pixelRev > 0 || pixelConv > 0) ? 'pixel' : 'none');
+    metrics.pending_conversions = parseInt(row.pending_conversions || 0);
+    metrics.pending_revenue     = parseFloat(row.pending_revenue || 0);
 
   metrics.total_refunds = parseFloat(row.total_refunds);
   metrics.refund_rate   = metrics.conversions > 0
@@ -139,12 +152,12 @@ const calculateByCampaign = async (userId, days = 7) => {
     FROM campaigns c
     LEFT JOIN ad_metrics am
       ON am.campaign_id = c.id
-      AND am.date >= CURRENT_DATE - INTERVAL '${days - 1} days'
+            AND am.date >= (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '${days - 1} days'
     LEFT JOIN sales s
       ON s.utm_campaign = c.external_id
       AND s.status = 'approved'
       AND s.user_id = c.user_id
-      AND DATE(s.sale_date) >= CURRENT_DATE - INTERVAL '${days - 1} days'
+            AND DATE(s.sale_date) >= (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '${days - 1} days'
     WHERE c.user_id = $1
     GROUP BY c.id, c.name, c.external_id, c.status, c.daily_budget
     ORDER BY total_spend DESC
@@ -198,7 +211,7 @@ const calculateDailyHistory = async (userId, campaignId = null, days = 30) => {
       AND s.status = 'approved'
       AND DATE(s.sale_date) = am.date
     WHERE am.user_id = $1
-      AND am.date >= CURRENT_DATE - INTERVAL '${days} days'
+            AND am.date >= (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '${days} days'
       ${campaignFilter}
     GROUP BY am.date
     ORDER BY am.date ASC
