@@ -139,7 +139,7 @@ router.get('/', async (req, res) => {
         FROM ad_metrics am
         JOIN campaigns c ON c.id = am.campaign_id
         WHERE c.user_id = $1
-          AND am.date >= CURRENT_DATE - INTERVAL '1 day' * $2
+                    AND am.date >= (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '1 day' * $2
       `, [req.user.id, days]);
       adRow = adResult.rows[0] || {};
     } catch (_) {
@@ -153,7 +153,7 @@ router.get('/', async (req, res) => {
         FROM ad_metrics am
         JOIN campaigns c ON c.id = am.campaign_id
         WHERE c.user_id = $1
-          AND am.date >= CURRENT_DATE - INTERVAL '1 day' * $2
+                    AND am.date >= (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '1 day' * $2
       `, [req.user.id, days]);
       adRow = adResult.rows[0] || {};
     }
