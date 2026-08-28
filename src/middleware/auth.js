@@ -42,10 +42,13 @@ const requireAuth = async (req, res, next) => {
   }
 };
 
-const generateTokens = (userId) => {
-  const accessToken  = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '15m' });
-  const refreshToken = jwt.sign({ userId, type: 'refresh' }, process.env.JWT_SECRET, { expiresIn: '30d' });
-  return { accessToken, refreshToken };
+const generateTokens = (userId, remember = false) => {
+    // "Manter conectado": access longo + refresh de 1 ano
+    const accessExp  = remember ? '12h'  : '15m';
+    const refreshExp = remember ? '365d' : '30d';
+    const accessToken  = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: accessExp });
+    const refreshToken = jwt.sign({ userId, type: 'refresh', remember }, process.env.JWT_SECRET, { expiresIn: refreshExp });
+    return { accessToken, refreshToken };
 };
 
 module.exports = { requireAuth, generateTokens };
