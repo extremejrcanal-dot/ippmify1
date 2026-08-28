@@ -240,6 +240,7 @@ const syncAds = async (integrationId, userId, accessToken, adAccountId) => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 const syncAdMetrics = async (userId, accessToken, adAccountId, integrationId, daysBack = 7) => {
+      await ensureSchema();
   const since = new Date(); since.setDate(since.getDate() - daysBack);
   const sinceStr = since.toISOString().split('T')[0];
   const untilStr = new Date().toISOString().split('T')[0];
@@ -249,7 +250,7 @@ const syncAdMetrics = async (userId, accessToken, adAccountId, integrationId, da
     response = await axios.get(`${META_BASE_URL}/${adAccountId}/insights`, {
       params: {
         access_token: accessToken,
-        fields: 'campaign_id,spend,impressions,clicks,reach,cpm,ctr,cpc,actions',
+                  fields: 'campaign_id,' + INSIGHT_FIELDS,
         time_range: JSON.stringify({ since: sinceStr, until: untilStr }),
         level: 'campaign', time_increment: 1, limit: 500,
       }
@@ -270,33 +271,39 @@ const syncAdMetrics = async (userId, accessToken, adAccountId, integrationId, da
     );
     if (campResult.rows.length === 0) continue;
 
-    // Extrair eventos de pixel das actions
-    const actions = insight.actions || [];
-    const findAction = (type) => {
-      const a = actions.find(x => x.action_type === type);
-      return a ? parseInt(a.value || 0) : 0;
-    };
-    const icCount            = findAction('initiate_checkout');
-    // offsite_conversion.fb_pixel_purchase = compras rastreadas pelo pixel Meta
-    // Usado como FALLBACK quando nao ha webhook configurado (evita dupla contagem)
-    const pixelPurchaseCount = findAction('offsite_conversion.fb_pixel_purchase');
+        // Extrai todos os eventos de conversao (actions + action_values)
+        const a = parseActions(insight);
+        const icCount            = Math.round(a.ic);
+        const pixelPurchaseCount = Math.round(a.purchases);
 
     // Tentar inserir com ic_count + pixel_purchase_count (requer migracoes SQL)
     // Fallback progressivo caso colunas ainda nao existam
     await query(`
       INSERT INTO ad_metrics
-        (user_id, campaign_id, date, spend, impressions, clicks, reach, cpm, ctr, cpc, ic_count, pixel_purchase_count)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
-      ON CONFLICT (user_id, campaign_id, date) WHERE ad_id IS NULL DO UPDATE SET
-        spend                = EXCLUDED.spend,
-        impressions          = EXCLUDED.impressions,
-        clicks               = EXCLUDED.clicks,
-        reach                = EXCLUDED.reach,
-        cpm                  = EXCLUDED.cpm,
-        ctr                  = EXCLUDED.ctr,
-        cpc                  = EXCLUDED.cpc,
-        ic_count             = EXCLUDED.ic_count,
-        pixel_purchase_count = EXCLUDED.pixel_purchase_count
+                (user_id, campaign_id, date, spend, impressions, clicks, reach, cpm, ctr, cpc, ic_count, pixel_purchase_count,
+                         pixel_purchase_value, ic_value, atc_count, atc_value, lead_count, view_content_count, lp_views, link_clicks, unique_clicks, frequency, video_views)
+                               VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)
+                                     ON CONFLICT (user_id, campaign_id, date) WHERE ad_id IS NULL DO UPDATE SET
+                                             spend                = EXCLUDED.spend,
+                                                     impressions          = EXCLUDED.impressions,
+                                                             clicks               = EXCLUDED.clicks,
+                                                                     reach                = EXCLUDED.reach,
+                                                                             cpm                  = EXCLUDED.cpm,
+                                                                                     ctr                  = EXCLUDED.ctr,
+                                                                                             cpc                  = EXCLUDED.cpc,
+                                                                                                     ic_count             = EXCLUDED.ic_count,
+                                                                                                             pixel_purchase_count = EXCLUDED.pixel_purchase_count,
+                                                                                                                     pixel_purchase_value = EXCLUDED.pixel_purchase_value,
+                                                                                                                             ic_value             = EXCLUDED.ic_value,
+                                                                                                                                     atc_count            = EXCLUDED.atc_count,
+                                                                                                                                             atc_value            = EXCLUDED.atc_value,
+                                                                                                                                                     lead_count           = EXCLUDED.lead_count,
+                                                                                                                                                             view_content_count   = EXCLUDED.view_content_count,
+                                                                                                                                                                     lp_views             = EXCLUDED.lp_views,
+                                                                                                                                                                             link_clicks          = EXCLUDED.link_clicks,
+                                                                                                                                                                                     unique_clicks        = EXCLUDED.unique_clicks,
+                                                                                                                                                                                             frequency            = EXCLUDED.frequency,
+                                                                                                                                                                                                     video_views          = EXCLUDED.video_views
     `, [
       userId,
       campResult.rows[0].id,
@@ -310,6 +317,17 @@ const syncAdMetrics = async (userId, accessToken, adAccountId, integrationId, da
       parseFloat(insight.cpc||0),
       icCount,
       pixelPurchaseCount,
+            a.purchaseVal,
+            a.icVal,
+            Math.round(a.atc),
+            a.atcVal,
+            Math.round(a.leads),
+            Math.round(a.viewContent),
+            Math.round(a.lpViews),
+            parseInt(insight.inline_link_clicks || a.linkClicks || 0),
+            parseInt(insight.unique_clicks || 0),
+            parseFloat(insight.frequency || 0),
+            Math.round(a.videoViews),
     ]).catch(async (err) => {
       // Fallback 1: tentar so com ic_count (sem pixel_purchase_count)
       if (err.message.includes('pixel_purchase_count') || err.message.includes('ic_count')) {
@@ -406,7 +424,7 @@ const syncAdLevelMetrics = async (userId, accessToken, adAccountId, daysBack = 7
   const response = await axios.get(`${META_BASE_URL}/${adAccountId}/insights`, {
     params: {
       access_token: accessToken,
-      fields: 'ad_id,adset_id,campaign_id,spend,impressions,clicks,reach,cpm,ctr,cpc',
+            fields: 'ad_id,adset_id,campaign_id,' + INSIGHT_FIELDS,
       time_range: JSON.stringify({ since: sinceStr, until: untilStr }),
       level: 'ad', time_increment: 1, limit: 2000,
     }
@@ -416,15 +434,23 @@ const syncAdLevelMetrics = async (userId, accessToken, adAccountId, daysBack = 7
     const adResult = await query('SELECT id, ad_set_id, campaign_id FROM ads WHERE user_id=$1 AND external_id=$2', [userId, insight.ad_id]);
     if (adResult.rows.length === 0) continue;
     const { id: adId, ad_set_id: adSetId, campaign_id: campaignId } = adResult.rows[0];
+        const _a = parseActions(insight);
     await query(`
-      INSERT INTO ad_level_metrics (user_id, ad_id, ad_set_id, campaign_id, date, spend, impressions, clicks, reach, cpm, ctr, cpc)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
-      ON CONFLICT (ad_id, date) DO UPDATE SET
-        spend=EXCLUDED.spend, impressions=EXCLUDED.impressions,
-        clicks=EXCLUDED.clicks, cpm=EXCLUDED.cpm, ctr=EXCLUDED.ctr, cpc=EXCLUDED.cpc
-    `, [userId, adId, adSetId, campaignId, insight.date_start,
-        parseFloat(insight.spend||0), parseInt(insight.impressions||0), parseInt(insight.clicks||0),
-        parseInt(insight.reach||0), parseFloat(insight.cpm||0), parseFloat(insight.ctr||0), parseFloat(insight.cpc||0)]).catch(()=>{});
+            INSERT INTO ad_level_metrics (user_id, ad_id, ad_set_id, campaign_id, date, spend, impressions, clicks, reach, cpm, ctr, cpc,
+                    pixel_purchase_count, pixel_purchase_value, ic_count, atc_count, lead_count, lp_views, link_clicks, frequency)
+                          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)
+                                ON CONFLICT (ad_id, date) DO UPDATE SET
+                                        spend=EXCLUDED.spend, impressions=EXCLUDED.impressions,
+                                                clicks=EXCLUDED.clicks, cpm=EXCLUDED.cpm, ctr=EXCLUDED.ctr, cpc=EXCLUDED.cpc,
+                                                        pixel_purchase_count=EXCLUDED.pixel_purchase_count, pixel_purchase_value=EXCLUDED.pixel_purchase_value,
+                                                                ic_count=EXCLUDED.ic_count, atc_count=EXCLUDED.atc_count, lead_count=EXCLUDED.lead_count,
+                                                                        lp_views=EXCLUDED.lp_views, link_clicks=EXCLUDED.link_clicks, frequency=EXCLUDED.frequency
+                                                                            `, [userId, adId, adSetId, campaignId, insight.date_start,
+                                                                                        parseFloat(insight.spend||0), parseInt(insight.impressions||0), parseInt(insight.clicks||0),
+                                                                                        parseInt(insight.reach||0), parseFloat(insight.cpm||0), parseFloat(insight.ctr||0), parseFloat(insight.cpc||0),
+                                                                                        Math.round(_a.purchases), _a.purchaseVal, Math.round(_a.ic), Math.round(_a.atc), Math.round(_a.leads),
+                                                                                        Math.round(_a.lpViews), parseInt(insight.inline_link_clicks||_a.linkClicks||0), parseFloat(insight.frequency||0)
+                                                                                      ]).catch(()=>{});
   }
   console.log(`[Meta] ${insights.length} metricas de anuncios sincronizadas`);
 };
