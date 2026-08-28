@@ -31,6 +31,9 @@ try {
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
+// Railway roda atras de proxy -- necessario para o rate limit identificar o IP real
+app.set('trust proxy', 1);
+
 // --- MIDDLEWARES DE SEGURANCA ---
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
