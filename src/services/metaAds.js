@@ -5,6 +5,59 @@ const { decrypt } = require('./encryptionService');
 const META_API_VERSION = 'v20.0';
 const META_BASE_URL = `https://graph.facebook.com/${META_API_VERSION}`;
 
+// --- AUTO-MIGRACAO: garante colunas de metricas avancadas ---
+let _schemaReady = false;
+const METRIC_COLS = [
+  ['pixel_purchase_count', 'INTEGER DEFAULT 0'],
+  ['pixel_purchase_value', 'NUMERIC(14,4) DEFAULT 0'],
+  ['ic_count',             'INTEGER DEFAULT 0'],
+  ['ic_value',             'NUMERIC(14,4) DEFAULT 0'],
+  ['atc_count',            'INTEGER DEFAULT 0'],
+  ['atc_value',            'NUMERIC(14,4) DEFAULT 0'],
+  ['lead_count',           'INTEGER DEFAULT 0'],
+  ['view_content_count',   'INTEGER DEFAULT 0'],
+  ['lp_views',             'INTEGER DEFAULT 0'],
+  ['link_clicks',          'INTEGER DEFAULT 0'],
+  ['unique_clicks',        'INTEGER DEFAULT 0'],
+  ['frequency',            'NUMERIC(10,4) DEFAULT 0'],
+  ['video_views',          'INTEGER DEFAULT 0'],
+  ];
+const ensureSchema = async () => {
+  if (_schemaReady) return;
+  const tables = ['ad_metrics', 'ad_set_metrics', 'ad_level_metrics'];
+  for (const t of tables) {
+    for (const [col, type] of METRIC_COLS) {
+      await query(`ALTER TABLE ${t} ADD COLUMN IF NOT EXISTS ${col} ${type}`).catch(() => {});
+    }
+  }
+  _schemaReady = true;
+  console.log('[Meta] Schema de metricas avancadas verificado');
+};
+
+// Campos de insights pedidos a API em todos os niveis
+const INSIGHT_FIELDS = ['spend','impressions','clicks','reach','frequency','cpm','ctr','cpc','unique_clicks','inline_link_clicks','actions','action_values'].join(',');
+
+// Extrai todas as metricas de conversao de um insight da Meta
+const parseActions = (insight) => {
+  const actions = insight.actions || [];
+  const values  = insight.action_values || [];
+  const num = (list, type) => { const a = list.find(x => x.action_type === type); return a ? parseFloat(a.value || 0) : 0; };
+  const pick = (list, types) => { for (const t of types) { const v = num(list, t); if (v) return v; } return 0; };
+  return {
+    purchases:   pick(actions, ['offsite_conversion.fb_pixel_purchase','purchase','omni_purchase']),
+    purchaseVal: pick(values,  ['offsite_conversion.fb_pixel_purchase','purchase','omni_purchase']),
+    ic:          pick(actions, ['offsite_conversion.fb_pixel_initiate_checkout','initiate_checkout','omni_initiated_checkout']),
+    icVal:       pick(values,  ['offsite_conversion.fb_pixel_initiate_checkout','initiate_checkout','omni_initiated_checkout']),
+    atc:         pick(actions, ['offsite_conversion.fb_pixel_add_to_cart','add_to_cart','omni_add_to_cart']),
+    atcVal:      pick(values,  ['offsite_conversion.fb_pixel_add_to_cart','add_to_cart','omni_add_to_cart']),
+    leads:       pick(actions, ['offsite_conversion.fb_pixel_lead','lead','onsite_conversion.lead_grouped']),
+    viewContent: pick(actions, ['offsite_conversion.fb_pixel_view_content','view_content']),
+    lpViews:     pick(actions, ['landing_page_view']),
+    linkClicks:  pick(actions, ['link_click']),
+    videoViews:  pick(actions, ['video_view']),
+  };
+};
+
 // ─── GERAR URL DE LOGIN DO META ADS ───────────────────────────────────────
 const getOAuthUrl = (userId) => {
   const params = new URLSearchParams({
@@ -456,4 +509,5 @@ module.exports = {
   syncAdMetrics, syncAdSetMetrics, syncAdLevelMetrics,
   setEntityStatus, pauseEntity, updateDailyBudget,
   syncOneIntegration, runFullSync,
+    ensureSchema,
 };
