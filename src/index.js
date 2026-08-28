@@ -108,7 +108,13 @@ app.listen(PORT, async () => {
   console.log('[Server] Rodando na porta ' + PORT);
   console.log('[Server] Ambiente: ' + (process.env.NODE_ENV || 'development'));
   console.log('');
-  startSyncScheduler();
+    try {
+          const { ensureSchema } = require('./services/metaAds');
+          await ensureSchema();
+    } catch (e) {
+          console.warn('[Server] ensureSchema falhou:', e.message);
+    }
+    startSyncScheduler();
 });
 
 module.exports = app;
