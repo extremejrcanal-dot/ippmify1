@@ -70,3 +70,130 @@ D.addEventListener('DOMContentLoaded', function () { if (build()) { wrapShowTab(
   D.addEventListener('click', function () { setTimeout(gate, 350); }, true);
 window.addEventListener('resize', function () { sync(current()); });
 })();
+
+
+// ===== Sessao persistente + periodo padrao Hoje =====
+(function () {
+  var D = document;
+  var RT = 'ippmify_refresh';
+  var origFetch = window.fetch.bind(window);
+  var refreshing = null;
+
+ function setToken(t) {
+   try { localStorage.setItem('ippmify_token', t); } catch (e) {}
+   try { if (typeof token !== 'undefined') { token = t; } } catch (e) {}
+   try { window.token = t; } catch (e) {}
+ }
+
+ function doRefresh() {
+   var rt = null;
+   try { rt = localStorage.getItem(RT); } catch (e) {}
+   if (!rt) { return Promise.resolve(false); }
+   if (refreshing) { return refreshing; }
+   refreshing = origFetch('/api/auth/refresh', {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json' },
+     body: JSON.stringify({ refreshToken: rt })
+   }).then(function (r) {
+     if (!r.ok) { try { localStorage.removeItem(RT); } catch (e) {} return false; }
+     return r.json().then(function (d) {
+       if (d && d.accessToken) { setToken(d.accessToken); }
+       if (d && d.refreshToken) { try { localStorage.setItem(RT, d.refreshToken); } catch (e) {} }
+       return !!(d && d.accessToken);
+     });
+   }).catch(function () { return false; }).then(function (ok) { refreshing = null; return ok; });
+   return refreshing;
+ }
+
+ window.fetch = function (input, init) {
+   var url = (typeof input === 'string') ? input : (input && input.url) || '';
+   init = init || {};
+
+   // Login/registro: injeta "manter conectado" e guarda o refresh token
+   var isAuthPost = url.indexOf('/api/auth/login') > -1 || url.indexOf('/api/auth/register') > -1;
+   if (isAuthPost && init.body && typeof init.body === 'string') {
+     try {
+       var b = JSON.parse(init.body);
+       var cb = D.getElementById('loginRemember');
+       b.remember = cb ? !!cb.checked : true;
+       init.body = JSON.stringify(b);
+     } catch (e) {}
+   }
+
+   return origFetch(input, init).then(function (res) {
+     if (isAuthPost && res.ok) {
+       var c = res.clone();
+       c.json().then(function (d) {
+         if (d && d.refreshToken) { try { localStorage.setItem(RT, d.refreshToken); } catch (e) {} }
+       }).catch(function () {});
+       return res;
+     }
+     // Token expirado: renova e repete uma vez
+                                      if (res.status === 401 && url.indexOf('/api/') > -1 && url.indexOf('/api/auth/') === -1 && !init.__retried) {
+                                        return doRefresh().then(function (ok) {
+                                          if (!ok) { return res; }
+                                          var ni = {};
+                                          for (var k in init) { ni[k] = init[k]; }
+                                          ni.__retried = true;
+                                          ni.headers = ni.headers || {};
+                                          var tk = null;
+                                          try { tk = localStorage.getItem('ippmify_token'); } catch (e) {}
+                                          if (tk) {
+                                            if (ni.headers instanceof Headers) { ni.headers.set('Authorization', 'Bearer ' + tk); }
+                                            else { ni.headers['Authorization'] = 'Bearer ' + tk; }
+                                          }
+                                          return origFetch(input, ni);
+                                        });
+                                      }
+     return res;
+   });
+ };
+
+ // Limpa o refresh token no logout
+ var origLogout = window.logout;
+  if (typeof origLogout === 'function') {
+    window.logout = function () { try { localStorage.removeItem(RT); } catch (e) {} return origLogout.apply(this, arguments); };
+  }
+
+ // Checkbox "manter conectado" no login
+ function addRemember() {
+   if (D.getElementById('loginRemember')) { return true; }
+   var msg = D.getElementById('loginMsg');
+   if (!msg) { return false; }
+   var lab = D.createElement('label');
+   lab.setAttribute('for', 'loginRemember');
+   lab.style.cssText = 'display:flex;align-items:center;gap:9px;margin:2px 0 14px;cursor:pointer;user-select:none;';
+   var cb = D.createElement('input');
+   cb.type = 'checkbox'; cb.id = 'loginRemember'; cb.checked = true;
+   cb.style.cssText = 'width:17px;height:17px;accent-color:var(--blue);cursor:pointer;flex:0 0 auto;padding:0;margin:0;min-height:0;';
+   var sp = D.createElement('span');
+   sp.style.cssText = 'font-size:13px;color:var(--text2);';
+   sp.textContent = 'Manter conectado neste dispositivo';
+   lab.appendChild(cb); lab.appendChild(sp);
+   msg.parentNode.insertBefore(lab, msg);
+   return true;
+ }
+
+ // Dashboard e campanhas abrem em Hoje
+ var defaultsDone = false;
+  function applyDefaults() {
+    if (defaultsDone) { return; }
+    var dd = D.getElementById('dashDays');
+    if (dd && dd.value !== '1') {
+      dd.value = '1';
+      defaultsDone = true;
+      try { dd.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {}
+    }
+    var cp = D.getElementById('campPeriod');
+    if (cp && cp.value !== 'today') { cp.value = 'today'; }
+  }
+
+ var k = 0;
+  var t2 = setInterval(function () {
+    k++;
+    addRemember();
+    applyDefaults();
+    if (k > 40) { clearInterval(t2); }
+  }, 700);
+  D.addEventListener('DOMContentLoaded', function () { addRemember(); applyDefaults(); });
+})();
