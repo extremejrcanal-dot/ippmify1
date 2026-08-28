@@ -20,13 +20,13 @@ const pushRoutes = require('./routes/push');
 // webhooks -- carregado opcionalmente para nao crashar se arquivo nao existir
 let webhooksRoutes = null;
 try {
-  webhooksRoutes = require('./routes/webhooks');
+    webhooksRoutes = require('./routes/webhook');
 } catch (e) {
   console.warn('[Server] webhooks.js nao encontrado -- rota /api/webhook desativada');
 }
 
 // Workers
-const { startSyncScheduler } = require('./workers/syncWorker');
+  const { startSyncScheduler } = require('./workers/syncWorker');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
