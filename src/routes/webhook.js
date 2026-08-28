@@ -198,6 +198,11 @@ const normalizeStatus = (platform, rawStatus) => {
 };
 
 const saveSale = async (userId, integrationId, d) => {
+    const _prev = await query(
+          'SELECT status FROM sales WHERE user_id=$1 AND platform=$2 AND external_id=$3',
+          [userId, d.platform, String(d.externalId).slice(0,255)]
+        ).catch(function(){ return { rows: [] }; });
+    const prevStatus = _prev.rows[0] ? _prev.rows[0].status : null;
   await query(`
     INSERT INTO sales
       (user_id, integration_id, external_id, platform, product_id, product_name,
@@ -229,6 +234,24 @@ const saveSale = async (userId, integrationId, d) => {
     String(d.utmContent||'').slice(0,255),
     d.saleDate ? new Date(d.saleDate) : new Date(),
   ]);
+
+    // Notificacao push -- so quando o status muda (evita repetir no reenvio)
+    if (d.status !== prevStatus) {
+          try {
+                  const push = require('./push');
+                  if (push && push.sendPushToUser) {
+                            const val = Number(d.netRevenue || d.grossRevenue || 0);
+                            const money = 'R$ ' + val.toFixed(2).replace('.', ',');
+                            const prod = String(d.productName || 'Produto').slice(0, 60);
+                            let title = null, body = null;
+                            if (d.status === 'approved') { title = 'Venda aprovada - ' + money; body = prod + ' | ' + String(d.platform || '').toUpperCase(); }
+                            else if (d.status === 'pending') { title = 'Venda pendente - ' + money; body = prod + ' | aguardando pagamento'; }
+                            else if (d.status === 'refunded') { title = 'Reembolso - ' + money; body = prod + ' | venda estornada'; }
+                            else if (d.status === 'chargeback') { title = 'Chargeback - ' + money; body = prod + ' | contestacao recebida'; }
+                            if (title) { await push.sendPushToUser(userId, title, body, { tag: 'venda-' + d.status, url: '/' }); }
+                  }
+          } catch (e) { console.warn('[Webhook] Push falhou:', e.message); }
+    }
 };
 
 const getIntegration = async (integrationId, platform) => {
