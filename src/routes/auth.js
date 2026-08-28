@@ -36,7 +36,7 @@ router.post('/register', async (req, res) => {
       [name.trim(), email.toLowerCase().trim(), hashedPassword, trialExpiresAt]
     );
     const user = result.rows[0];
-    const { accessToken, refreshToken } = generateTokens(user.id);
+        const { accessToken, refreshToken } = generateTokens(user.id, !!(req.body && req.body.remember));
     res.status(201).json({
       message: 'Conta criada com sucesso', accessToken, refreshToken,
       user: { id: user.id, name: user.name, email: user.email, plan: user.plan },
@@ -71,7 +71,7 @@ router.post('/login', async (req, res) => {
     if (!passwordMatch)
       return res.status(401).json({ error: 'E-mail ou senha incorretos' });
 
-    const { accessToken, refreshToken } = generateTokens(user.id);
+        const { accessToken, refreshToken } = generateTokens(user.id, !!(req.body && req.body.remember));
     res.json({
       message: 'Login realizado com sucesso', accessToken, refreshToken,
       user: {
@@ -98,7 +98,7 @@ router.post('/refresh', async (req, res) => {
     if (decoded.type !== 'refresh') return res.status(401).json({ error: 'Token invalido' });
     const result = await query('SELECT id FROM users WHERE id = $1 AND is_active = true', [decoded.userId]);
     if (result.rows.length === 0) return res.status(401).json({ error: 'Usuario nao encontrado' });
-    const { accessToken, refreshToken: newRefreshToken } = generateTokens(decoded.userId);
+        const { accessToken, refreshToken: newRefreshToken } = generateTokens(decoded.userId, !!decoded.remember);
     res.json({ accessToken, refreshToken: newRefreshToken });
   } catch (error) {
     console.error('[Auth] Erro ao renovar token:', error.message);
