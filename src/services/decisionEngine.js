@@ -88,7 +88,7 @@ const getSalesHistory7d = async (userId, campaignExternalId) => {
   try {
     const result = await query(`
       SELECT
-        DATE(s.sale_date) AS date,
+                am.date AS date,
         COALESCE(SUM(s.net_revenue), 0) AS revenue,
         COUNT(s.id) AS conversions,
         CASE WHEN SUM(am.spend) > 0
