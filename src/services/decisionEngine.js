@@ -77,8 +77,8 @@ const getCampaignHistory7d = async (userId, campaignExternalId) => {
     JOIN campaigns c ON c.id = am.campaign_id
     WHERE c.user_id = $1
       AND c.external_id = $2
-      AND am.date >= CURRENT_DATE - INTERVAL '7 days'
-      AND am.date < CURRENT_DATE
+            AND am.date >= (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '7 days'
+                  AND am.date < (NOW() AT TIME ZONE 'America/Sao_Paulo')::date
     GROUP BY am.date ORDER BY am.date DESC
   `, [userId, campaignExternalId]);
   return result.rows;
@@ -102,8 +102,8 @@ const getSalesHistory7d = async (userId, campaignExternalId) => {
         AND DATE(s.sale_date) = am.date
       WHERE c.user_id = $1
         AND c.external_id = $2
-        AND am.date >= CURRENT_DATE - INTERVAL '7 days'
-        AND am.date < CURRENT_DATE
+                AND am.date >= (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '7 days'
+                        AND am.date < (NOW() AT TIME ZONE 'America/Sao_Paulo')::date
       GROUP BY am.date ORDER BY am.date DESC
     `, [userId, campaignExternalId]);
     return result.rows;
