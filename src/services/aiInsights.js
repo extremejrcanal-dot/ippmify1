@@ -235,7 +235,7 @@ const generateInsights = async (userId, days = 7) => {
          ) AS taxa_reembolso
        FROM sales
        WHERE user_id = $1
-         AND sale_date >= CURRENT_DATE - INTERVAL '${days - 1} days'
+                  AND sale_date >= (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '${days - 1} days'
        GROUP BY product_name
        ORDER BY receita_liquida DESC NULLS LAST
        LIMIT 8`,
